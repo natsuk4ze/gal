@@ -1,6 +1,6 @@
 ## 0.0.5
 
-* Update: update README 
+* UPDATE: update README 
 
 ## 0.0.4
 
