@@ -40,22 +40,10 @@ class MyApp extends StatelessWidget {
                 },
                 child: const Text('Put Video'),
               ),
-             
             ],
           ),
         ),
       ),
     );
   }
-}
-
-Future<String> getVideoPathFromAssets(String asset) async {
-  final byteData = await rootBundle.load(asset);
-
-  final tempDir = await getTemporaryDirectory();
-  final file = await File('${tempDir.path}/video.mp4').create();
-  await file.writeAsBytes(byteData.buffer
-      .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
-
-  return file.path;
 }
