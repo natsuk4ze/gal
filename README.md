@@ -1,5 +1,10 @@
 # Gal💚
 
+[![pub points](https://img.shields.io/pub/points/gal?color=2E8B57&label=pub%20points)](https://pub.dev/packages/gal/score)
+![CI](https://github.com/Midori-Design-Studio/gal/actions/workflows/analyze.yml/badge.svg?branch=main)
+[![License](https://img.shields.io/badge/license-BSD3-blue.svg)](LICENSE)
+[![pub package](https://img.shields.io/pub/v/gal.svg)](https://pub.dev/packages/gal)
+
 Hi👋 Gal is Flutter Plugin for handle native gallery apps.
 
 ## Features
