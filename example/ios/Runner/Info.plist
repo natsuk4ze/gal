@@ -4,7 +4,7 @@
 <dict>
 	<!-- gal -->
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>We need access to gallery to save videos</string>
+	<string>We need add only access to save videos</string>
 	<!-- gal -->
 
 	<key>CFBundleDevelopmentRegion</key>
