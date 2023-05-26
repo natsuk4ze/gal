@@ -1,0 +1,42 @@
+name: gal
+description: null
+version: 0.0.1
+homepage:
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  android_intent_plus: ^4.0.1
+  flutter:
+    sdk: flutter
+  plugin_platform_interface: ^2.0.2
+  url_launcher: ^6.1.11
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+  # This section identifies this Flutter project as a plugin project.
+  # The 'pluginClass' specifies the class (in Java, Kotlin, Swift, Objective-C, etc.)
+  # which should be registered in the plugin registry. This is required for
+  # using method channels.
+  # The Android 'package' specifies package in which the registered class is.
+  # This is required for using method channels on Android.
+  # The 'ffiPlugin' specifies that native code should be built and bundled.
+  # This is required for using `dart:ffi`.
+  # All these are used by the tooling to maintain consistency when
+  # adding or updating assets for this project.
+  plugin:
+    platforms:
+      android:
+        package: studio.midoridesign.gal
+        pluginClass: GalPlugin
+      ios:
+        pluginClass: GalPlugin
