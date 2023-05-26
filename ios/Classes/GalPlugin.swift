@@ -20,6 +20,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
             result(FlutterMethodNotImplemented)
         }
     }
+
     private func putVideo(path: String, completion: @escaping (Bool) -> Void) {
         let videoURL = URL(fileURLWithPath: path)
         PHPhotoLibrary.shared().performChanges({

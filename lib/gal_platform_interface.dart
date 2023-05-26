@@ -2,6 +2,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'gal_method_channel.dart';
 
+/// Plugin Platform Interface
 abstract class GalPlatform extends PlatformInterface {
   GalPlatform() : super(token: _token);
   static final Object _token = Object();
@@ -13,6 +14,8 @@ abstract class GalPlatform extends PlatformInterface {
     _instance = instance;
   }
 
+  /// throw [UnimplementedError] when Plugin Communication did not
+  /// define [putVideo].
   Future<void> putVideo(String path) =>
       throw UnimplementedError('putVideo() has not been implemented.');
 }

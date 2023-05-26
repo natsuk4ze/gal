@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.CompletableFuture;
 
-/** GalPlugin */
 public class GalPlugin implements FlutterPlugin, MethodCallHandler {
   private MethodChannel channel;
   private FlutterPluginBinding pluginBinding;
@@ -64,7 +63,6 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler {
     File file = new File(path);
 
     values.put(MediaStore.Video.Media.DISPLAY_NAME, file.getName());
-    values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
     values.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
 
     Uri videoUri = resolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
