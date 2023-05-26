@@ -1,3 +1,3 @@
-## 0.0.2
+## 0.0.3
 
-* UPDATE: update description field of pubspec.yaml
+* UPDATE: dartdoc comments
