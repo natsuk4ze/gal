@@ -16,15 +16,30 @@ public class GalPlugin: NSObject, FlutterPlugin {
             self.putVideo(path: args["path"]!) { saved in
                 result(saved)
             }
+        case "putImage":
+            let args = call.arguments as![String: String]
+            self.putImage(path: args["path"]!) { saved in
+                result(saved)
+            }
+            
         default:
             result(FlutterMethodNotImplemented)
         }
     }
-
+    
     private func putVideo(path: String, completion: @escaping (Bool) -> Void) {
         let videoURL = URL(fileURLWithPath: path)
         PHPhotoLibrary.shared().performChanges({
             PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: videoURL)
+        }) { saved, _ in
+            completion(saved)
+        }
+    }
+    
+    private func putImage(path: String, completion: @escaping (Bool) -> Void) {
+        let image = UIImage(contentsOfFile: path)
+        PHPhotoLibrary.shared().performChanges({
+            PHAssetChangeRequest.creationRequestForAsset(from: image!)
         }) { saved, _ in
             completion(saved)
         }

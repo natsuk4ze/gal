@@ -37,23 +37,31 @@ class App extends StatelessWidget {
                 icon: const Icon(Icons.open_in_new),
               ),
               FilledButton.icon(
-                onPressed: () async {
-                  final byteData = await rootBundle.load('assets/done.mp4');
-                  final file =
-                      await File('${Directory.systemTemp.path}/done.mp4')
-                          .create();
-                  await file.writeAsBytes(byteData.buffer.asUint8List(
-                      byteData.offsetInBytes, byteData.lengthInBytes));
-
-                  await Gal.putVideo(file.path);
-                },
+                onPressed: () async =>
+                    Gal.putVideo(await getFilePath('assets/done.mp4')),
                 label: const Text('Save Video'),
-                icon: const Icon(Icons.download),
+                icon: const Icon(Icons.video_file),
+              ),
+              FilledButton.icon(
+                onPressed: () async =>
+                    Gal.putImage(await getFilePath('assets/done.jpg')),
+                label: const Text('Save Image'),
+                icon: const Icon(Icons.image),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Future<String> getFilePath(String path) async {
+    final byteData = await rootBundle.load(path);
+    final file = await File(
+            '${Directory.systemTemp.path}${path.replaceAll('assets', '')}')
+        .create();
+    await file.writeAsBytes(byteData.buffer
+        .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+    return file.path;
   }
 }
