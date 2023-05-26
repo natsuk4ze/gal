@@ -1,6 +1,6 @@
 name: gal
-description: Flutter plugin for handle native gallary apps.
-version: 0.0.1
+description: Gal is a Flutter plugin for handle native gallary apps.Easily open or save videos to native standard photo apps (iOS Photos or Android Google Photos) 
+version: 0.0.2
 homepage: https://github.com/Midori-Design-Studio/gal
 repository: https://github.com/Midori-Design-Studio/gal
 

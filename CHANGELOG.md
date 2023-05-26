@@ -1,3 +1,3 @@
-## 0.0.1
+## 0.0.2
 
-* Initial Release
+* UPDATE: update description field of pubspec.yaml
