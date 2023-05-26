@@ -1,3 +1,7 @@
+## 1.0.0
+
+* FEAT: saving image  
+
 ## 0.0.5
 
 * UPDATE: update README 

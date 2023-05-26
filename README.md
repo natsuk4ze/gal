@@ -11,7 +11,7 @@ Hi👋 Gal is Flutter Plugin for handle native gallery apps.
 
 * Open native gallery app.
 * Save video to native gallery app.
-* TODO: Save image to native gallery app.
+* Save image to native gallery app.
 
 ## Installation
 
