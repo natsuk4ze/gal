@@ -1,6 +1,10 @@
+## 0.0.5
+
+* Update: update README 
+
 ## 0.0.4
 
-* FIX: changelog 
+* FIX: fix CHANGELOG 
 
 ## 0.0.3
 
