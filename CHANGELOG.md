@@ -1,3 +1,7 @@
+## 0.0.4
+
+* FIX: changelog 
+
 ## 0.0.3
 
 * UPDATE: dartdoc comments
