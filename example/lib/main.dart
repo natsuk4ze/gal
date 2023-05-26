@@ -14,6 +14,13 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final snackBar = SnackBar(
+      content: const Text('Saved! ✅'),
+      action: SnackBarAction(
+        label: 'Gallery ->',
+        onPressed: () async => Gal.open(),
+      ),
+    );
     return MaterialApp(
       theme: ThemeData(
         useMaterial3: true,
@@ -27,29 +34,43 @@ class App extends StatelessWidget {
             style: Theme.of(context).textTheme.titleLarge,
           )),
         ),
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FilledButton.icon(
-                onPressed: () async => Gal.open(),
-                label: const Text('Open Gallery'),
-                icon: const Icon(Icons.open_in_new),
+        body: Builder(
+          builder: (context) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  FloatingActionButton.extended(
+                    onPressed: () async => Gal.open(),
+                    label: const Text('Open Gallery'),
+                    icon: const Icon(Icons.open_in_new),
+                  ),
+                  FloatingActionButton.extended(
+                    onPressed: () async {
+                      final path = await getFilePath('assets/done.mp4');
+                      await Gal.putVideo(path);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      }
+                    },
+                    label: const Text('Save Video'),
+                    icon: const Icon(Icons.video_file),
+                  ),
+                  FloatingActionButton.extended(
+                    onPressed: () async {
+                      final path = await getFilePath('assets/done.jpg');
+                      await Gal.putImage(path);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      }
+                    },
+                    label: const Text('Save Image'),
+                    icon: const Icon(Icons.image),
+                  ),
+                ],
               ),
-              FilledButton.icon(
-                onPressed: () async =>
-                    Gal.putVideo(await getFilePath('assets/done.mp4')),
-                label: const Text('Save Video'),
-                icon: const Icon(Icons.video_file),
-              ),
-              FilledButton.icon(
-                onPressed: () async =>
-                    Gal.putImage(await getFilePath('assets/done.jpg')),
-                label: const Text('Save Image'),
-                icon: const Icon(Icons.image),
-              ),
-            ],
-          ),
+            );
+          }
         ),
       ),
     );
