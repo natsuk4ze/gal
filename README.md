@@ -7,7 +7,7 @@
 
 Hi👋 Gal is Flutter Plugin for handle native gallery apps.
 
-![example](example/assets/example.gif)
+![example](https://github.com/Midori-Design-Studio/gal/raw/main/example/assets/example.gif)
 
 ## Features
 
