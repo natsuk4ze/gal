@@ -71,7 +71,12 @@ class App extends StatelessWidget {
               FilledButton.icon(
                 onPressed: () async => Gal.putVideo('TODO: Change this text to video path'),
                 label: const Text('Save Video'),
-                icon: const Icon(Icons.download),
+                icon: const Icon(Icons.video_file),
+              ),
+              FilledButton.icon(
+                onPressed: () async => Gal.putImage('TODO: Change this text to image path'),
+                label: const Text('Save Image'),
+                icon: const Icon(Icons.image),
               ),
             ],
           ),
