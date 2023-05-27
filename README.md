@@ -7,6 +7,11 @@
 
 Hi👋 Gal is Flutter Plugin for handle native gallery apps.
 
+<div style="display: flex;">
+  <img src="example/assets/ios_example.gif" style="height: 300px; flex: 1;">
+  <img src="example/assets/android_example.gif" style="height: 300px; flex: 1;">
+</div>
+
 ## Features
 
 * Open native gallery app.
