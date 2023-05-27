@@ -1,3 +1,7 @@
+## 1.0.4
+
+* FIX: README
+
 ## 1.0.3
 
 * FIX: README
