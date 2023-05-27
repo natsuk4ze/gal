@@ -1,3 +1,7 @@
+## 1.0.5
+
+* FIX: refactor
+
 ## 1.0.4
 
 * FIX: README
