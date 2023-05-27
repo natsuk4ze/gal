@@ -1,18 +1,22 @@
+## 1.0.2
+
+* FIX: README
+
 ## 1.0.1
 
-* FIX: README  
+* FIX: README
 
 ## 1.0.0
 
-* FEAT: saving image  
+* FEAT: saving image
 
 ## 0.0.5
 
-* UPDATE: update README 
+* UPDATE: update README
 
 ## 0.0.4
 
-* FIX: fix CHANGELOG 
+* FIX: fix CHANGELOG
 
 ## 0.0.3
 
