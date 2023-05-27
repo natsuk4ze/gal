@@ -1,3 +1,7 @@
+## 1.0.1
+
+* FIX: README  
+
 ## 1.0.0
 
 * FEAT: saving image  
