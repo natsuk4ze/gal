@@ -1,22 +1,26 @@
+## 1.0.6
+
+* UPDATE: update README
+
 ## 1.0.5
 
 * FIX: refactor
 
 ## 1.0.4
 
-* FIX: README
+* FIX: update README
 
 ## 1.0.3
 
-* FIX: README
+* FIX: update README
 
 ## 1.0.2
 
-* FIX: README
+* FIX: update README
 
 ## 1.0.1
 
-* FIX: README
+* FIX: update README
 
 ## 1.0.0
 
