@@ -33,6 +33,36 @@ Add the following key to your _Info.plist_ file, located in
 
 * `NSPhotoLibraryAddUsageDescription` - you can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
 
+## Usage
+
+### Save from local
+
+```dart
+//Save Image
+await Gal.putImage($filePath);
+
+//Save Video
+await Gal.putVideo($filePath);
+```
+
+### Dawnload from Internet
+
+```console
+$ flutter pub add dio
+```
+
+```dart
+//Dawnload Image
+final imagePath = '${Directory.systemTemp.path}/image.jpg';
+await Dio().download('$url',imagePath);
+await Gal.putImage(imagePath);
+
+//Dawnload Video
+final videoPath = '${Directory.systemTemp.path}/video.mp4';
+await Dio().download('$url',videoPath);
+await Gal.putVideo(videoPath);
+```
+
 ## Example
 
 Here is a minimal example. A more detailed one can be found in the [example folder](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart).
