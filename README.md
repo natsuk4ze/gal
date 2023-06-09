@@ -15,10 +15,15 @@ Hi👋 Gal is very easy to use Flutter Plugin for handle native gallery apps, iO
 * Save video
 * Save image
 
-## Installation
+## Get started
 
-First, add `gal` as a
-[dependency in your pubspec.yaml file](https://flutter.dev/docs/development/platform-integration/platform-channels).
+### Add dependency
+
+You can use the command to add gal as a dependency with the latest stable version:
+
+```console
+$ flutter pub add gal
+```
 
 ### iOS
 
@@ -28,6 +33,8 @@ Add the following key to your _Info.plist_ file, located in
 * `NSPhotoLibraryAddUsageDescription` - you can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
 
 ## Example
+
+Here is a minimal example. A more detailed one can be found in the [example folder](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart).
 
 ``` dart
 import 'package:flutter/material.dart';
