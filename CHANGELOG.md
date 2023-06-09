@@ -1,3 +1,7 @@
+## 1.1.1
+
+* UPDATE: add examples
+
 ## 1.1.0
 
 * FEAT: add error handlings

@@ -1,6 +1,6 @@
 name: gal
 description: Gal is a Flutter plugin for handle native gallary apps. Easily open or save media files to native gallery apps.
-version: 1.1.0
+version: 1.1.1
 homepage: https://pub.dev/packages/gal
 repository: https://github.com/natsuk4ze/gal
 
