@@ -53,14 +53,14 @@ class App extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     }
                   },
-                  label: const Text('Save Video'),
+                  label: const Text('Save Video from local'),
                   icon: const Icon(Icons.video_file),
                 ),
                 FloatingActionButton.extended(
                   onPressed: () async {
                     final path = '${Directory.systemTemp.path}/done.mp4';
                     await Dio().download(
-                      'https://github.com/natsuk4ze/gal/blob/main/example/assets/done.mp4',
+                      'https://github.com/natsuk4ze/gal/raw/main/example/assets/done.mp4',
                       path,
                     );
                     await Gal.putVideo(path);
@@ -69,7 +69,7 @@ class App extends StatelessWidget {
                     }
                   },
                   label: const Text('Download Video'),
-                  icon: const Icon(Icons.download),
+                  icon: const Icon(Icons.video_file_outlined),
                 ),
                 FloatingActionButton.extended(
                   onPressed: () async {
@@ -79,9 +79,24 @@ class App extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     }
                   },
-                  label: const Text('Save Image'),
+                  label: const Text('Save Image from local'),
                   icon: const Icon(Icons.image),
                 ),
+                FloatingActionButton.extended(
+                  onPressed: () async {
+                    final path = '${Directory.systemTemp.path}/done.jpg';
+                    await Dio().download(
+                      'https://github.com/natsuk4ze/gal/raw/main/example/assets/done.jpg',
+                      path,
+                    );
+                    await Gal.putImage(path);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    }
+                  },
+                  label: const Text('Download Image'),
+                  icon: const Icon(Icons.image_outlined),
+                )
               ],
             ),
           );
