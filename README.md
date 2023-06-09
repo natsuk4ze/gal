@@ -39,10 +39,10 @@ Add the following key to your _Info.plist_ file, located in
 
 ```dart
 //Save Image
-await Gal.putImage($filePath);
+await Gal.putImage('$filePath');
 
 //Save Video
-await Gal.putVideo($filePath);
+await Gal.putVideo('$filePath');
 ```
 
 ### Dawnload from Internet

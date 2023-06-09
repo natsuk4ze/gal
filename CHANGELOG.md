@@ -1,3 +1,7 @@
+## 1.1.2
+
+* FIX: fix README
+
 ## 1.1.1
 
 * UPDATE: add examples
