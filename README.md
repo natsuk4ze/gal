@@ -14,6 +14,7 @@ Hi👋 Gal is very easy to use Flutter Plugin for handle native gallery apps, iO
 * Open gallery
 * Save video
 * Save image
+* Handle errors
 
 ## Get started
 
