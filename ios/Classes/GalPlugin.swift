@@ -64,7 +64,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
             }
         }
         else{
-            return FlutterError(code: "UNEXPECTED_NOT_AVAILABLE",message:nil,details:nil)
+            return FlutterError(code: "NOT_HANDLE",message:nil,details:nil)
         }
     }
 }
