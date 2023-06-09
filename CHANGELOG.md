@@ -1,3 +1,7 @@
+## 1.1.0
+
+* FEAT: add error handlings
+
 ## 1.0.7
 
 * UPDATE: transfer repo
