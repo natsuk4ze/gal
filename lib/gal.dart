@@ -14,7 +14,7 @@ class Gal {
   /// [path] is local path.
   /// not supported [Uri] or something.
   static Future<void> putVideo(String path) async =>
-      GalPlatform.instance.putVideo(path);
+      _voidOrThrow(() async => GalPlatform.instance.putVideo(path));
 
   /// Save image to native gallery app
   /// [path] is local path.
