@@ -17,6 +17,7 @@ If you love this pub, Please leave a like👍 and [star⭐️](https://github.co
 * Open gallery
 * Save video
 * Save image
+* Handle Pemission
 * Handle errors
 
 ## Get started
@@ -72,6 +73,17 @@ final videoPath = '${Directory.systemTemp.path}/video.mp4';
 await Dio().download('$url',videoPath);
 await Gal.putVideo(videoPath);
 ```
+
+### Handle Permission
+
+```dart
+//Check permission
+await Gal.hasAccess()
+
+//Request access
+await Gal.requestAccess();
+```
+
 
 ## Example
 
