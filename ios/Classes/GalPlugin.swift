@@ -31,6 +31,10 @@ public class GalPlugin: NSObject, FlutterPlugin {
                     result(nil)
                 }
             }
+        case "open":
+            self.open() {
+                result(nil)
+            }
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -48,6 +52,14 @@ public class GalPlugin: NSObject, FlutterPlugin {
         PHPhotoLibrary.shared().performChanges({
             PHAssetChangeRequest.creationRequestForAsset(from: image!)
         }, completionHandler: completion)
+    }
+    
+    private func open(completion: @escaping () -> Void) {
+        if let url = URL(string: "photos-redirect://") {
+            UIApplication.shared.open(url, options: [:]){ success in
+                completion()
+            }
+        }
     }
     
     private func handleError(error: NSError) -> FlutterError{
