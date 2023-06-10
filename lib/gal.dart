@@ -25,7 +25,7 @@ class Gal {
   /// Open "iOS Photos" when iOS, "Google Photos" when Android.
   /// iOS is depends on [url_launcher], Android depends on [android_intent_plus].
   static Future<void> open() async => Platform.isIOS
-      ? launchUrl(Uri.parse("photos-redirect://"))
+      ? GalPlatform.instance.open()
       : const AndroidIntent(
           action: 'action_view',
           type: 'image/*',
