@@ -16,6 +16,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.content.Intent;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -70,7 +74,11 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler {
             open();
             new Handler(Looper.getMainLooper())
                             .post(() -> result.success(null));
-        } else {
+        } 
+        else if (call.method.equals("hasAccess")){
+            result.success(hasAccess());
+        }
+        else {
             result.notImplemented();
         }
     }
@@ -108,5 +116,17 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler {
         intent.setType("image/*");
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
+    }
+
+    // When API >=29 always true.
+    public boolean hasAccess() {
+        Context context = pluginBinding.getApplicationContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return true;
+        }    
+        else {
+            int hasAccess = ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            return hasAccess == PackageManager.PERMISSION_GRANTED;
+        }
     }
 }
