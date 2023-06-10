@@ -17,7 +17,7 @@ If you love this pub, Please leave a like👍 and [star⭐️](https://github.co
 * Open gallery
 * Save video
 * Save image
-* Handle Pemission
+* Handle pemission
 * Handle errors
 
 ## Get started
@@ -82,7 +82,7 @@ await Gal.putVideo(videoPath);
 
 ```dart
 //Check permission
-await Gal.hasAccess()
+await Gal.hasAccess();
 
 //Request access
 await Gal.requestAccess();
