@@ -37,6 +37,15 @@ public class GalPlugin: NSObject, FlutterPlugin {
             }
         case "hasAccess":
             result(self.hasAccess())
+        case "requestAccess":
+            if(self.hasAccess()){
+                result(true)
+            }
+            else{
+                self.requestAccess(){ granted in
+                    result(granted)
+                }
+            }
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -75,6 +84,21 @@ public class GalPlugin: NSObject, FlutterPlugin {
             return status == .authorized
         }
         
+    }
+    
+    private func requestAccess(completion: @escaping (Bool) -> Void) {
+        if #available(iOS 14, *){
+            PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+            let granted = PHPhotoLibrary.authorizationStatus(for:.addOnly) == .authorized
+                completion(granted)
+            }
+        }
+        else{
+            PHPhotoLibrary.requestAuthorization() { status in
+            let granted = PHPhotoLibrary.authorizationStatus() == .authorized
+                completion(granted)
+            }
+        }
     }
     
     private func handleError(error: NSError) -> FlutterError{
