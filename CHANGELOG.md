@@ -1,3 +1,7 @@
+## 1.3.2
+
+* FIX: remove `android:requestLegacyExternalStorage="true"` 
+
 ## 1.3.1
 
 * FIX: fix README
