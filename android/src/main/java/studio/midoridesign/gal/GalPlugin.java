@@ -38,7 +38,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private MethodChannel channel;
     private FlutterPluginBinding pluginBinding;
     private static final String PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-    private static final int PERMISSION_REQUEST_CODE = 1;
+    private static final int PERMISSION_REQUEST_CODE = 1317298;
     private CompletableFuture<Boolean> accessRequestResult;
     private Activity activity;
 
