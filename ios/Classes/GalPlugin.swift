@@ -74,7 +74,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
     }
     
     //For more info: https://qiita.com/fuziki/items/87a3a1a8e481a1546b38
-    func hasAccess() -> Bool {
+    private func hasAccess() -> Bool {
         if #available(iOS 14, *){
             let status = PHPhotoLibrary.authorizationStatus(for:.addOnly)
             return status == .authorized
@@ -86,6 +86,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
         
     }
     
+    //For more info: https://qiita.com/fuziki/items/87a3a1a8e481a1546b38
     private func requestAccess(completion: @escaping (Bool) -> Void) {
         if #available(iOS 14, *){
             PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
