@@ -1,3 +1,7 @@
+## 1.2.0
+
+* UPDATE: remove url_launcher and android_intent_plus
+
 ## 1.1.2
 
 * FIX: fix README
