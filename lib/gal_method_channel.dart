@@ -17,4 +17,8 @@ class MethodChannelGal extends GalPlatform {
   @override
   Future<void> putImage(String path) async =>
       methodChannel.invokeMethod<void>('putImage', {'path': path});
+
+  @override
+  Future<void> open() async =>
+      methodChannel.invokeMethod<void>('open');
 }

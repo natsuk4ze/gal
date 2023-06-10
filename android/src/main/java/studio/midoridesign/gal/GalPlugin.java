@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.content.Intent;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,6 +66,10 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler {
                     }            
                 }
             });
+        } else if (call.method.equals("open")){
+            open();
+            new Handler(Looper.getMainLooper())
+                            .post(() -> result.success(null));
         } else {
             result.notImplemented();
         }
@@ -94,5 +99,14 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler {
                 out.write(buffer, 0, bytesRead);
             }
         }
+    }
+
+    private void open(){
+        Context context = pluginBinding.getApplicationContext();
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setType("image/*");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
 }

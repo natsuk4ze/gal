@@ -14,13 +14,18 @@ abstract class GalPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  /// throw [UnimplementedError] when Plugin Communication did not
+  /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
   /// define [putVideo].
   Future<void> putVideo(String path) =>
       throw UnimplementedError('putVideo() has not been implemented.');
 
-  /// throw [UnimplementedError] when Plugin Communication did not
+  /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
   /// define [putImage].
   Future<void> putImage(String path) =>
       throw UnimplementedError('putImage() has not been implemented.');
+
+  /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
+  /// define [open].
+  Future<void> open() =>
+      throw UnimplementedError('open() has not been implemented.');
 }
