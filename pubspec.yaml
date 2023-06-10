@@ -22,11 +22,9 @@ environment:
   flutter: '>=3.3.0'
 
 dependencies:
-  android_intent_plus: ^4.0.1
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
-  url_launcher: ^6.1.11
 
 dev_dependencies:
   flutter_test:
