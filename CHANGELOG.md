@@ -1,3 +1,7 @@
+## 1.3.0
+
+* FEAT: Add permissionhandlings. Now you can use `hasAccess()`,`requestAccess()`.
+
 ## 1.2.0
 
 * UPDATE: remove url_launcher and android_intent_plus
