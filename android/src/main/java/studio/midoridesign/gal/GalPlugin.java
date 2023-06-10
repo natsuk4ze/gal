@@ -32,6 +32,7 @@ import java.util.concurrent.CompletableFuture;
 public class GalPlugin implements FlutterPlugin, MethodCallHandler {
     private MethodChannel channel;
     private FlutterPluginBinding pluginBinding;
+    private static final String PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -78,6 +79,13 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler {
         else if (call.method.equals("hasAccess")){
             result.success(hasAccess());
         }
+        else if (call.method.equals("requestAccess")) {
+            boolean hasAccess = hasAccess();
+            if (hasAccess) {
+                result.success(true);
+            } else {
+            }
+        }
         else {
             result.notImplemented();
         }
@@ -118,14 +126,14 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler {
         context.startActivity(intent);
     }
 
-    // When API >=29 always true.
+    // When API >=29,<23 always true.
     public boolean hasAccess() {
         Context context = pluginBinding.getApplicationContext();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return true;
-        }    
+        }
         else {
-            int hasAccess = ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            int hasAccess = ContextCompat.checkSelfPermission(context, PERMISSION);
             return hasAccess == PackageManager.PERMISSION_GRANTED;
         }
     }
