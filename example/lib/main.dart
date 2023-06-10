@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -96,6 +97,22 @@ class App extends StatelessWidget {
                   },
                   label: const Text('Download Image'),
                   icon: const Icon(Icons.image_outlined),
+                ),
+                FloatingActionButton.extended(
+                  onPressed: () async {
+                    final hasAccess = await Gal.hasAccess();
+                    log(hasAccess.toString());
+                  },
+                  label: const Text('Has Access'),
+                  icon: const Icon(Icons.question_mark),
+                ),
+                FloatingActionButton.extended(
+                  onPressed: () async {
+                    final hasAccess = await Gal.requestAccess();
+                    log(hasAccess.toString());
+                  },
+                  label: const Text('Request Access'),
+                  icon: const Icon(Icons.privacy_tip_outlined),
                 )
               ],
             ),

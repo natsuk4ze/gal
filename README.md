@@ -17,6 +17,7 @@ If you love this pub, Please leave a like👍 and [star⭐️](https://github.co
 * Open gallery
 * Save video
 * Save image
+* Handle Pemission
 * Handle errors
 
 ## Get started
@@ -35,6 +36,17 @@ Add the following key to your _Info.plist_ file, located in
 `<project root>/ios/Runner/Info.plist`:
 
 * `NSPhotoLibraryAddUsageDescription` - you can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
+
+### Android (API <29)
+
+Add the following keys to your _AndroidManifest_ file, located in
+`<project root>/android/app/src/main/AndroidManifest.xml`:
+
+* `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />`
+* `android:requestLegacyExternalStorage="true"` 
+
+
+you can copy from [AndroidManifest.xml in example](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
 
 ## Usage
 
@@ -65,6 +77,17 @@ final videoPath = '${Directory.systemTemp.path}/video.mp4';
 await Dio().download('$url',videoPath);
 await Gal.putVideo(videoPath);
 ```
+
+### Handle Permission
+
+```dart
+//Check permission
+await Gal.hasAccess()
+
+//Request access
+await Gal.requestAccess();
+```
+
 
 ## Example
 

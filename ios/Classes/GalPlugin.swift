@@ -35,6 +35,17 @@ public class GalPlugin: NSObject, FlutterPlugin {
             self.open() {
                 result(nil)
             }
+        case "hasAccess":
+            result(self.hasAccess())
+        case "requestAccess":
+            if(self.hasAccess()){
+                result(true)
+            }
+            else{
+                self.requestAccess(){ granted in
+                    result(granted)
+                }
+            }
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -58,6 +69,35 @@ public class GalPlugin: NSObject, FlutterPlugin {
         if let url = URL(string: "photos-redirect://") {
             UIApplication.shared.open(url, options: [:]){ success in
                 completion()
+            }
+        }
+    }
+    
+    //For more info: https://qiita.com/fuziki/items/87a3a1a8e481a1546b38
+    private func hasAccess() -> Bool {
+        if #available(iOS 14, *){
+            let status = PHPhotoLibrary.authorizationStatus(for:.addOnly)
+            return status == .authorized
+        }
+        else{
+            let status = PHPhotoLibrary.authorizationStatus()
+            return status == .authorized
+        }
+        
+    }
+    
+    //For more info: https://qiita.com/fuziki/items/87a3a1a8e481a1546b38
+    private func requestAccess(completion: @escaping (Bool) -> Void) {
+        if #available(iOS 14, *){
+            PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+            let granted = PHPhotoLibrary.authorizationStatus(for:.addOnly) == .authorized
+                completion(granted)
+            }
+        }
+        else{
+            PHPhotoLibrary.requestAuthorization() { status in
+            let granted = PHPhotoLibrary.authorizationStatus() == .authorized
+                completion(granted)
             }
         }
     }
