@@ -8,17 +8,22 @@ class MethodChannelGal extends GalPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('gal');
 
-  /// argument is Map now.
+  /// argument is Map.
   @override
   Future<void> putVideo(String path) async =>
       methodChannel.invokeMethod<void>('putVideo', {'path': path});
 
-  /// argument is Map now.
+  /// argument is Map.
   @override
   Future<void> putImage(String path) async =>
       methodChannel.invokeMethod<void>('putImage', {'path': path});
 
   @override
-  Future<void> open() async =>
-      methodChannel.invokeMethod<void>('open');
+  Future<void> open() async => methodChannel.invokeMethod<void>('open');
+
+  @override
+  Future<bool> hasAccess() async {
+    final hasAccess = await methodChannel.invokeMethod<bool>('hasAccess');
+    return hasAccess ?? false;
+  }
 }

@@ -20,6 +20,8 @@ class Gal {
   /// Open "iOS Photos" when iOS, "Google Photos" when Android.
   static Future<void> open() async => GalPlatform.instance.open();
 
+  static Future<bool> hasAccess() async => GalPlatform.instance.hasAccess();
+
   static Future<void> _voidOrThrow(Future<void> Function() cb) async {
     try {
       return await cb();
