@@ -20,6 +20,11 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import androidx.core.content.ContextCompat;
+import androidx.core.app.ActivityCompat;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import io.flutter.plugin.common.PluginRegistry;
+import android.app.Activity;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,10 +34,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.CompletableFuture;
 
-public class GalPlugin implements FlutterPlugin, MethodCallHandler {
+public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.RequestPermissionsResultListener {
     private MethodChannel channel;
     private FlutterPluginBinding pluginBinding;
     private static final String PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+    private static final int PERMISSION_REQUEST_CODE = 1;
+    private CompletableFuture<Boolean> accessRequestResult;
+    private Activity activity;
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -43,7 +51,9 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler {
 
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-        if (call.method.equals("putVideo") || call.method.equals("putImage")) {
+        switch (call.method) {
+        case "putVideo":
+        case "putImage": {
             String path = call.argument("path");
             Uri contentUri = call.method.equals("putVideo") ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
@@ -71,30 +81,32 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler {
                     }            
                 }
             });
-        } else if (call.method.equals("open")){
+            break;
+        }
+        case "open": {
             open();
             new Handler(Looper.getMainLooper())
-                            .post(() -> result.success(null));
-        } 
-        else if (call.method.equals("hasAccess")){
+                        .post(() -> result.success(null));
+            break;
+        }
+        case "hasAccess": {
             result.success(hasAccess());
+            break;
         }
-        else if (call.method.equals("requestAccess")) {
-            boolean hasAccess = hasAccess();
-            if (hasAccess) {
+        case "requestAccess": {
+            if (hasAccess()) {
                 result.success(true);
-            } else {
-            }
+                return;
+            } 
+            accessRequestResult = new CompletableFuture<>();
+            ActivityCompat.requestPermissions(activity, new String[]{PERMISSION}, PERMISSION_REQUEST_CODE);
+            accessRequestResult.thenAccept(result::success);
+            break;
         }
-        else {
+        default: {
             result.notImplemented();
         }
     }
-
-    @Override
-    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-        channel.setMethodCallHandler(null);
-        pluginBinding = null;
     }
 
     private void putMedia(Context context, String path, Uri contentUri) throws IOException, SecurityException, FileNotFoundException {
@@ -127,14 +139,46 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler {
     }
 
     // When API >=29,<23 always true.
-    public boolean hasAccess() {
+    private boolean hasAccess() {
         Context context = pluginBinding.getApplicationContext();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return true;
         }
-        else {
-            int hasAccess = ContextCompat.checkSelfPermission(context, PERMISSION);
-            return hasAccess == PackageManager.PERMISSION_GRANTED;
-        }
+        int hasAccess = ContextCompat.checkSelfPermission(context, PERMISSION);
+        return hasAccess == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @Override
+    public void onAttachedToActivity(@NonNull ActivityPluginBinding activityPluginBinding) {
+        activity = activityPluginBinding.getActivity();
+        activityPluginBinding.addRequestPermissionsResultListener(this);
+    }
+
+    @Override
+    public void onDetachedFromActivity() {
+        activity = null;
+    }
+
+    @Override
+    public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding activityPluginBinding) {
+        activity = activityPluginBinding.getActivity();
+        activityPluginBinding.addRequestPermissionsResultListener(this);
+    }
+
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+        activity = null;
+    }
+
+    @Override
+    public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        accessRequestResult.complete(grantResults[0] == PackageManager.PERMISSION_GRANTED && PERMISSION_REQUEST_CODE == requestCode);
+        return true;   
+    }
+
+    @Override
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        channel.setMethodCallHandler(null);
+        pluginBinding = null;
     }
 }
