@@ -33,4 +33,9 @@ abstract class GalPlatform extends PlatformInterface {
   /// define [hasAccess].
   Future<bool> hasAccess() =>
       throw UnimplementedError('hasAccess() has not been implemented.');
+
+  /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
+  /// define [requestAccess].
+  Future<bool> requestAccess() =>
+      throw UnimplementedError('requestAccess() has not been implemented.');
 }

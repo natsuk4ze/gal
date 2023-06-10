@@ -22,6 +22,10 @@ class Gal {
 
   static Future<bool> hasAccess() async => GalPlatform.instance.hasAccess();
 
+  /// On IOS, once the user rejects it, the dialog cannot be displayed and 
+  /// returns false immediately
+  static Future<bool> requestAccess() async => GalPlatform.instance.requestAccess();
+
   static Future<void> _voidOrThrow(Future<void> Function() cb) async {
     try {
       return await cb();

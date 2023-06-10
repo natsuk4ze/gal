@@ -26,4 +26,9 @@ class MethodChannelGal extends GalPlatform {
     final hasAccess = await methodChannel.invokeMethod<bool>('hasAccess');
     return hasAccess ?? false;
   }
+  @override
+  Future<bool> requestAccess() async {
+    final granted = await methodChannel.invokeMethod<bool>('requestAccess');
+    return granted ?? false;
+  }
 }
