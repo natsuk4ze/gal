@@ -35,6 +35,8 @@ public class GalPlugin: NSObject, FlutterPlugin {
             self.open() {
                 result(nil)
             }
+        case "hasAccess":
+            result(self.hasAccess())
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -60,6 +62,19 @@ public class GalPlugin: NSObject, FlutterPlugin {
                 completion()
             }
         }
+    }
+    
+    //For more info: https://qiita.com/fuziki/items/87a3a1a8e481a1546b38
+    func hasAccess() -> Bool {
+        if #available(iOS 14, *){
+            let status = PHPhotoLibrary.authorizationStatus(for:.addOnly)
+            return status == .authorized
+        }
+        else{
+            let status = PHPhotoLibrary.authorizationStatus()
+            return status == .authorized
+        }
+        
     }
     
     private func handleError(error: NSError) -> FlutterError{
