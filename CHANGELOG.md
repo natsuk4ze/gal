@@ -1,3 +1,8 @@
+## 1.3.1
+
+* FIX: fix README
+* UPDATE: make gal constractor private
+
 ## 1.3.0
 
 * FEAT: Add permissionhandlings. Now you can use `hasAccess()`,`requestAccess()`.
