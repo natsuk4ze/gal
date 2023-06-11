@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
     - name: Check out code
@@ -29,8 +29,13 @@ jobs:
     - name: Analyze code
       run: flutter analyze
 
-    - name: Run integration tests
-      uses: ReactiveCircus/android-emulator-runner@v2
+    - name: Start iOS simulator
+      uses: futureware-tech/simulator-action@v2
       with:
-        api-level: 29
-        script: flutter drive --target=example/test/integration_test.dart
+        model: 'iPhone 14'
+
+    - name: Build and test on iOS
+      run: |
+        flutter build ios
+        cd example
+        flutter test test/integration_test.dart
