@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Check out code
@@ -29,13 +29,7 @@ jobs:
     - name: Analyze code
       run: flutter analyze
 
-    - name: Start iOS simulator
-      uses: futureware-tech/simulator-action@v2
-      with:
-        model: 'iPhone 14'
-
-    - name: Build and test on iOS
+    - name: Run integration tests
       run: |
         cd example
-        flutter build ios
         flutter test test/integration_test.dart
