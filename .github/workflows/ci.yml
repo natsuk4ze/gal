@@ -28,3 +28,8 @@ jobs:
 
     - name: Analyze code
       run: flutter analyze
+
+    - name: Run integration tests
+      run: |
+        cd example
+        flutter test test/integration_test.dart
