@@ -30,6 +30,7 @@ jobs:
       run: flutter analyze
 
     - name: Run integration tests
-      run: |
-        cd example
-        flutter test test/integration_test.dart
+      uses: ReactiveCircus/android-emulator-runner@v2
+      with:
+        api-level: 29
+        script: flutter drive --target=example/test/integration_test.dart
