@@ -7,29 +7,42 @@ on:
   pull_request:
     branches:
       - main
-
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
+  drive_test:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        device:
+        - "iPhone 8 (14.4)"
+        - "iPhone 11 Pro Max (14.4)"
     steps:
-    - name: Check out code
-      uses: actions/checkout@v3
+      - name: "List all simulators"
+        run: "xcrun instruments -s"
+      - name: "Start Simulator"
+        run: |
+          UDID=$(
+            xcrun instruments -s |
+            awk \
+              -F ' *[][]' \
+              -v 'device=${{ matrix.device }}' \
+              '$1 == device { print $2 }'
+          )
+          xcrun simctl boot "${UDID:?No Simulator with this name found}"
+      - name: Check out code
+        uses: actions/checkout@v3
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.x'
-        channel: 'beta'
-        cache: true
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'beta'
+          cache: true
 
-    - name: Install dependencies
-      run: flutter pub get
+      - name: Install dependencies
+        run: flutter pub get
 
-    - name: Analyze code
-      run: flutter analyze
+      - name: Analyze code
+        run: flutter analyze
 
-    - name: Run integration tests
-      run: |
-        cd example
-        flutter test test/integration_test.dart
+      - name: "Run integration test"
+        run: "flutter drive --target=example/test/integration_test.dart"
