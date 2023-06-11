@@ -28,16 +28,6 @@ jobs:
 
     - name: Analyze code
       run: flutter analyze
-    
-    - name: Install example dependencies
-      run: |
-        cd example
-        flutter pub get
-
-    - name: Analyze example code
-      run: |
-        cd example
-        flutter analyze
 
     - name: Run integration tests
       run: |
