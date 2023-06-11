@@ -1,7 +1,7 @@
 # Gal🖼️
 
 [![pub points](https://img.shields.io/pub/points/gal?color=2E8B57&label=pub%20points)](https://pub.dev/packages/gal/score)
-![CI](https://github.com/natsuk4ze/gal/actions/workflows/analyze.yml/badge.svg?branch=main)
+![CI](https://github.com/natsuk4ze/gal/actions/workflows/ci.yml/badge.svg?branch=main)
 [![License](https://img.shields.io/badge/license-BSD3-blue.svg)](LICENSE)
 [![pub package](https://img.shields.io/pub/v/gal.svg)](https://pub.dev/packages/gal)
 
