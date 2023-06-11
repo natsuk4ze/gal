@@ -35,8 +35,11 @@ jobs:
         flutter pub get
 
     - name: Analyze example code
-      run: flutter analyze
+      run: |
+        cd example
+        flutter analyze
 
     - name: Run integration tests
       run: |
+        cd example
         flutter test test/integration_test.dart
