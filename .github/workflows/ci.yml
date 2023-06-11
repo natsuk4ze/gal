@@ -36,6 +36,6 @@ jobs:
 
     - name: Build and test on iOS
       run: |
-        flutter build ios
         cd example
+        flutter build ios
         flutter test test/integration_test.dart
