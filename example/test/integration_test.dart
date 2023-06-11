@@ -6,7 +6,7 @@ import 'package:gal_example/main.dart' as app;
 
 ///All tests are done in integration tests,
 ///since only integration tests can call native code.
-///Other functions take longer to implemen
+///Other functions take longer to implement
 ///because of the possibility of interacting with native dialogs.
 ///For more info: https://github.com/flutter/flutter/wiki/Plugin-Tests
 void main() {
