@@ -87,7 +87,7 @@ await Gal.requestAccess();
 
 ## Example
 
-Here is a minimal example. A more detailed one can be found in the [example folder](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart).
+Here is a minimal example. A best practice and more detailed one and can be found in the [example folder](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart).
 
 ``` dart
 import 'package:flutter/material.dart';
