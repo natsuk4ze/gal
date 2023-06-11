@@ -35,11 +35,11 @@ $ flutter pub add gal
 Add the following key to your _Info.plist_ file, located in
 `<project root>/ios/Runner/Info.plist`:
 
-* `NSPhotoLibraryAddUsageDescription` - you can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
+* `<key>NSPhotoLibraryAddUsageDescription</key>` - you can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
 
 ### Android (API <29)
 
-Add the following keys to your _AndroidManifest_ file, located in
+Add the following key to your _AndroidManifest_ file, located in
 `<project root>/android/app/src/main/AndroidManifest.xml`:
 
 * `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />` - you can copy from [AndroidManifest.xml in example](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
