@@ -132,9 +132,15 @@ class App extends StatelessWidget {
 }
 ```
 
-## Best Practice
+## FAQ
 
-Please see [this page](https://github.com/natsuk4ze/gal/wiki/Best-Practice) in project wiki.
+- ### What is the best practice?
+
+  Please see [this page](https://github.com/natsuk4ze/gal/wiki/Best-Practice) in project wiki.
+
+- ### I have a question.
+
+  You can ask them in the [discussions page](https://github.com/natsuk4ze/gal/discussions) of the project.
 
 ## Contributing
 
