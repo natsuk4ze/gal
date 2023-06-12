@@ -91,20 +91,22 @@ public class GalPlugin: NSObject, FlutterPlugin {
     }
     
     private func handleError(error: NSError) -> FlutterError{
+        let message = error.localizedDescription
+        let details = Thread.callStackSymbols
         if #available(iOS 15, *){
             switch error.code {
             case PHPhotosError.accessRestricted.rawValue, PHPhotosError.accessUserDenied.rawValue:
-                return FlutterError(code:"ACCESS_DENIED",message:nil,details:nil)
+                return FlutterError(code:"ACCESS_DENIED",message:message,details:details)
             case PHPhotosError.identifierNotFound.rawValue, PHPhotosError.multipleIdentifiersFound.rawValue, PHPhotosError.requestNotSupportedForAsset.rawValue:
-                return FlutterError(code: "NOT_SUPPORTED_FORMAT",message:nil,details:nil)
+                return FlutterError(code: "NOT_SUPPORTED_FORMAT",message:message,details:details)
             case PHPhotosError.notEnoughSpace.rawValue:
-                return FlutterError(code: "NOT_ENOUGH_SPACE",message:nil,details:nil)
+                return FlutterError(code: "NOT_ENOUGH_SPACE",message:message,details:details)
             default:
-                return FlutterError(code: "UNEXPECTED",message:nil,details:nil)
+                return FlutterError(code: "UNEXPECTED",message:message,details:details)
             }
         }
         else{
-            return FlutterError(code: "NOT_HANDLE",message:nil,details:nil)
+            return FlutterError(code: "NOT_HANDLE",message:message,details:details)
         }
     }
 }
