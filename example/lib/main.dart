@@ -46,29 +46,30 @@ class App extends StatelessWidget {
                   _Button(
                     onPressed: () async {
                       final requestGranted = await Gal.requestAccess();
-                      if (!requestGranted && context.mounted) {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text("Unable to save"),
-                            content: const Text(
-                                "Please allow access to the Photos app."),
-                            actions: [
-                              TextButton(
-                                child: const Text("OK"),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                            ],
-                          ),
-                        );
-                        return;
+                      if (requestGranted) {
+                        final path = await getFilePath('assets/done.jpg');
+                        try {
+                          await Gal.putImage(path);
+                        } on GalException catch (e) {
+                          log(e.toString());
+                        }
                       }
-                      final path = await getFilePath('assets/done.jpg');
-                      try {
-                        await Gal.putImage(path);
-                      } on GalException catch (e) {
-                        log(e.toString());
-                      }
+                      // ignore: use_build_context_synchronously
+                      if (!context.mounted) return;
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text("Unable to save"),
+                          content: const Text(
+                              "Please allow access to the Photos app."),
+                          actions: [
+                            TextButton(
+                              child: const Text("OK"),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      );
                     },
                     label: 'Best Practice',
                     icon: Icons.done,
