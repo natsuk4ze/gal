@@ -12,7 +12,7 @@ If you love this pub, Please leave a like👍 and [star⭐️](https://github.co
 
 ![example](https://github.com/natsuk4ze/gal/raw/main/example/assets/example.gif)
 
-## Features
+## Features✨
 
 * Open gallery
 * Save video
@@ -20,7 +20,7 @@ If you love this pub, Please leave a like👍 and [star⭐️](https://github.co
 * Handle pemission
 * Handle errors
 
-## Get started
+## Get started🚀
 
 ### Add dependency
 
@@ -44,7 +44,7 @@ Add the following key to your _AndroidManifest_ file, located in
 
 * `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />` - you can copy from [AndroidManifest.xml in example](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
 
-## Usage
+## Usage✅
 
 ### Save from local
 
@@ -85,7 +85,7 @@ await Gal.requestAccess();
 ```
 
 
-## Example
+## Example🎯
 
 Here is a minimal example. A [best practice](https://github.com/natsuk4ze/gal/wiki/Best-Practice) and more detailed one and can be found in the [example folder](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart).
 
@@ -132,7 +132,7 @@ class App extends StatelessWidget {
 }
 ```
 
-## FAQ
+## FAQ🙏
 
 - ### What is the best practice?
 
@@ -142,6 +142,6 @@ class App extends StatelessWidget {
 
   You can ask them in the [discussions page](https://github.com/natsuk4ze/gal/discussions) of the project.
 
-## Contributing
+## Contributing💚
 
-Welcome💚 Feel free to create issue or PR. Basically, please follows [Effective Dart](https://dart.dev/effective-dart).
+Welcome! Feel free to create issue or PR. Basically, please follows [Effective Dart](https://dart.dev/effective-dart).
