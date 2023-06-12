@@ -13,7 +13,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
         switch call.method {
         case "putVideo":
             let args = call.arguments as![String: String]
-            self.putVideo(path: args["path"]!) { saved,error in
+            self.putVideo(path: args["path"]!) { _,error in
                 if let error = error as NSError? {
                     result(self.handleError(error: error))
                 }
@@ -23,7 +23,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
             }
         case "putImage":
             let args = call.arguments as![String: String]
-            self.putImage(path: args["path"]!) { saved, error in
+            self.putImage(path: args["path"]!) { _, error in
                 if let error = error as NSError? {
                     result(self.handleError(error: error))
                 }
@@ -38,14 +38,9 @@ public class GalPlugin: NSObject, FlutterPlugin {
         case "hasAccess":
             result(self.hasAccess())
         case "requestAccess":
-            if(self.hasAccess()){
-                result(true)
-            }
-            else{
-                self.requestAccess(){ granted in
-                    result(granted)
-                }
-            }
+            self.hasAccess() ? result(true) : self.requestAccess(completion: { granted in
+                result(granted)
+            })
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -66,22 +61,17 @@ public class GalPlugin: NSObject, FlutterPlugin {
     }
     
     private func open(completion: @escaping () -> Void) {
-        if let url = URL(string: "photos-redirect://") {
-            UIApplication.shared.open(url, options: [:]){ success in
-                completion()
-            }
-        }
+        guard let url = URL(string: "photos-redirect://") else { return }
+        UIApplication.shared.open(url, options: [:]) { _ in completion() }
     }
     
     //For more info: https://qiita.com/fuziki/items/87a3a1a8e481a1546b38
     private func hasAccess() -> Bool {
         if #available(iOS 14, *){
-            let status = PHPhotoLibrary.authorizationStatus(for:.addOnly)
-            return status == .authorized
+            return PHPhotoLibrary.authorizationStatus(for:.addOnly) == .authorized
         }
         else{
-            let status = PHPhotoLibrary.authorizationStatus()
-            return status == .authorized
+            return PHPhotoLibrary.authorizationStatus() == .authorized
         }
         
     }
@@ -89,15 +79,13 @@ public class GalPlugin: NSObject, FlutterPlugin {
     //For more info: https://qiita.com/fuziki/items/87a3a1a8e481a1546b38
     private func requestAccess(completion: @escaping (Bool) -> Void) {
         if #available(iOS 14, *){
-            PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-            let granted = PHPhotoLibrary.authorizationStatus(for:.addOnly) == .authorized
-                completion(granted)
+            PHPhotoLibrary.requestAuthorization(for: .addOnly) { _ in
+                completion(PHPhotoLibrary.authorizationStatus(for:.addOnly) == .authorized)
             }
         }
         else{
-            PHPhotoLibrary.requestAuthorization() { status in
-            let granted = PHPhotoLibrary.authorizationStatus() == .authorized
-                completion(granted)
+            PHPhotoLibrary.requestAuthorization() { _ in
+                completion(PHPhotoLibrary.authorizationStatus() == .authorized)
             }
         }
     }
