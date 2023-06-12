@@ -53,6 +53,7 @@ class App extends StatelessWidget {
                         } on GalException catch (e) {
                           log(e.toString());
                         }
+                        return;
                       }
                       // ignore: use_build_context_synchronously
                       if (!context.mounted) return;
