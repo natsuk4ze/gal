@@ -1,3 +1,8 @@
+## 1.3.4
+
+* UPDATE: update code docs.
+* UPDATE: update README.
+
 ## 1.3.3
 
 * FIX: fix README 
