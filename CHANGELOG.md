@@ -1,3 +1,9 @@
+## 1.3.6
+
+* UPDATE: add error info on throw.
+* UPDATE: clean up native codes.
+* UPDATE: update README.
+
 ## 1.3.5
 
 * UPDATE: fix example.
