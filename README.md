@@ -136,11 +136,12 @@ class App extends StatelessWidget {
 
 - ### What is the best practice?
 
-  Please see [this page](https://github.com/natsuk4ze/gal/wiki/Best-Practice) in project wiki.
+  Please see [Best Practice](https://github.com/natsuk4ze/gal/wiki/Best-Practice) in project wiki.
 
 - ### I have a question.
 
-  You can ask them in the [discussions page](https://github.com/natsuk4ze/gal/discussions) of the project.
+  Please see the [Wiki](https://github.com/natsuk4ze/gal/wiki/Best-Practice) first. If that didn't solve the problem.
+  You can ask them in the [Discussions](https://github.com/natsuk4ze/gal/discussions) of the project.
 
 ## Contributing💚
 
