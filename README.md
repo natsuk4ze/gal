@@ -144,4 +144,5 @@ class App extends StatelessWidget {
 
 ## Contributing💚
 
-Welcome! Feel free to create issue or PR. Basically, please follows [Effective Dart](https://dart.dev/effective-dart).
+Welcome! Feel free to create issue or PR. 
+We kindly suggest considering to read [this vary short guide](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md).
