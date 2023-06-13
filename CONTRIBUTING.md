@@ -6,7 +6,7 @@ Welcome to the Gal contribution guide💚 Feel free to create issue or PR.
   
 - ## Question or Proposed new features
   We recommend that you use the [Discussions](https://github.com/natsuk4ze/gal/discussions).
-  ^ If you suddenly submit a new feature or breaking change in a pull request, 
+  > If you suddenly submit a new feature or breaking change in a pull request, 
     it will take longer to review and time will be wasted if it is rejected😢
   
 - ## Report a bugs or errros
