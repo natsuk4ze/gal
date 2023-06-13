@@ -140,7 +140,7 @@ class App extends StatelessWidget {
 
 - ### I have a question.
 
-  Please see the [Wiki](https://github.com/natsuk4ze/gal/wiki/Best-Practice) first. If that didn't solve the problem.
+  Please see the [Wiki](https://github.com/natsuk4ze/gal/wiki) first. If that didn't solve the problem.
   You can ask them in the [Discussions](https://github.com/natsuk4ze/gal/discussions) of the project.
 
 ## Contributing💚
