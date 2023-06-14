@@ -1,3 +1,9 @@
+## 1.4.0
+
+* UPDATE: `Gal`is `final` now.
+* UPDATE: add export file.
+* UPDATE: add ios `NOT_SUPPORTED_FORMAT` condition.
+
 ## 1.3.6
 
 * UPDATE: add error info on throw.
