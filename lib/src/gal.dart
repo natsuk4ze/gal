@@ -4,7 +4,7 @@ import 'package:gal/src/gal_exception.dart';
 import 'gal_platform_interface.dart';
 
 /// Plugin App Facing
-class Gal {
+final class Gal {
   Gal._();
 
   /// Save video to native gallery app
