@@ -10,7 +10,7 @@ abstract class GalPlatform extends PlatformInterface {
   static GalPlatform get instance => _instance;
 
   static set instance(GalPlatform instance) {
-    PlatformInterface.verifyToken(instance, _token);
+    PlatformInterface.verify(instance, _token);
     _instance = instance;
   }
 
