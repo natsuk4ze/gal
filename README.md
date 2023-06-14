@@ -5,9 +5,7 @@
 [![License](https://img.shields.io/badge/license-BSD3-blue.svg)](LICENSE)
 [![pub package](https://img.shields.io/pub/v/gal.svg)](https://pub.dev/packages/gal)
 
-Hi👋 Gal is very easy to use Flutter Plugin for handle native gallery apps, iOS <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/fe/3a/7e/fe3a7e0e-7f52-b750-0ed2-523998c59d48/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/246x0w.webp" alt="ios photo" width="20" height="20"/> and Android <img src="https://play-lh.googleusercontent.com/ZyWNGIfzUyoajtFcD7NhMksHEZh37f-MkHVGr5Yfefa-IX7yj9SMfI82Z7a2wpdKCA=w240-h480-rw" alt="amdroid photo" width="20" height="20"/>.
-
-
+Hi👋 Gal is very easy to use Flutter Plugin for handle native gallery apps, iOS <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/fe/3a/7e/fe3a7e0e-7f52-b750-0ed2-523998c59d48/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/246x0w.webp" alt="ios photo" width="20" height="20"/> and Android <img src="https://play-lh.googleusercontent.com/ZyWNGIfzUyoajtFcD7NhMksHEZh37f-MkHVGr5Yfefa-IX7yj9SMfI82Z7a2wpdKCA=w240-h480-rw" alt="amdroid photo" width="20" height="20"/>.  
 If you love this pub, Please leave a [like👍](https://pub.dev/packages/gal) and [star⭐️](https://github.com/natsuk4ze/gal).
 
 ![example](https://github.com/natsuk4ze/gal/raw/main/example/assets/example.gif)
