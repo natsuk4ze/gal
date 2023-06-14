@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:gal/gal.dart';
-import 'package:gal/gal_exception.dart';
 
 void main() {
   runApp(const App());
