@@ -36,10 +36,10 @@ import java.util.concurrent.CompletableFuture;
 
 public class GalPlugin
         implements FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.RequestPermissionsResultListener {
+    private static final String PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+    private static final int PERMISSION_REQUEST_CODE = 1317298; // Anything unique in the app.
     private MethodChannel channel;
     private FlutterPluginBinding pluginBinding;
-    private static final String PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-    private static final int PERMISSION_REQUEST_CODE = 1317298;
     private CompletableFuture<Boolean> accessRequestResult;
     private Activity activity;
 
