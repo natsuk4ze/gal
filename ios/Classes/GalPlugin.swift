@@ -15,9 +15,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
       let args = call.arguments as! [String: String]
       self.putMedia(
         path: args["path"]!,
-        type: call.method == "putImage"
-          ? MediaType.image
-          : MediaType.video
+        isImage: call.method == "putImage"
       ) { _, error in
         if let error = error as NSError? {
           result(self.handleError(error: error))
@@ -42,12 +40,12 @@ public class GalPlugin: NSObject, FlutterPlugin {
     }
   }
 
-  private func putMedia(path: String, type: MediaType, completion: @escaping (Bool, Error?) -> Void)
-  {
+  private func putMedia(path: String, isImage: Bool, completion: @escaping (Bool, Error?) -> Void) {
     PHPhotoLibrary.shared().performChanges(
       {
-        type == MediaType.image
-          ? PHAssetChangeRequest.creationRequestForAsset(from: UIImage(contentsOfFile: path)!)
+        isImage
+          ? PHAssetChangeRequest.creationRequestForAsset(
+            from: UIImage(contentsOfFile: path)!)
           : PHAssetChangeRequest.creationRequestForAssetFromVideo(
             atFileURL: URL(fileURLWithPath: path))
       },
@@ -102,9 +100,4 @@ public class GalPlugin: NSObject, FlutterPlugin {
       return FlutterError(code: "NOT_HANDLE", message: message, details: details)
     }
   }
-}
-
-enum MediaType {
-  case image
-  case video
 }
