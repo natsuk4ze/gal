@@ -1,3 +1,7 @@
+## 1.4.1
+
+* UPDATE: update README.
+
 ## 1.4.0
 
 * UPDATE: `Gal`is `final` now.
