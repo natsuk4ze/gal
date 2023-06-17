@@ -97,7 +97,8 @@ public class GalPlugin: NSObject, FlutterPlugin {
             switch error.code {
             case PHPhotosError.accessRestricted.rawValue, PHPhotosError.accessUserDenied.rawValue:
                 return FlutterError(code:"ACCESS_DENIED",message:message,details:details)
-            case PHPhotosError.identifierNotFound.rawValue, PHPhotosError.multipleIdentifiersFound.rawValue, PHPhotosError.requestNotSupportedForAsset.rawValue,3302:
+            case PHPhotosError.identifierNotFound.rawValue, PHPhotosError.multipleIdentifiersFound.rawValue,
+                PHPhotosError.requestNotSupportedForAsset.rawValue,3302:
                 return FlutterError(code: "NOT_SUPPORTED_FORMAT",message:message,details:details)
             case PHPhotosError.notEnoughSpace.rawValue:
                 return FlutterError(code: "NOT_ENOUGH_SPACE",message:message,details:details)
