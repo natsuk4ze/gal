@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-import 'package:gal_example/main.dart' as app;
+// ignore: avoid_relative_lib_imports
+import '../lib/main.dart' as app;
 
-///All tests are done in integration tests,
-///since only integration tests can call native code.
-///Other functions take longer to implement
-///because of the possibility of interacting with native dialogs.
-///For more info: https://github.com/flutter/flutter/wiki/Plugin-Tests
+/// All tests are done in integration tests,
+/// since only integration tests can call native code.
+/// Other functions take longer to implement
+/// because of the possibility of interacting with native dialogs.
+/// For more info: https://github.com/flutter/flutter/wiki/Plugin-Tests
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('test', () {
-    testWidgets('hasAccess() without Exception', (tester) async {
+    testWidgets('hasAccess()', (tester) async {
       app.main();
       await tester.pumpAndSettle();
       final button = find.byIcon(Icons.question_mark);
@@ -21,7 +22,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('open() without Exception', (tester) async {
+    testWidgets('open()', (tester) async {
       app.main();
       await tester.pumpAndSettle();
       final button = find.byIcon(Icons.open_in_new);

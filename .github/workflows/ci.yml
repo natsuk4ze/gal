@@ -9,44 +9,39 @@ on:
       - main
 
 jobs:
-  drive_test:
+  android:
     runs-on: macos-latest
     strategy:
       matrix:
-        device:
-        - "iPhone 8 (14.4)"
-        - "iPhone 11 Pro Max (14.4)"
+        api-level: [31]
+        target: [google_apis]
+      fail-fast: true
     steps:
-      - name: "List all simulators"
-        run: "xcrun instruments -s"
-
-      - name: "Start Simulator"
-        run: |
-          UDID=$(
-            xcrun instruments -s |
-            awk \
-              -F ' *[][]' \
-              -v 'device=${{ matrix.device }}' \
-              '$1 == device { print $2 }'
-          )
-          xcrun simctl boot "${UDID:?No Simulator with this name found}"
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Set up Flutter
+      - uses: actions/checkout@v3
+      - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.x'
-          channel: 'beta'
-          cache: true
+          channel: beta
 
-      - name: Install dependencies
-        run: flutter pub get
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: 11
+          distribution: 'adopt'
+          cache: 'gradle'
 
-      - name: Analyze code
-        run: flutter analyze
-
-      - name: "Run integration tests"
+      - name: Install Flutter dependencies
         run: |
-        cd example
-        flutter test integration_test/integration_test.dart
+          flutter pub get ./example
+
+      - name: Run integration tests
+        # more info on https://github.com/ReactiveCircus/android-emulator-runner
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: x86_64
+          emulator-options: "-no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim"
+          working-directory: ./example
+          script: |
+            echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=600 >> $GITHUB_ENV
+            flutter test integration_test/integration_test.dart
