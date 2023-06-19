@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         device:
-          - "iPhone 11 Simulator (15.2)" # the name of the simulator could be different depending on the macos version you are using
+          - "iPhone 14 Pro Max Simulator (16.2)"
       fail-fast: true
     runs-on: macos-latest
     steps:
