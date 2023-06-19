@@ -13,7 +13,7 @@ import '../lib/main.dart' as app;
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  group('test', () {
+  group('Test', () {
     testWidgets('hasAccess()', (tester) async {
       app.main();
       await tester.pumpAndSettle();
@@ -26,6 +26,22 @@ void main() {
       app.main();
       await tester.pumpAndSettle();
       final button = find.byIcon(Icons.open_in_new);
+      await tester.tap(button);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('putVideo()', (tester) async {
+      app.main();
+      await tester.pumpAndSettle();
+      final button = find.byIcon(Icons.video_file);
+      await tester.tap(button);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('putImage()', (tester) async {
+      app.main();
+      await tester.pumpAndSettle();
+      final button = find.byIcon(Icons.image);
       await tester.tap(button);
       expect(tester.takeException(), isNull);
     });
