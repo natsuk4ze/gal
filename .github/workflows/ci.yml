@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         device:
-          - "iPhone 14 Pro Max Simulator (16.2) (FD3B4147-16E0-4B9D-8389-1257375C5E9E)"
+          - "iPhone 14 Pro Max Simulator"
       fail-fast: true
     runs-on: macos-latest
     steps:
@@ -17,11 +17,8 @@ jobs:
         run: "xcrun xctrace list devices"
 
       - name: "Start Simulator"
-        # the command "xcrun simctl boot" expects a device identifier
-        # the assignment of the UDID variable consists of retrieving the ID of the simulator
-        # by extracting it from the command "xcrun xctrace list devices"
         run: |
-          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }}" | awk '{gsub(/[()]/,""); print $NF}')
+          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }}" | awk 'NR==1{gsub(/[()]/,""); print $NF}')
           echo $UDID
           xcrun simctl boot "${UDID:?No Simulator with this name found}"
 
