@@ -2,13 +2,40 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
+  ios:
+    strategy:
+      matrix:
+        device:
+          - "iPhone 14 Pro Max Simulator"
+      fail-fast: true
+    runs-on: macos-latest
+    steps:
+      - name: "List all simulators"
+        run: "xcrun xctrace list devices"
+
+      - name: "Start Simulator"
+        run: |
+          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }}" | awk 'NR==1{gsub(/[()]/,""); print $NF}')
+          echo $UDID
+          xcrun simctl boot "${UDID:?No Simulator with this name found}"
+
+      - name: Check out
+        uses: actions/checkout@v3
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: beta
+
+      - name: Install Flutter dependencies
+        run: flutter pub get ./example
+
+      - name: Run integration tests
+        run: |
+          cd example
+          flutter test integration_test/integration_test.dart
   android:
     runs-on: macos-latest
     strategy:
@@ -17,7 +44,9 @@ jobs:
         target: [google_apis]
       fail-fast: true
     steps:
-      - uses: actions/checkout@v3
+      - name: Check out
+        uses: actions/checkout@v3
+
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
         with:
