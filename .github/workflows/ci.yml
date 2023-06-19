@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         device:
-          - "iPhone 14 Pro Max Simulator (16.2)"
+          - "iPhone 14 Pro Max Simulator (16.2) (FD3B4147-16E0-4B9D-8389-1257375C5E9E)"
       fail-fast: true
     runs-on: macos-latest
     steps:
