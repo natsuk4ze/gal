@@ -9,6 +9,41 @@ on:
       - main
 
 jobs:
+  ios:
+    strategy:
+      matrix:
+        device:
+          - "iPhone 11 Simulator (15.2)" # the name of the simulator could be different depending on the macos version you are using
+      fail-fast: true
+    runs-on: macos-latest
+    steps:
+      - name: "List all simulators"
+        run: "xcrun xctrace list devices"
+
+      - name: "Start Simulator"
+        # the command "xcrun simctl boot" expects a device identifier
+        # the assignment of the UDID variable consists of retrieving the ID of the simulator
+        # by extracting it from the command "xcrun xctrace list devices"
+        run: |
+          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }}" | awk '{gsub(/[()]/,""); print $NF}')
+          echo $UDID
+          xcrun simctl boot "${UDID:?No Simulator with this name found}"
+
+      - name: Check out
+      - uses: actions/checkout@v3
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: beta
+
+      - name: Install Flutter dependencies
+        run: flutter pub get ./example
+
+      - name: Run integration tests
+        run: |
+          cd example
+          flutter test integration_test/integration_test.dart
   android:
     runs-on: macos-latest
     strategy:
@@ -17,7 +52,9 @@ jobs:
         target: [google_apis]
       fail-fast: true
     steps:
+      - name: Check out
       - uses: actions/checkout@v3
+
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
         with:
