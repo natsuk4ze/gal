@@ -4,6 +4,39 @@ on:
   push:
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+     - name: Check out
+       uses: actions/checkout@v3
+
+     - name: Cache Flutter SDK
+       uses: actions/cache@v2
+       with:
+         path: /opt/hostedtoolcache/Flutter
+         key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
+         restore-keys: |
+           ${{ runner.os }}-flutter-
+
+     - name: Setup Flutter SDK
+       uses: subosito/flutter-action@v2
+       with:
+         channel: beta
+
+     - name: Cache Flutter packages
+       uses: actions/cache@v2
+       with:
+         path: ~/.pub-cache
+         key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+         restore-keys: |
+           ${{ runner.os }}-pub-
+
+     - name: Install packages
+       run: flutter pub get
+
+     - name: Analyze
+       run: flutter analyze
+
   ios:
     strategy:
       matrix:
@@ -24,18 +57,35 @@ jobs:
       - name: Check out
         uses: actions/checkout@v3
 
+      - name: Cache Flutter SDK
+        uses: actions/cache@v2
+        with:
+          path: /opt/hostedtoolcache/Flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
         with:
           channel: beta
 
+      - name: Cache Flutter packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
       - name: Install Flutter dependencies
-        run: flutter pub get ./example
+        run: flutter --disable-telemetry && flutter pub get ./example    
 
       - name: Run integration tests
         run: |
           cd example
           flutter test integration_test/integration_test.dart
+
   android:
     runs-on: macos-latest
     strategy:
@@ -47,24 +97,36 @@ jobs:
       - name: Check out
         uses: actions/checkout@v3
 
+      - name: Cache Flutter SDK
+        uses: actions/cache@v2
+        with:
+          path: /opt/hostedtoolcache/Flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
         with:
           channel: beta
 
-      - name: Set up JDK 11
+      - name: Set up JDK
         uses: actions/setup-java@v2
         with:
           java-version: 11
           distribution: 'adopt'
           cache: 'gradle'
 
+      - name: Cache Flutter packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
       - name: Install Flutter dependencies
-        run: |
-          flutter pub get ./example
-          
-      - name: Analyze code
-        run: flutter analyze
+        run: flutter --disable-telemetry && flutter pub get ./example   
 
       # More info on https://github.com/ReactiveCircus/android-emulator-runner    
       - name: Run integration tests
