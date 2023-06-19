@@ -41,14 +41,14 @@ jobs:
     strategy:
       matrix:
         device:
-          - "iPhone 14 Pro Max Simulator"
+          - iPhone 14 Pro Max Simulator
       fail-fast: true
     runs-on: macos-latest
     steps:
-      - name: "List all simulators"
-        run: "xcrun xctrace list devices"
+      - name: List all simulators
+        run: xcrun xctrace list devices
 
-      - name: "Start Simulator"
+      - name: Start Simulator
         run: |
           UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }}" | awk 'NR==1{gsub(/[()]/,""); print $NF}')
           echo $UDID
@@ -114,8 +114,8 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: 11
-          distribution: 'adopt'
-          cache: 'gradle'
+          distribution: adopt
+          cache: gradle
 
       - name: Cache Flutter packages
         uses: actions/cache@v2
@@ -134,7 +134,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
-          emulator-options: "-no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim"
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           working-directory: ./example
           script: |
             echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=600 >> $GITHUB_ENV
