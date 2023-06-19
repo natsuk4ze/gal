@@ -79,7 +79,7 @@ jobs:
             ${{ runner.os }}-pub-
 
       - name: Install Flutter dependencies
-        run: flutter pub get ./example
+        run: flutter config --disable-analytics && flutter pub get ./example    
 
       - name: Run integration tests
         run: |
@@ -126,8 +126,7 @@ jobs:
             ${{ runner.os }}-pub-
 
       - name: Install Flutter dependencies
-        run: |
-          flutter pub get ./example
+        run: flutter config --disable-analytics && flutter pub get ./example   
 
       # More info on https://github.com/ReactiveCircus/android-emulator-runner    
       - name: Run integration tests
