@@ -2,18 +2,13 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   ios:
     strategy:
       matrix:
         device:
-          - "iPhone 11 Simulator (15.2)" # the name of the simulator could be different depending on the macos version you are using
+          - "iPhone 14 Pro Max Simulator"
       fail-fast: true
     runs-on: macos-latest
     steps:
@@ -21,16 +16,13 @@ jobs:
         run: "xcrun xctrace list devices"
 
       - name: "Start Simulator"
-        # the command "xcrun simctl boot" expects a device identifier
-        # the assignment of the UDID variable consists of retrieving the ID of the simulator
-        # by extracting it from the command "xcrun xctrace list devices"
         run: |
-          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }}" | awk '{gsub(/[()]/,""); print $NF}')
+          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }}" | awk 'NR==1{gsub(/[()]/,""); print $NF}')
           echo $UDID
           xcrun simctl boot "${UDID:?No Simulator with this name found}"
 
       - name: Check out
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v3
 
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
@@ -53,7 +45,7 @@ jobs:
       fail-fast: true
     steps:
       - name: Check out
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v3
 
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
