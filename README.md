@@ -78,10 +78,10 @@ await Gal.putVideo(videoPath);
 ### Handle Permission
 
 ```dart
-//Check permission
+//Check Permission
 await Gal.hasAccess();
 
-//Request access
+//Request Access
 await Gal.requestAccess();
 ```
 

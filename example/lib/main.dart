@@ -54,7 +54,6 @@ class App extends StatelessWidget {
                         }
                         return;
                       }
-                      // ignore: use_build_context_synchronously
                       if (!context.mounted) return;
                       showDialog(
                         context: context,
