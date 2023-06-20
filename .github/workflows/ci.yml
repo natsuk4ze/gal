@@ -2,34 +2,140 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  build:
+  setup:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Check out code
-      uses: actions/checkout@v3
+     - name: Check out
+       uses: actions/checkout@v3
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.x'
-        channel: 'beta'
-        cache: true
+     - name: Cache Flutter SDK
+       uses: actions/cache@v2
+       with:
+         path: /opt/hostedtoolcache/Flutter
+         key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
+         restore-keys: |
+           ${{ runner.os }}-flutter-
 
-    - name: Install dependencies
-      run: flutter pub get
+     - name: Setup Flutter SDK
+       uses: subosito/flutter-action@v2
+       with:
+         channel: beta
 
-    - name: Analyze code
-      run: flutter analyze
+     - name: Cache Flutter packages
+       uses: actions/cache@v2
+       with:
+         path: ~/.pub-cache
+         key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+         restore-keys: |
+           ${{ runner.os }}-pub-
 
-    - name: Run integration tests
-      run: |
-        cd example
-        flutter test test/integration_test.dart
+     - name: Install packages
+       run: flutter pub get
+
+     - name: Analyze
+       run: flutter analyze
+
+  ios:
+    strategy:
+      matrix:
+        device:
+          - iPhone 14 Pro Max Simulator
+      fail-fast: true
+    runs-on: macos-latest
+    steps:
+      - name: List all simulators
+        run: xcrun xctrace list devices
+
+      - name: Start Simulator
+        run: |
+          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }}" | awk 'NR==1{gsub(/[()]/,""); print $NF}')
+          echo $UDID
+          xcrun simctl boot "${UDID:?No Simulator with this name found}"
+
+      - name: Check out
+        uses: actions/checkout@v3
+
+      - name: Cache Flutter SDK
+        uses: actions/cache@v2
+        with:
+          path: /opt/hostedtoolcache/Flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: beta
+
+      - name: Cache Flutter packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Install Flutter dependencies
+        run: flutter --disable-telemetry && flutter pub get ./example    
+
+      - name: Run integration tests
+        run: |
+          cd example
+          flutter test integration_test/integration_test.dart
+
+  android:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        api-level: [31]
+        target: [google_apis]
+      fail-fast: true
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+
+      - name: Cache Flutter SDK
+        uses: actions/cache@v2
+        with:
+          path: /opt/hostedtoolcache/Flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: beta
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 11
+          distribution: adopt
+          cache: gradle
+
+      - name: Cache Flutter packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Install Flutter dependencies
+        run: flutter --disable-telemetry && flutter pub get ./example   
+
+      # More info on https://github.com/ReactiveCircus/android-emulator-runner    
+      - name: Run integration tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: x86_64
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          working-directory: ./example
+          script: |
+            echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=600 >> $GITHUB_ENV
+            flutter test integration_test/integration_test.dart

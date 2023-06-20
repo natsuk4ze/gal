@@ -36,10 +36,10 @@ import java.util.concurrent.CompletableFuture;
 
 public class GalPlugin
         implements FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.RequestPermissionsResultListener {
+    private static final String PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+    private static final int PERMISSION_REQUEST_CODE = 1317298; // Anything unique in the app.
     private MethodChannel channel;
     private FlutterPluginBinding pluginBinding;
-    private static final String PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-    private static final int PERMISSION_REQUEST_CODE = 1317298;
     private CompletableFuture<Boolean> accessRequestResult;
     private Activity activity;
 
@@ -63,17 +63,8 @@ public class GalPlugin
                     try {
                         putMedia(pluginBinding.getApplicationContext(), path, contentUri);
                         new Handler(Looper.getMainLooper()).post(() -> result.success(null));
-                    } catch (SecurityException e) {
-                        sendError("ACCESS_DENIED", e.toString(), e.getStackTrace(), result);
-                    } catch (FileNotFoundException e) {
-                        sendError("NOT_SUPPORTED_FORMAT", e.toString(), e.getStackTrace(), result);
-                    } catch (IOException e) {
-                        String message = e.toString();
-                        if (message != null && message.contains("No space left on device")) {
-                            sendError("NOT_ENOUGH_SPACE", e.toString(), e.getStackTrace(), result);
-                        } else {
-                            sendError("UNEXPECTED", e.toString(), e.getStackTrace(), result);
-                        }
+                    } catch (Exception e) {
+                        handleError(e, result);
                     }
                 });
                 break;
@@ -93,25 +84,13 @@ public class GalPlugin
                     result.success(true);
                     return;
                 }
-                accessRequestResult = new CompletableFuture<>();
-                ActivityCompat.requestPermissions(activity, new String[] { PERMISSION }, PERMISSION_REQUEST_CODE);
-                accessRequestResult.thenAccept(result::success);
+                requestAccess().thenAccept(result::success);
                 break;
             }
-            default: {
+            default:
                 result.notImplemented();
-            }
-        }
-    }
 
-    private void sendError(String errorCode, String message, StackTraceElement[] stackTrace, Result result) {
-        StringBuilder trace = new StringBuilder();
-        for (StackTraceElement st : stackTrace) {
-            trace.append(st.toString());
-            trace.append("\n");
         }
-        new Handler(Looper.getMainLooper())
-                .post(() -> result.error(errorCode, message, trace.toString()));
     }
 
     private void putMedia(Context context, String path, Uri contentUri)
@@ -152,6 +131,36 @@ public class GalPlugin
         }
         int hasAccess = ContextCompat.checkSelfPermission(context, PERMISSION);
         return hasAccess == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private CompletableFuture<Boolean> requestAccess() {
+        accessRequestResult = new CompletableFuture<>();
+        ActivityCompat.requestPermissions(activity, new String[] { PERMISSION }, PERMISSION_REQUEST_CODE);
+        return accessRequestResult;
+    }
+
+    private void sendError(String errorCode, String message, StackTraceElement[] stackTrace, Result result) {
+        StringBuilder trace = new StringBuilder();
+        for (StackTraceElement st : stackTrace) {
+            trace.append(st.toString());
+            trace.append("\n");
+        }
+        new Handler(Looper.getMainLooper())
+                .post(() -> result.error(errorCode, message, trace.toString()));
+    }
+
+    private void handleError(Exception e, Result result) {
+        String errorCode;
+        if (e instanceof SecurityException) {
+            errorCode = "ACCESS_DENIED";
+        } else if (e instanceof FileNotFoundException) {
+            errorCode = "NOT_SUPPORTED_FORMAT";
+        } else if (e instanceof IOException && e.toString().contains("No space left on device")) {
+            errorCode = "NOT_ENOUGH_SPACE";
+        } else {
+            errorCode = "UNEXPECTED";
+        }
+        sendError(errorCode, e.toString(), e.getStackTrace(), result);
     }
 
     @Override
