@@ -30,11 +30,9 @@ public class GalPlugin: NSObject, FlutterPlugin {
     case "hasAccess":
       result(self.hasAccess())
     case "requestAccess":
-      self.hasAccess()
-        ? result(true)
-        : self.requestAccess(completion: { granted in
-          result(granted)
-        })
+      self.requestAccess(completion: { granted in
+        result(granted)
+      })
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -57,7 +55,6 @@ public class GalPlugin: NSObject, FlutterPlugin {
     UIApplication.shared.open(url, options: [:]) { _ in completion() }
   }
 
-  // For more info: https://qiita.com/fuziki/items/87a3a1a8e481a1546b38
   private func hasAccess() -> Bool {
     if #available(iOS 14, *) {
       return PHPhotoLibrary.authorizationStatus(for: .addOnly) == .authorized
@@ -66,7 +63,9 @@ public class GalPlugin: NSObject, FlutterPlugin {
     }
   }
 
-  // For more info: https://qiita.com/fuziki/items/87a3a1a8e481a1546b38
+  /// If permissions have already been granted or denied by the user,
+  /// returns the result immediately, without displaying a dialog.
+  /// For more info: https://qiita.com/fuziki/items/87a3a1a8e481a1546b38
   private func requestAccess(completion: @escaping (Bool) -> Void) {
     if #available(iOS 14, *) {
       PHPhotoLibrary.requestAuthorization(for: .addOnly) { _ in

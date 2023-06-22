@@ -80,10 +80,6 @@ public class GalPlugin
                 break;
             }
             case "requestAccess": {
-                if (hasAccess()) {
-                    result.success(true);
-                    return;
-                }
                 requestAccess().thenAccept(result::success);
                 break;
             }
@@ -133,6 +129,8 @@ public class GalPlugin
         return hasAccess == PackageManager.PERMISSION_GRANTED;
     }
 
+    // If permissions have already been granted by the user, 
+    // returns true immediately without displaying the dialog.
     private CompletableFuture<Boolean> requestAccess() {
         accessRequestResult = new CompletableFuture<>();
         ActivityCompat.requestPermissions(activity, new String[] { PERMISSION }, PERMISSION_REQUEST_CODE);
