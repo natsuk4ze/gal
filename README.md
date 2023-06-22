@@ -142,7 +142,8 @@ class App extends StatelessWidget {
 - ### I have a question.
 
   Please see the [Wiki](https://github.com/natsuk4ze/gal/wiki) first. If that didn't solve the problem.
-  You can ask them in the [Discussions](https://github.com/natsuk4ze/gal/discussions) of the project.
+  You should go to the [Discussion](https://github.com/natsuk4ze/gal/discussions/categories/q-a?discussions_q=).
+  Once you are sure there are no duplicates, please ask them through Q&A.
 
 ## 💚Contributing
 
