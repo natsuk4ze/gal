@@ -57,19 +57,19 @@ await Gal.putImage('$filePath');
 await Gal.putVideo('$filePath');
 ```
 
-### Dawnload from Internet
+### Download from Internet
 
 ```console
 $ flutter pub add dio
 ```
 
 ```dart
-//Dawnload Image
+//Download Image
 final imagePath = '${Directory.systemTemp.path}/image.jpg';
 await Dio().download('$url',imagePath);
 await Gal.putImage(imagePath);
 
-//Dawnload Video
+//Download Video
 final videoPath = '${Directory.systemTemp.path}/video.mp4';
 await Dio().download('$url',videoPath);
 await Gal.putVideo(videoPath);
