@@ -25,19 +25,22 @@ class GalException implements Exception {
 
 enum GalExceptionType {
 
-  ///When Has no permission to access gallery app.
+  /// When Has no permission to access gallery app.
   accessDenied,
 
-  ///When Insufficient device storage.
+  /// When Insufficient device storage.
   notEnoughSpace,
 
-  ///When trying to save a file in an unsupported format.
+  /// When trying to save a file in an unsupported format.
+  /// For details please see
+  /// https://github.com/natsuk4ze/gal/wiki/Formats
   notSupportedFormat,
 
-  ///When an error occurs with unexpected.
+  /// When an error occurs with unexpected.
   unexpected,
 
-  ///When an error occurs under iOS15.
+  /// When an error occurs under iOS15.
+  /// Under iOS 15, it is not possible to get details of errors on saving.
   notHandle;
 
   String get code => switch (this) {

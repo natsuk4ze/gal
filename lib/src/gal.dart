@@ -4,8 +4,9 @@ import 'package:gal/src/gal_exception.dart';
 import 'gal_platform_interface.dart';
 
 /// Plugin App Facing
-/// For detailed differences in behavior between platforms, see
-/// https://github.com/natsuk4ze/gal/wiki/Android-and-iOS-specifications.
+/// For detailed please see
+/// https://github.com/natsuk4ze/gal/ or
+/// https://github.com/natsuk4ze/gal/wiki
 final class Gal {
   Gal._();
 
@@ -37,6 +38,8 @@ final class Gal {
 
   /// Returns whether or not the app has access.
   /// For Android API >=29, or <23, this request is unnecessary and returns true.
+  /// For details please see
+  /// https://github.com/natsuk4ze/gal/wiki/Permissions
   static Future<bool> hasAccess() async => GalPlatform.instance.hasAccess();
 
   /// Displays a dialog for the request and returns whether the user has accepted.
