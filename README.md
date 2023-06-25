@@ -20,6 +20,7 @@ If you love this pub, Please leave a [like👍](https://pub.dev/packages/gal) an
 * Save image
 * Handle pemission
 * Handle errors
+* Lots of docs and wiki
 
 ## 🚀Get started
 
