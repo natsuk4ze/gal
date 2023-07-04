@@ -37,6 +37,14 @@ void main() {
             expect(tester.takeException(), isNull);
           });
 
+          testWidgets('putImageBytes()', (tester) async {
+            app.main();
+            await tester.pumpAndSettle();
+            final button = find.byIcon(Icons.image_rounded);
+            await tester.tap(button);
+            expect(tester.takeException(), isNull);
+          });
+
           testWidgets('open()', (tester) async {
             app.main();
             await tester.pumpAndSettle();
