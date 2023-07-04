@@ -21,9 +21,6 @@ final class Gal {
   static Future<void> putVideo(String path) async =>
       _voidOrThrow(() async => GalPlatform.instance.putVideo(path));
 
-  static Future<void> putVideoBytes(Uint8List bytes) async =>
-      _voidOrThrow(() async => GalPlatform.instance.putVideoBytes(bytes));
-
   /// Save image to standard gallery app
   /// [path] is local path.
   /// When this function was called was the first access

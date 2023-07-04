@@ -32,11 +32,6 @@ abstract class GalPlatform extends PlatformInterface {
       throw UnimplementedError('putImageBytes() has not been implemented.');
 
   /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
-  /// define [putVideoBytes].
-  Future<void> putVideoBytes(Uint8List bytes) =>
-      throw UnimplementedError('putVideoBytes() has not been implemented.');
-
-  /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
   /// define [open].
   Future<void> open() =>
       throw UnimplementedError('open() has not been implemented.');

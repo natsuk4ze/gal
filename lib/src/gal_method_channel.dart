@@ -13,10 +13,6 @@ final class MethodChannelGal extends GalPlatform {
       methodChannel.invokeMethod<void>('putVideo', {'path': path});
 
   @override
-  Future<void> putVideoBytes(Uint8List bytes) async =>
-      methodChannel.invokeMethod<void>('putVideoBytes', {'bytes': bytes});
-
-  @override
   Future<void> putImage(String path) async =>
       methodChannel.invokeMethod<void>('putImage', {'path': path});
 
