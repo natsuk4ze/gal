@@ -55,18 +55,24 @@ public class GalPlugin
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
         switch (call.method) {
             case "putVideo":
-            case "putImage":
-            case "putVideoBytes":
-            case "putImageBytes": {
-                Uri uri = call.method.startsWith("putVideo") ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+            case "putImage": {
+                Uri uri = call.method.contains("Video") ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI
                         : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
                 CompletableFuture.runAsync(() -> {
                     try {
-                        if (call.method.contains("Bytes")) {
-                            putMediaBytes(pluginBinding.getApplicationContext(), (byte[]) call.argument("bytes"), uri);
-                        } else {
-                            putMedia(pluginBinding.getApplicationContext(), (String) call.argument("path"), uri);
-                        }
+                        putMedia(pluginBinding.getApplicationContext(), (String) call.argument("path"), uri);
+                        new Handler(Looper.getMainLooper()).post(() -> result.success(null));
+                    } catch (Exception e) {
+                        handleError(e, result);
+                    }
+                });
+                break;
+            }
+            case "putImageBytes": {
+                Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        putImageBytes(pluginBinding.getApplicationContext(), (byte[]) call.argument("bytes"), uri);
                         new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                     } catch (Exception e) {
                         handleError(e, result);
@@ -90,7 +96,6 @@ public class GalPlugin
             }
             default:
                 result.notImplemented();
-
         }
     }
 
@@ -102,7 +107,7 @@ public class GalPlugin
         }
     }
 
-    private void putMediaBytes(Context context, byte[] bytes, Uri contentUri)
+    private void putImageBytes(Context context, byte[] bytes, Uri contentUri)
             throws IOException, SecurityException {
         try (InputStream in = new ByteArrayInputStream(bytes)) {
             writeContent(context, in, contentUri);
