@@ -91,6 +91,19 @@ class App extends StatelessWidget {
                   ),
                   _Button(
                     onPressed: () async {
+                      final res = await Dio().get(
+                          'https://github.com/natsuk4ze/gal/raw/main/example/assets/done.mp4',
+                          options: Options(responseType: ResponseType.bytes));
+                      await Gal.putVideoBytes(Uint8List.fromList(res.data));
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      }
+                    },
+                    label: 'Save Video from bytes',
+                    icon: Icons.video_file_rounded,
+                  ),
+                  _Button(
+                    onPressed: () async {
                       final path = '${Directory.systemTemp.path}/done.mp4';
                       await Dio().download(
                         'https://github.com/natsuk4ze/gal/raw/main/example/assets/done.mp4',
@@ -114,6 +127,19 @@ class App extends StatelessWidget {
                     },
                     label: 'Save Image from local',
                     icon: Icons.image,
+                  ),
+                  _Button(
+                    onPressed: () async {
+                      final res = await Dio().get(
+                          'https://github.com/natsuk4ze/gal/raw/main/example/assets/done.jpg',
+                          options: Options(responseType: ResponseType.bytes));
+                      await Gal.putImageBytes(Uint8List.fromList(res.data));
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      }
+                    },
+                    label: 'Save Image from bytes',
+                    icon: Icons.image_rounded,
                   ),
                   _Button(
                     onPressed: () async {
