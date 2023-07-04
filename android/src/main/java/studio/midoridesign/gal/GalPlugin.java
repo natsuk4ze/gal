@@ -32,6 +32,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.ByteArrayInputStream;
 import java.util.concurrent.CompletableFuture;
 
 public class GalPlugin
@@ -55,13 +56,23 @@ public class GalPlugin
         switch (call.method) {
             case "putVideo":
             case "putImage": {
-                String path = call.argument("path");
-                Uri contentUri = call.method.equals("putVideo") ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                Uri uri = call.method.contains("Video") ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI
                         : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-
                 CompletableFuture.runAsync(() -> {
                     try {
-                        putMedia(pluginBinding.getApplicationContext(), path, contentUri);
+                        putMedia(pluginBinding.getApplicationContext(), (String) call.argument("path"), uri);
+                        new Handler(Looper.getMainLooper()).post(() -> result.success(null));
+                    } catch (Exception e) {
+                        handleError(e, result);
+                    }
+                });
+                break;
+            }
+            case "putImageBytes": {
+                Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        putImageBytes(pluginBinding.getApplicationContext(), (byte[]) call.argument("bytes"), uri);
                         new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                     } catch (Exception e) {
                         handleError(e, result);
@@ -85,23 +96,32 @@ public class GalPlugin
             }
             default:
                 result.notImplemented();
-
         }
     }
 
     private void putMedia(Context context, String path, Uri contentUri)
             throws IOException, SecurityException, FileNotFoundException {
+        File file = new File(path);
+        try (InputStream in = new FileInputStream(file)) {
+            writeContent(context, in, contentUri);
+        }
+    }
+
+    private void putImageBytes(Context context, byte[] bytes, Uri contentUri)
+            throws IOException, SecurityException {
+        try (InputStream in = new ByteArrayInputStream(bytes)) {
+            writeContent(context, in, contentUri);
+        }
+    }
+
+    private void writeContent(Context context, InputStream in, Uri contentUri)
+            throws IOException, SecurityException {
         ContentResolver resolver = context.getContentResolver();
         ContentValues values = new ContentValues();
-        File file = new File(path);
-
-        values.put(MediaStore.MediaColumns.DISPLAY_NAME, file.getName());
         values.put(MediaStore.MediaColumns.DATE_ADDED, System.currentTimeMillis());
-
         Uri mediaUri = resolver.insert(contentUri, values);
 
-        try (OutputStream out = resolver.openOutputStream(mediaUri);
-                InputStream in = new FileInputStream(file)) {
+        try (OutputStream out = resolver.openOutputStream(mediaUri)) {
             byte[] buffer = new byte[8192];
             int bytesRead;
             while ((bytesRead = in.read(buffer)) != -1) {
@@ -129,7 +149,7 @@ public class GalPlugin
         return hasAccess == PackageManager.PERMISSION_GRANTED;
     }
 
-    // If permissions have already been granted by the user, 
+    // If permissions have already been granted by the user,
     // returns true immediately without displaying the dialog.
     private CompletableFuture<Boolean> requestAccess() {
         accessRequestResult = new CompletableFuture<>();

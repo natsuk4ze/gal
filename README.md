@@ -53,6 +53,7 @@ Add the following key to your _AndroidManifest_ file, located in
 ```dart
 //Save Image
 await Gal.putImage('$filePath');
+await Gal.putImageBytes('$uint8List');
 
 //Save Video
 await Gal.putVideo('$filePath');
