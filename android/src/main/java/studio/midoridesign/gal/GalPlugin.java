@@ -58,16 +58,14 @@ public class GalPlugin
             case "putImage":
             case "putVideoBytes":
             case "putImageBytes": {
-                Uri contentUri = call.method.startsWith("putVideo") ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                Uri uri = call.method.startsWith("putVideo") ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI
                         : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
                 CompletableFuture.runAsync(() -> {
                     try {
                         if (call.method.contains("Bytes")) {
-                            byte[] bytes = call.argument("bytes");
-                            putMediaBytes(pluginBinding.getApplicationContext(), bytes, contentUri);
+                            putMediaBytes(pluginBinding.getApplicationContext(), (byte[]) call.argument("bytes"), uri);
                         } else {
-                            String path = call.argument("path");
-                            putMedia(pluginBinding.getApplicationContext(), path, contentUri);
+                            putMedia(pluginBinding.getApplicationContext(), (String) call.argument("path"), uri);
                         }
                         new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                     } catch (Exception e) {
