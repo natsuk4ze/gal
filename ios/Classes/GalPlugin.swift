@@ -11,11 +11,22 @@ public class GalPlugin: NSObject, FlutterPlugin {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
-    case "putImage", "putVideo":
+    case "putVideo", "putImage":
       let args = call.arguments as! [String: String]
       self.putMedia(
         path: args["path"]!,
         isImage: call.method == "putImage"
+      ) { _, error in
+        if let error = error as NSError? {
+          result(self.handleError(error: error))
+        } else {
+          result(nil)
+        }
+      }
+    case "putImageBytes":
+      let args = call.arguments as! [String: FlutterStandardTypedData]
+      self.putImageBytes(
+        bytes: args["bytes"]!.data
       ) { _, error in
         if let error = error as NSError? {
           result(self.handleError(error: error))
@@ -48,6 +59,15 @@ public class GalPlugin: NSObject, FlutterPlugin {
             atFileURL: URL(fileURLWithPath: path))
       },
       completionHandler: completion)
+  }
+
+  private func putImageBytes(
+    bytes: Data, completion: @escaping (Bool, Error?) -> Void
+  ) {
+    PHPhotoLibrary.shared().performChanges(
+      {
+        PHAssetChangeRequest.creationRequestForAsset(from: UIImage(data: bytes)!)
+      }, completionHandler: completion)
   }
 
   private func open(completion: @escaping () -> Void) {
