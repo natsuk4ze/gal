@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'gal_method_channel.dart';
@@ -23,6 +25,16 @@ abstract class GalPlatform extends PlatformInterface {
   /// define [putImage].
   Future<void> putImage(String path) =>
       throw UnimplementedError('putImage() has not been implemented.');
+
+  /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
+  /// define [putImageBytes].
+  Future<void> putImageBytes(Uint8List bytes) =>
+      throw UnimplementedError('putImageBytes() has not been implemented.');
+
+  /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
+  /// define [putVideoBytes].
+  Future<void> putVideoBytes(Uint8List bytes) =>
+      throw UnimplementedError('putVideoBytes() has not been implemented.');
 
   /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
   /// define [open].

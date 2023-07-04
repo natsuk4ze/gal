@@ -8,15 +8,21 @@ final class MethodChannelGal extends GalPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('gal');
 
-  /// argument is Map.
   @override
   Future<void> putVideo(String path) async =>
       methodChannel.invokeMethod<void>('putVideo', {'path': path});
 
-  /// argument is Map.
+  @override
+  Future<void> putVideoBytes(Uint8List bytes) async =>
+      methodChannel.invokeMethod<void>('putVideoBytes', {'bytes': bytes});
+
   @override
   Future<void> putImage(String path) async =>
       methodChannel.invokeMethod<void>('putImage', {'path': path});
+
+  @override
+  Future<void> putImageBytes(Uint8List bytes) async =>
+      methodChannel.invokeMethod<void>('putImageBytes', {'bytes': bytes});
 
   @override
   Future<void> open() async => methodChannel.invokeMethod<void>('open');
@@ -26,6 +32,7 @@ final class MethodChannelGal extends GalPlatform {
     final hasAccess = await methodChannel.invokeMethod<bool>('hasAccess');
     return hasAccess ?? false;
   }
+
   @override
   Future<bool> requestAccess() async {
     final granted = await methodChannel.invokeMethod<bool>('requestAccess');

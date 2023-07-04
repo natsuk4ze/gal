@@ -21,6 +21,9 @@ final class Gal {
   static Future<void> putVideo(String path) async =>
       _voidOrThrow(() async => GalPlatform.instance.putVideo(path));
 
+  static Future<void> putVideoBytes(Uint8List bytes) async =>
+      _voidOrThrow(() async => GalPlatform.instance.putVideoBytes(bytes));
+
   /// Save image to standard gallery app
   /// [path] is local path.
   /// When this function was called was the first access
@@ -31,6 +34,9 @@ final class Gal {
   /// before calling this function.
   static Future<void> putImage(String path) async =>
       _voidOrThrow(() async => GalPlatform.instance.putImage(path));
+
+  static Future<void> putImageBytes(Uint8List bytes) async =>
+      _voidOrThrow(() async => GalPlatform.instance.putImageBytes(bytes));
 
   /// Open OS standard gallery app.
   /// Open "iOS Photos" when iOS, "Google Photos" or something when Android.
