@@ -1,3 +1,7 @@
+## 1.5.0
+
+* FEAT: Add `putImageBytes()`. This allows saving image from memory.
+
 ## 1.4.1
 
 * UPDATE: update README.
