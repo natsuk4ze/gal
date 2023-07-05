@@ -24,7 +24,6 @@ class GalException implements Exception {
 }
 
 enum GalExceptionType {
-
   /// When Has no permission to access gallery app.
   accessDenied,
 
@@ -39,7 +38,8 @@ enum GalExceptionType {
   /// When an error occurs with unexpected.
   unexpected,
 
-  @Deprecated('Use [unexpected] instead. For more info at ')
+  @Deprecated(
+      'Use [unexpected] instead. https://github.com/natsuk4ze/gal/pull/25')
   notHandle;
 
   String get code => switch (this) {
