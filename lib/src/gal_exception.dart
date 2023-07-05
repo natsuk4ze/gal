@@ -1,5 +1,9 @@
+import 'package:flutter/foundation.dart';
+
+/// Every [Exception] that [Gal] throws should be this.
+@immutable
 class GalException implements Exception {
-  GalException({
+  const GalException({
     required this.type,
     required this.error,
     required this.stackTrace,

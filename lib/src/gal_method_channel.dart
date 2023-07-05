@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'gal_platform_interface.dart';
 
 /// Plugin Communication
+@immutable
 final class MethodChannelGal extends GalPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('gal');

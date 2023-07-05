@@ -51,7 +51,7 @@ Add the following key to your _AndroidManifest_ file, located in
 ### Save from local
 
 ```dart
-//Save Image
+//Save Image (Supports two ways)
 await Gal.putImage('$filePath');
 await Gal.putImageBytes('$uint8List');
 

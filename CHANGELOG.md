@@ -1,3 +1,8 @@
+## 1.6.1
+
+* UPDATE: We have made a stronger typing. `Gal`,`GalException`,`MethodChannelGal` has `@immutable` now.
+* UPDATE: update README.
+
 ## 1.6.0
 
 * UPDATE: Significantly improved error handling for low iOS versions. As a result, `GalExceptionType.unHandle` is now `@Deprecated` and will be removed in the next major version.
