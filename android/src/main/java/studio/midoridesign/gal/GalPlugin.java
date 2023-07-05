@@ -16,13 +16,13 @@ import io.flutter.plugin.common.PluginRegistry;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Build;
+import android.net.Uri;
 import android.provider.MediaStore;
-import android.content.Intent;
 import android.Manifest;
 import android.app.Activity;
 
