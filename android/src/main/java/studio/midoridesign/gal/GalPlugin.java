@@ -38,7 +38,10 @@ import java.util.concurrent.CompletableFuture;
 public class GalPlugin
         implements FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.RequestPermissionsResultListener {
     private static final String PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+    private static final Uri IMAGE_URI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+    private static final Uri VIDEO_URI = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
     private static final int PERMISSION_REQUEST_CODE = 1317298; // Anything unique in the app.
+
     private MethodChannel channel;
     private FlutterPluginBinding pluginBinding;
     private CompletableFuture<Boolean> accessRequestResult;
@@ -56,11 +59,10 @@ public class GalPlugin
         switch (call.method) {
             case "putVideo":
             case "putImage": {
-                Uri uri = call.method.contains("Video") ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-                        : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
                 CompletableFuture.runAsync(() -> {
                     try {
-                        putMedia(pluginBinding.getApplicationContext(), (String) call.argument("path"), uri);
+                        putMedia(pluginBinding.getApplicationContext(), (String) call.argument("path"),
+                                call.method.contains("Image"));
                         new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                     } catch (Exception e) {
                         handleError(e, result);
@@ -69,10 +71,9 @@ public class GalPlugin
                 break;
             }
             case "putImageBytes": {
-                Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
                 CompletableFuture.runAsync(() -> {
                     try {
-                        putImageBytes(pluginBinding.getApplicationContext(), (byte[]) call.argument("bytes"), uri);
+                        putImageBytes(pluginBinding.getApplicationContext(), (byte[]) call.argument("bytes"));
                         new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                     } catch (Exception e) {
                         handleError(e, result);
@@ -99,27 +100,27 @@ public class GalPlugin
         }
     }
 
-    private void putMedia(Context context, String path, Uri contentUri)
+    private void putMedia(Context context, String path, boolean isImage)
             throws IOException, SecurityException, FileNotFoundException {
         File file = new File(path);
         try (InputStream in = new FileInputStream(file)) {
-            writeContent(context, in, contentUri);
+            writeContent(context, in, isImage);
         }
     }
 
-    private void putImageBytes(Context context, byte[] bytes, Uri contentUri)
+    private void putImageBytes(Context context, byte[] bytes)
             throws IOException, SecurityException {
         try (InputStream in = new ByteArrayInputStream(bytes)) {
-            writeContent(context, in, contentUri);
+            writeContent(context, in, true);
         }
     }
 
-    private void writeContent(Context context, InputStream in, Uri contentUri)
+    private void writeContent(Context context, InputStream in, boolean isImage)
             throws IOException, SecurityException {
         ContentResolver resolver = context.getContentResolver();
         ContentValues values = new ContentValues();
         values.put(MediaStore.MediaColumns.DATE_ADDED, System.currentTimeMillis());
-        Uri mediaUri = resolver.insert(contentUri, values);
+        Uri mediaUri = resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
 
         try (OutputStream out = resolver.openOutputStream(mediaUri)) {
             byte[] buffer = new byte[8192];
