@@ -1,3 +1,7 @@
+## 1.6.0
+
+* UPDATE: Significantly improved error handling for low iOS versions. As a result, `GalExceptionType.unHandle` is now `@Deprecated` and will be removed in the next major version.
+
 ## 1.5.0
 
 * FEAT: Add `putImageBytes()`. This allows saving image from memory.
