@@ -115,7 +115,7 @@ public class GalPlugin
         }
     }
 
-    private void writeContent(Context context, InputStream in, Uri contentUri, boolean isImage)
+    private void writeContent(Context context, InputStream in, boolean isImage)
             throws IOException, SecurityException {
         ContentResolver resolver = context.getContentResolver();
         ContentValues values = new ContentValues();
