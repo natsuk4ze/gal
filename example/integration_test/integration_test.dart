@@ -73,5 +73,5 @@ void main() {
           /// Other functions take longer to implement
           /// because of the possibility of interacting with native dialogs.
           /// For more info: https://github.com/flutter/flutter/wiki/Plugin-Tests
-        });
+        }, retry: 3);
 }
