@@ -101,22 +101,54 @@ public class GalPlugin: NSObject, FlutterPlugin {
   private func handleError(error: NSError) -> FlutterError {
     let message = error.localizedDescription
     let details = Thread.callStackSymbols
-    if #available(iOS 15, *) {
-      switch error.code {
-      case PHPhotosError.accessRestricted.rawValue, PHPhotosError.accessUserDenied.rawValue:
-        return FlutterError(code: "ACCESS_DENIED", message: message, details: details)
-      case PHPhotosError.identifierNotFound.rawValue,
-        PHPhotosError.multipleIdentifiersFound.rawValue,
-        PHPhotosError.requestNotSupportedForAsset.rawValue,
-        3302:
-        return FlutterError(code: "NOT_SUPPORTED_FORMAT", message: message, details: details)
-      case PHPhotosError.notEnoughSpace.rawValue:
-        return FlutterError(code: "NOT_ENOUGH_SPACE", message: message, details: details)
-      default:
-        return FlutterError(code: "UNEXPECTED", message: message, details: details)
-      }
-    } else {
-      return FlutterError(code: "NOT_HANDLE", message: message, details: details)
+    switch error.code {
+    case PHErrorCode.accessRestricted.rawValue, PHErrorCode.accessUserDenied.rawValue:
+      return FlutterError(code: "ACCESS_DENIED", message: message, details: details)
+
+    case PHErrorCode.identifierNotFound.rawValue,
+      PHErrorCode.multipleIdentifiersFound.rawValue,
+      PHErrorCode.requestNotSupportedForAsset.rawValue,
+      PHErrorCode.videoConversionFailed.rawValue,
+      PHErrorCode.unsupportedVideoCodecs.rawValue:
+      return FlutterError(code: "NOT_SUPPORTED_FORMAT", message: message, details: details)
+
+    case PHErrorCode.notEnoughSpace.rawValue:
+      return FlutterError(code: "NOT_ENOUGH_SPACE", message: message, details: details)
+
+    default:
+      return FlutterError(code: "UNEXPECTED", message: message, details: details)
     }
   }
+}
+
+/// Low iOS versions do not have an enum defined, so [rawValue] must be used.
+/// If [rawValue] is not defined either, no handle is possible.
+/// You can check Apple's documentation by replacing the [$caseName] of the following URL
+/// Some documents are not provided by Apple.
+/// https://developer.apple.com/documentation/photokit/phphotoserror/code/$caseName
+enum PHErrorCode: Int {
+
+  // [PHPhotosError.identifierNotFound]
+  case identifierNotFound = 3201
+
+  // [PHPhotosError.multipleIdentifiersFound]
+  case multipleIdentifiersFound = 3202
+
+  // Apple has not released documentation.
+  case videoConversionFailed = 3300
+
+  // Apple has not released documentation.
+  case unsupportedVideoCodecs = 3302
+
+  // [PHPhotosError.notEnoughSpace]
+  case notEnoughSpace = 3305
+
+  // [PHPhotosError.requestNotSupportedForAsset]
+  case requestNotSupportedForAsset = 3306
+
+  // [PHPhotosError.accessRestricted]
+  case accessRestricted = 3310
+
+  // [PHPhotosError.accessUserDenied]
+  case accessUserDenied = 3311
 }

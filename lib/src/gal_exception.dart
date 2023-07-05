@@ -24,7 +24,6 @@ class GalException implements Exception {
 }
 
 enum GalExceptionType {
-
   /// When Has no permission to access gallery app.
   accessDenied,
 
@@ -39,8 +38,8 @@ enum GalExceptionType {
   /// When an error occurs with unexpected.
   unexpected,
 
-  /// When an error occurs under iOS15.
-  /// Under iOS 15, it is not possible to get details of errors on saving.
+  @Deprecated(
+      'Use [unexpected] instead. https://github.com/natsuk4ze/gal/pull/25')
   notHandle;
 
   String get code => switch (this) {
@@ -48,7 +47,7 @@ enum GalExceptionType {
         notEnoughSpace => 'NOT_ENOUGH_SPACE',
         notSupportedFormat => 'NOT_SUPPORTED_FORMAT',
         unexpected => 'UNEXPECTED',
-        notHandle => 'NOT_HANDLE',
+        _ => 'NOT_HANDLE',
       };
 
   String get message => switch (this) {
@@ -56,6 +55,6 @@ enum GalExceptionType {
         notEnoughSpace => 'Not enough space for storage.',
         notSupportedFormat => 'Unsupported file formats.',
         unexpected => 'An unexpected error has occurred.',
-        notHandle => 'An unexpected error has occurred.',
+        _ => 'An unexpected error has occurred.',
       };
 }
