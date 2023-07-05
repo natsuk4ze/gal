@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:gal/src/gal_exception.dart';
 
@@ -6,13 +7,14 @@ import 'gal_platform_interface.dart';
 /// For detailed please see
 /// https://github.com/natsuk4ze/gal/wiki
 /// these functions are first called,
-/// [putImage],[putVideo],[putImageBytes],a native dialog is 
+/// [putImage],[putVideo],[putImageBytes],a native dialog is
 /// called asking the use for permission. If the user chooses to deny,
 /// [GalException] of [GalExceptionType.accessDenied] will be throwed.
 /// You should either do error handling or call [requestAccess] once
 /// before calling these function.
+@immutable
 final class Gal {
-  Gal._();
+  const Gal._();
 
   /// Save video to standard gallery app
   /// [path] is local path.
