@@ -146,11 +146,10 @@ public class GalPlugin
         context.startActivity(intent);
     }
 
-    // When API >=29,<23 always true.
     private boolean hasAccess() {
         Context context = pluginBinding.getApplicationContext();
-        int hasAccess = ContextCompat.checkSelfPermission(context, PERMISSION);
-        return hasAccess == PackageManager.PERMISSION_GRANTED;
+        int status = ContextCompat.checkSelfPermission(context, PERMISSION);
+        return status == PackageManager.PERMISSION_GRANTED;
     }
 
     // If permissions have already been granted by the user,
