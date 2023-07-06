@@ -12,7 +12,7 @@ import '../lib/main.dart' as app;
 // ignore: invalid_annotation_target
 @Timeout(Duration(hours: 10))
 void main() {
-  final binding = IntegrationTestWidgetsFlutterBinding();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   Platform.isAndroid
       ? group('Android Test', () {
           testWidgets('hasAccess()', (tester) async {
