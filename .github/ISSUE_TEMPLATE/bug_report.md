@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: "[BUG] *replace this text*"
+title: "*replace this text*"
 labels: "\U0001F41D bug"
 assignees: natsuk4ze
 
