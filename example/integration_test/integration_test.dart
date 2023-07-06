@@ -60,7 +60,7 @@ void main() {
             final button = find.byIcon(Icons.question_mark);
             await tester.tap(button);
             expect(tester.takeException(), isNull);
-          }, timeout: const Timeout(Duration(minutes: 20)));
+          });
 
           testWidgets('open()', (tester) async {
             app.main();
@@ -68,10 +68,10 @@ void main() {
             final button = find.byIcon(Icons.open_in_new);
             await tester.tap(button);
             expect(tester.takeException(), isNull);
-          }, timeout: const Timeout(Duration(minutes: 20)));
+          });
 
           /// Other functions take longer to implement
           /// because of the possibility of interacting with native dialogs.
           /// For more info: https://github.com/flutter/flutter/wiki/Plugin-Tests
-        }, retry: 3);
+        });
 }

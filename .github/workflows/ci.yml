@@ -130,6 +130,7 @@ jobs:
 
       # More info on https://github.com/ReactiveCircus/android-emulator-runner    
       - name: Run integration tests
+        timeout-minutes: 60
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
