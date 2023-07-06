@@ -7,9 +7,7 @@ import 'package:flutter/services.dart';
 
 import 'package:gal/gal.dart';
 
-void main() {
-  runApp(const App());
-}
+void main() => runApp(const App());
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -30,13 +28,6 @@ class App extends StatelessWidget {
         colorSchemeSeed: Colors.green,
       ),
       home: Scaffold(
-        appBar: AppBar(
-          title: Center(
-              child: Text(
-            "Gal Example 💚",
-            style: Theme.of(context).textTheme.titleLarge,
-          )),
-        ),
         body: Builder(builder: (context) {
           return Center(
             child: SingleChildScrollView(
@@ -82,9 +73,8 @@ class App extends StatelessWidget {
                     onPressed: () async {
                       final path = await getFilePath('assets/done.mp4');
                       await Gal.putVideo(path);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      }
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
                     label: 'Save Video from local',
                     icon: Icons.video_file,
@@ -97,9 +87,8 @@ class App extends StatelessWidget {
                         path,
                       );
                       await Gal.putVideo(path);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      }
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
                     label: 'Download Video',
                     icon: Icons.video_file_outlined,
@@ -108,9 +97,8 @@ class App extends StatelessWidget {
                     onPressed: () async {
                       final path = await getFilePath('assets/done.jpg');
                       await Gal.putImage(path);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      }
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
                     label: 'Save Image from local',
                     icon: Icons.image,
@@ -121,9 +109,8 @@ class App extends StatelessWidget {
                           'https://github.com/natsuk4ze/gal/raw/main/example/assets/done.jpg',
                           options: Options(responseType: ResponseType.bytes));
                       await Gal.putImageBytes(Uint8List.fromList(res.data));
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      }
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
                     label: 'Save Image from bytes',
                     icon: Icons.image_rounded,
@@ -136,9 +123,8 @@ class App extends StatelessWidget {
                         path,
                       );
                       await Gal.putImage(path);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      }
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
                     label: 'Download Image',
                     icon: Icons.image_outlined,
