@@ -61,9 +61,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
       completionHandler: completion)
   }
 
-  private func putImageBytes(
-    bytes: Data, completion: @escaping (Bool, Error?) -> Void
-  ) {
+  private func putImageBytes(bytes: Data, completion: @escaping (Bool, Error?) -> Void) {
     PHPhotoLibrary.shared().performChanges(
       {
         PHAssetChangeRequest.creationRequestForAsset(from: UIImage(data: bytes)!)
