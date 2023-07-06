@@ -1,5 +1,7 @@
 name: gal_example
 description: Demonstrates how to use the gal plugin.
+version: 1.6.2
+publish_to: none
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
