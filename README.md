@@ -44,7 +44,8 @@ Add the following key to your _Info.plist_ file, located in
 Add the following key to your _AndroidManifest_ file, located in
 `<project root>/android/app/src/main/AndroidManifest.xml`:
 
-* `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />` - you can copy from [AndroidManifest.xml in example](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
+* `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+                 android:maxSdkVersion="29" />` - you can copy from [AndroidManifest.xml in example](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
 
 ## ✅Usage
 

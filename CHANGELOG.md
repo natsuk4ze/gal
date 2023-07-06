@@ -1,3 +1,8 @@
+## 1.6.2
+
+* FIX: Returning false when permission granted by default when calling `hasAccess()`,`requestAccess()` in Android.
+* UPDATE: Include maxSdkVersion as a key to write in AndroidManifest. *It is not necessary, but it is recommended.
+
 ## 1.6.1
 
 * UPDATE: We have made a stronger typing. `Gal`,`GalException`,`MethodChannelGal` has `@immutable` now.
