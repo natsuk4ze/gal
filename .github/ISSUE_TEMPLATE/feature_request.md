@@ -2,7 +2,7 @@
 name: Feature request
 about: Suggest an idea for this project
 title: "*replace this text*"
-labels: "✨ feature, \U0001F4A1 idia"
+labels: "✨ feature, \U0001F4A1 idia, \U0001F440 in triage"
 assignees: natsuk4ze
 
 ---

@@ -2,7 +2,7 @@
 name: Bug report
 about: Create a report to help us improve
 title: "*replace this text*"
-labels: "\U0001F41D bug"
+labels: "\U0001F41D bug, \U0001F440 in triage"
 assignees: natsuk4ze
 
 ---
