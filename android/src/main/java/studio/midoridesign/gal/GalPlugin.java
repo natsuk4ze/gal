@@ -41,6 +41,8 @@ public class GalPlugin
     private static final Uri IMAGE_URI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
     private static final Uri VIDEO_URI = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
     private static final int PERMISSION_REQUEST_CODE = 1317298; // Anything unique in the app.
+    private static final boolean hasAccessByDefault = Build.VERSION.SDK_INT < Build.VERSION_CODES.M
+            || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
 
     private MethodChannel channel;
     private FlutterPluginBinding pluginBinding;
@@ -88,10 +90,14 @@ public class GalPlugin
                 break;
             }
             case "hasAccess": {
-                result.success(hasAccess());
+                result.success(hasAccessByDefault ? true : hasAccess());
                 break;
             }
             case "requestAccess": {
+                if (hasAccessByDefault) {
+                    result.success(true);
+                    return;
+                }
                 requestAccess().thenAccept(result::success);
                 break;
             }
@@ -143,9 +149,6 @@ public class GalPlugin
     // When API >=29,<23 always true.
     private boolean hasAccess() {
         Context context = pluginBinding.getApplicationContext();
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            return true;
-        }
         int hasAccess = ContextCompat.checkSelfPermission(context, PERMISSION);
         return hasAccess == PackageManager.PERMISSION_GRANTED;
     }
