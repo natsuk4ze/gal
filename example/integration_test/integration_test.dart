@@ -1,6 +1,6 @@
-import 'dart:io';
+import 'dart:io' show Platform;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' show Icons;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -13,8 +13,8 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   Platform.isAndroid
       ? group('Android Test', () {
+          app.main();
           testWidgets('hasAccess()', (tester) async {
-            app.main();
             await tester.pumpAndSettle();
             final button = find.byIcon(Icons.question_mark);
             await tester.tap(button);
@@ -22,7 +22,6 @@ void main() {
           });
 
           testWidgets('putVideo()', (tester) async {
-            app.main();
             await tester.pumpAndSettle();
             final button = find.byIcon(Icons.video_file);
             await tester.tap(button);
@@ -30,7 +29,6 @@ void main() {
           });
 
           testWidgets('putImage()', (tester) async {
-            app.main();
             await tester.pumpAndSettle();
             final button = find.byIcon(Icons.image);
             await tester.tap(button);
@@ -38,7 +36,6 @@ void main() {
           });
 
           testWidgets('putImageBytes()', (tester) async {
-            app.main();
             await tester.pumpAndSettle();
             final button = find.byIcon(Icons.image_rounded);
             await tester.tap(button);
@@ -46,7 +43,6 @@ void main() {
           });
 
           testWidgets('open()', (tester) async {
-            app.main();
             await tester.pumpAndSettle();
             final button = find.byIcon(Icons.open_in_new);
             await tester.tap(button);
@@ -54,8 +50,8 @@ void main() {
           });
         })
       : group('iOS Test', () {
+          app.main();
           testWidgets('hasAccess()', (tester) async {
-            app.main();
             await tester.pumpAndSettle();
             final button = find.byIcon(Icons.question_mark);
             await tester.tap(button);
@@ -63,7 +59,6 @@ void main() {
           });
 
           testWidgets('open()', (tester) async {
-            app.main();
             await tester.pumpAndSettle();
             final button = find.byIcon(Icons.open_in_new);
             await tester.tap(button);
