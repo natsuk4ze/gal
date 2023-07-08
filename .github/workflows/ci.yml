@@ -79,10 +79,14 @@ jobs:
             ${{ runner.os }}-pub-
 
       - name: Install Flutter dependencies
-        run: flutter --disable-telemetry && flutter pub get ./example    
+        run: flutter --disable-telemetry && flutter pub get ./example
+      
+      - name: Build
+        run: |
+          cd example
+          flutter build ios
 
       - name: Run integration tests
-        timeout-minutes: 60
         run: |
           cd example
           flutter test integration_test/integration_test.dart
@@ -131,7 +135,6 @@ jobs:
 
       # More info on https://github.com/ReactiveCircus/android-emulator-runner    
       - name: Run integration tests
-        timeout-minutes: 60
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
