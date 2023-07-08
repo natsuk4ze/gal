@@ -9,10 +9,8 @@ import '../lib/main.dart' as app;
 
 /// All tests are done in integration tests,
 /// since only integration tests can call native code.
-// ignore: invalid_annotation_target
-@Timeout(Duration(hours: 10))
 void main() {
-  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   Platform.isAndroid
       ? group('Android Test', () {
           testWidgets('hasAccess()', (tester) async {
@@ -56,7 +54,6 @@ void main() {
           });
         })
       : group('iOS Test', () {
-          binding.defaultTestTimeout = Timeout.none;
           testWidgets('hasAccess()', (tester) async {
             app.main();
             await tester.pumpAndSettle();
