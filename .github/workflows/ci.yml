@@ -84,7 +84,7 @@ jobs:
       - name: Build
         run: |
           cd example
-          flutter build ios
+          flutter build ios --simulator --target=integration_test/integration_test.dart
 
       - name: Run integration tests
         run: |
