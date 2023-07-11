@@ -148,6 +148,15 @@ class App extends StatelessWidget {
   You should go to the [Discussion](https://github.com/natsuk4ze/gal/discussions/categories/q-a?discussions_q=).
   Once you are sure there are no duplicates, please ask them through Q&A.
 
+## 👌Supported platforms
+Follows the [latest flutter](https://docs.flutter.dev/reference/supported-platforms).
+
+| Staus | iOS | Android |
+| ----- | --- | ------- |
+| Supported | 16 | 24-31 |
+| Best effort | 11-15 | 19-23 (21-23 will be moved to "Supported" soon)|
+| Unsupported | 10- | 18- |
+
 ## 💚Contributing
 
 Welcome! Feel free to create issue or PR. 
