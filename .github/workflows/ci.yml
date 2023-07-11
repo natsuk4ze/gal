@@ -93,7 +93,9 @@ jobs:
 
   android:
     runs-on: macos-latest
+    timeout-minutes: 30
     strategy:
+      max-parallel: 3
       matrix:
         api-level: [31,30,29,28,27,26,25,24]
         target: [default]
@@ -131,7 +133,7 @@ jobs:
             ${{ runner.os }}-pub-
 
       - name: Install Flutter dependencies
-        run: flutter --disable-telemetry && flutter pub get ./example   
+        run: flutter --disable-telemetry && flutter pub get ./example
 
       # More info on https://github.com/ReactiveCircus/android-emulator-runner    
       - name: Run integration tests
@@ -139,7 +141,8 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
           working-directory: ./example
           script: |
             echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=600 >> $GITHUB_ENV
