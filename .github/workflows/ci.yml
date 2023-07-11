@@ -138,13 +138,9 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
-          arch: x86_64
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
           working-directory: ./example
-          emulator-build: 7425822
           script: |
-            adb kill-server
-            adb start-server
             echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=1800 >> $GITHUB_ENV
             flutter test integration_test/integration_test.dart
