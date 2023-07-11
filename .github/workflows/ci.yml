@@ -132,11 +132,6 @@ jobs:
 
       - name: Install Flutter dependencies
         run: flutter --disable-telemetry && flutter pub get ./example
-      
-      - name: Reset ADB server
-        run: |
-          adb kill-server
-          adb start-server
 
       # More info on https://github.com/ReactiveCircus/android-emulator-runner    
       - name: Run integration tests
@@ -147,5 +142,7 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           working-directory: ./example
           script: |
+            adb kill-server
+            adb start-server
             echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=1800 >> $GITHUB_ENV
             flutter test integration_test/integration_test.dart
