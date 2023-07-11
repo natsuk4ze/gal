@@ -151,11 +151,10 @@ class App extends StatelessWidget {
 ## 👌Supported platforms
 Follows the [latest flutter](https://docs.flutter.dev/reference/supported-platforms).
 
-| Staus | iOS | Android |
-| ----- | --- | ------- |
-| Supported | 16 | 24-31 |
-| Best effort | 11-15 | 19-23 (21-23 will be moved to "Supported" soon)|
-| Unsupported | 10- | 18- |
+| Platform | Supported | Best effort | Unsupported |
+| ----- | --- | ------- | ------- |
+| iOS | 16 | 11-15 | 10- |
+| Android | 24-31 | 19-23 (21-23 will be moved to "Supported" soon) | 18-
 
 ## 💚Contributing
 
