@@ -131,7 +131,10 @@ jobs:
             ${{ runner.os }}-pub-
 
       - name: Install Flutter dependencies
-        run: flutter --disable-telemetry && flutter pub get ./example   
+        run: flutter --disable-telemetry && flutter pub get ./example
+        
+      - name: Set emulator boot timeout
+        run: echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=1200 >> $GITHUB_ENV
 
       # More info on https://github.com/ReactiveCircus/android-emulator-runner    
       - name: Run integration tests
