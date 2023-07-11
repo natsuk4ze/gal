@@ -141,6 +141,7 @@ jobs:
           arch: x86_64
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           working-directory: ./example
+          timeout: 1800
           script: |
             adb kill-server
             adb start-server
