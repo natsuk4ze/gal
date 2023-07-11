@@ -138,7 +138,7 @@ class App extends StatelessWidget {
 
 ## 👌Supported platforms
 Follows the [latest flutter](https://docs.flutter.dev/reference/supported-platforms), 
-**Android 21-23 will be moved to "Supported" soon**
+**Android 21-23 will be "Supported" soon.**
 
 | Platform | Supported | Best effort | Unsupported |
 | ----- | --- | ------- | ------- |
