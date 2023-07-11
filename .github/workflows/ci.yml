@@ -94,6 +94,7 @@ jobs:
   android:
     runs-on: macos-latest
     strategy:
+      max-parallel: 3
       matrix:
         api-level: [31,30,29,28,27,26,25,24]
         target: [default]
