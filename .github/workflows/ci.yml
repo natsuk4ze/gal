@@ -140,6 +140,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          emulator-build: 7425822
           working-directory: ./example
           script: |
             echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=1800 >> $GITHUB_ENV
