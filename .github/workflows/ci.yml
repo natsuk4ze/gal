@@ -95,7 +95,7 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 120
     strategy:
-      max-parallel: 3
+      max-parallel: 2
       matrix:
         api-level: [31,30,29,28,27,26,25,24]
         target: [default]
