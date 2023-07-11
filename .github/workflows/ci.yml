@@ -95,7 +95,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        api-level: [31]
+        api-level: [31,30,29,28,27,26,25,24]
         target: [google_apis]
       fail-fast: true
     steps:
