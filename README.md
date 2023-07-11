@@ -136,6 +136,16 @@ class App extends StatelessWidget {
 }
 ```
 
+## 👌Supported platforms
+Follows the [latest flutter](https://docs.flutter.dev/reference/supported-platforms), 
+**Android 21-23 will be moved to "Supported" soon**
+
+| Platform | Supported | Best effort | Unsupported |
+| ----- | --- | ------- | ------- |
+| iOS | 16 | 11-15 | 10- |
+| Android | 24-31 | 19-23 | 18-
+
+
 ## 📪FAQ
 
 - ### What is the best practice?
@@ -148,13 +158,6 @@ class App extends StatelessWidget {
   You should go to the [Discussion](https://github.com/natsuk4ze/gal/discussions/categories/q-a?discussions_q=).
   Once you are sure there are no duplicates, please ask them through Q&A.
 
-## 👌Supported platforms
-Follows the [latest flutter](https://docs.flutter.dev/reference/supported-platforms).
-
-| Platform | Supported | Best effort | Unsupported |
-| ----- | --- | ------- | ------- |
-| iOS | 16 | 11-15 | 10- |
-| Android | 24-31 | 19-23 (21-23 will be moved to "Supported" soon) | 18-
 
 ## 💚Contributing
 
