@@ -93,7 +93,7 @@ jobs:
 
   android:
     runs-on: macos-latest
-    timeout-minutes: 60
+    timeout-minutes: 180
     strategy:
       max-parallel: 3
       matrix:
@@ -145,5 +145,5 @@ jobs:
           disable-animations: false
           working-directory: ./example
           script: |
-            echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=1800 >> $GITHUB_ENV
+            echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=3000 >> $GITHUB_ENV
             flutter test integration_test/integration_test.dart
