@@ -89,4 +89,4 @@ jobs:
           working-directory: ./example
           script: |
             echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=1800 >> $GITHUB_ENV
-            flutter test integration_test/integration_test.dart
+            flutter test integration_test/integration_test.dart --timeout 1800s
