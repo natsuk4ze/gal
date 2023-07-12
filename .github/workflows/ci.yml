@@ -91,6 +91,7 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
+          arch: x86_64
           script: echo "Generated AVD snapshot for caching."
 
       # More info on https://github.com/ReactiveCircus/android-emulator-runner
