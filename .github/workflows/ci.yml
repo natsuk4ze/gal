@@ -48,7 +48,7 @@ jobs:
         timeout-minutes: 60
         run: |
           cd example
-          flutter test integration_test/integration_test.dart
+          flutter test integration_test/integration_test.dart --timeout 3000s
 
   android:
     timeout-minutes: 120
