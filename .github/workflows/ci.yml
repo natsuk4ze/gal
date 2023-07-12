@@ -46,6 +46,7 @@ jobs:
     timeout-minutes: 120
     runs-on: macos-latest
     strategy:
+      max-parallel: 3
       matrix:
         api-level: [31,30,29,28,27,26,25,24]
         target: [default]
@@ -103,9 +104,9 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           arch: x86_64
-          emulator-boot-timeout: 1800
+          emulator-boot-timeout: 3000
           working-directory: ./example
           script: |
             adb kill-server
             adb start-server
-            flutter test integration_test/integration_test.dart --timeout 1800s
+            flutter test integration_test/integration_test.dart --timeout 3000s
