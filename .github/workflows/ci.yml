@@ -29,6 +29,9 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: beta
+      
+      - name: Flutter clean
+        run: flutter clean
 
       - name: Install Flutter dependencies
         run: flutter --disable-telemetry && flutter pub get ./example
@@ -70,6 +73,9 @@ jobs:
           java-version: 11
           distribution: adopt
           cache: gradle
+      
+      - name: Flutter clean
+        run: flutter clean
 
       - name: Install Flutter dependencies
         run: flutter --disable-telemetry && flutter pub get ./example
