@@ -4,41 +4,8 @@ on:
   push:
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    steps:
-     - name: Check out
-       uses: actions/checkout@v3
-
-     - name: Cache Flutter SDK
-       uses: actions/cache@v2
-       with:
-         path: /opt/hostedtoolcache/Flutter
-         key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
-         restore-keys: |
-           ${{ runner.os }}-flutter-
-
-     - name: Setup Flutter SDK
-       uses: subosito/flutter-action@v2
-       with:
-         channel: beta
-
-     - name: Cache Flutter packages
-       uses: actions/cache@v2
-       with:
-         path: ~/.pub-cache
-         key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-         restore-keys: |
-           ${{ runner.os }}-pub-
-
-     - name: Install packages
-       run: flutter pub get
-
-     - name: Analyze
-       run: flutter analyze
-
   ios:
-    needs: setup
+    timeout-minutes: 120
     strategy:
       matrix:
         device:
@@ -58,26 +25,10 @@ jobs:
       - name: Check out
         uses: actions/checkout@v3
 
-      - name: Cache Flutter SDK
-        uses: actions/cache@v2
-        with:
-          path: /opt/hostedtoolcache/Flutter
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
-          restore-keys: |
-            ${{ runner.os }}-flutter-
-
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
         with:
           channel: beta
-
-      - name: Cache Flutter packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
 
       - name: Install Flutter dependencies
         run: flutter --disable-telemetry && flutter pub get ./example
@@ -87,14 +38,17 @@ jobs:
           cd example
           flutter build ios --simulator --target=integration_test/integration_test.dart
 
+      - name: Analyze
+        run: flutter analyze
+
       - name: Run integration tests
-        timeout-minutes: 30
+        timeout-minutes: 60
         run: |
           cd example
           flutter test integration_test/integration_test.dart
 
   android:
-    needs: ios
+    timeout-minutes: 120
     runs-on: macos-latest
     strategy:
       matrix:
@@ -104,14 +58,6 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v3
-
-      - name: Cache Flutter SDK
-        uses: actions/cache@v2
-        with:
-          path: /opt/hostedtoolcache/Flutter
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
-          restore-keys: |
-            ${{ runner.os }}-flutter-
 
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
@@ -124,14 +70,6 @@ jobs:
           java-version: 11
           distribution: adopt
           cache: gradle
-
-      - name: Cache Flutter packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
 
       - name: Install Flutter dependencies
         run: flutter --disable-telemetry && flutter pub get ./example
