@@ -7,21 +7,9 @@ jobs:
   ios:
     timeout-minutes: 120
     strategy:
-      matrix:
-        device:
-          - iPhone 14 Pro Max Simulator
       fail-fast: true
     runs-on: macos-latest
     steps:
-      - name: List all simulators
-        run: xcrun xctrace list devices
-
-      - name: Start Simulator
-        run: |
-          UDID=$(xcrun xctrace list devices | grep "^${{ matrix.device }}" | awk 'NR==1{gsub(/[()]/,""); print $NF}')
-          echo $UDID
-          xcrun simctl boot "${UDID:?No Simulator with this name found}"
-
       - name: Check out
         uses: actions/checkout@v3
 
@@ -35,6 +23,10 @@ jobs:
 
       - name: Install Flutter dependencies
         run: flutter pub get ./example
+      
+      - uses: futureware-tech/simulator-action@v2
+        with:
+          model: iPhone 14 Pro Max
       
       - name: Build
         run: |
