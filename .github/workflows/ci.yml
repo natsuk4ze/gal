@@ -70,6 +70,19 @@ jobs:
 
       - name: Install Flutter dependencies
         run: flutter pub get ./example
+      
+      - name: Find open port
+        id: findport
+        run: |
+          PORT=10000
+          while lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null ; do
+            PORT=$((PORT+1))
+            if [[ "$PORT" -gt 40000 ]] ; then
+              echo "No open port found"
+              exit 1
+            fi
+          done
+          echo "::set-output name=port::$PORT"
 
       # More info on https://github.com/ReactiveCircus/android-emulator-runner    
       - name: Run integration tests
@@ -79,7 +92,7 @@ jobs:
           arch: x86_64
           emulator-boot-timeout: 1800
           working-directory: ./example
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -port 364${{ matrix.api-level }}
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -port ${{ steps.findport.outputs.port }}
           script: |
             echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=1800 >> $GITHUB_ENV
             flutter test integration_test/integration_test.dart
