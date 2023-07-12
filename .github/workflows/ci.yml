@@ -34,7 +34,7 @@ jobs:
         run: flutter clean
 
       - name: Install Flutter dependencies
-        run: flutter --disable-telemetry && flutter pub get ./example
+        run: flutter pub get ./example
       
       - name: Build
         run: |
@@ -78,7 +78,7 @@ jobs:
         run: flutter clean
 
       - name: Install Flutter dependencies
-        run: flutter --disable-telemetry && flutter pub get ./example
+        run: flutter pub get ./example
 
       # More info on https://github.com/ReactiveCircus/android-emulator-runner    
       - name: Run integration tests
