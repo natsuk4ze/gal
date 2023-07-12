@@ -70,23 +70,41 @@ jobs:
 
       - name: Install Flutter dependencies
         run: flutter pub get ./example
-      
-      - name: Kill emulator if running
-        run: |
-          if adb devices | grep -q emulator-5554 ; then
-            adb -s emulator-5554 emu kill || echo "Failed to kill emulator-5554"
-          else
-            echo "emulator-5554 is not running"
-          fi
-      
-      # More info on https://github.com/ReactiveCircus/android-emulator-runner    
-      - name: Run integration tests
+
+      - name: Gradle cache
+        uses: gradle/gradle-build-action@v2
+        
+      - name: AVD cache
+        uses: actions/cache@v3
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api-level }}
+
+      - name: create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
+
+      # More info on https://github.com/ReactiveCircus/android-emulator-runner
+      - name: run tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
           arch: x86_64
           emulator-boot-timeout: 1800
           working-directory: ./example
           script: |
-            echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=1800 >> $GITHUB_ENV
+            adb kill-server
+            adb start-server
             flutter test integration_test/integration_test.dart --timeout 1800s
