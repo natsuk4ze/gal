@@ -77,8 +77,9 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
-          emulator-boot-timeout: 3000
+          emulator-boot-timeout: 1800
           working-directory: ./example
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -port 364${{ matrix.api-level }}
           script: |
-            echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=3000 >> $GITHUB_ENV
+            echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=1800 >> $GITHUB_ENV
             flutter test integration_test/integration_test.dart
