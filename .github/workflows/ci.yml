@@ -71,19 +71,14 @@ jobs:
       - name: Install Flutter dependencies
         run: flutter pub get ./example
       
-      - name: Find open port
-        id: findport
+      - name: Kill emulator if running
         run: |
-          PORT=10000
-          while lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null ; do
-            PORT=$((PORT+1))
-            if [[ "$PORT" -gt 40000 ]] ; then
-              echo "No open port found"
-              exit 1
-            fi
-          done
-          echo "::set-output name=port::$PORT"
-
+          if adb devices | grep -q emulator-5554 ; then
+            adb -s emulator-5554 emu kill || echo "Failed to kill emulator-5554"
+          else
+            echo "emulator-5554 is not running"
+          fi
+      
       # More info on https://github.com/ReactiveCircus/android-emulator-runner    
       - name: Run integration tests
         uses: reactivecircus/android-emulator-runner@v2
@@ -92,7 +87,6 @@ jobs:
           arch: x86_64
           emulator-boot-timeout: 1800
           working-directory: ./example
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -port ${{ steps.findport.outputs.port }}
           script: |
             echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=1800 >> $GITHUB_ENV
             flutter test integration_test/integration_test.dart
