@@ -97,8 +97,8 @@ jobs:
       max-parallel: 3
       matrix:
         api-level: [31,30,29,28,27,26,25,24]
-        target: [google_api]
-      fail-fast: false
+        target: [default]
+      fail-fast: true
     steps:
       - name: Check out
         uses: actions/checkout@v3
@@ -140,8 +140,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: false
+          emulator-boot-timeout: 3000
           working-directory: ./example
           script: |
             echo ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL=3000 >> $GITHUB_ENV
