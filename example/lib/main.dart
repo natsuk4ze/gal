@@ -105,10 +105,10 @@ class App extends StatelessWidget {
                   ),
                   _Button(
                     onPressed: () async {
-                      final res = await Dio().get(
-                          'https://github.com/natsuk4ze/gal/raw/main/example/assets/done.jpg',
-                          options: Options(responseType: ResponseType.bytes));
-                      await Gal.putImageBytes(Uint8List.fromList(res.data));
+                      final byteData = await rootBundle.load('assets/done.jpg');
+                      final uint8List = byteData.buffer.asUint8List(
+                          byteData.offsetInBytes, byteData.lengthInBytes);
+                      await Gal.putImageBytes(Uint8List.fromList(uint8List));
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
