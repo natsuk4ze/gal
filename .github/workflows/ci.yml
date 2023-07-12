@@ -94,7 +94,7 @@ jobs:
           flutter test integration_test/integration_test.dart
 
   android:
-    needs: setup
+    needs: ios
     runs-on: macos-latest
     strategy:
       matrix:
