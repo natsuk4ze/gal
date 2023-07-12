@@ -38,6 +38,7 @@ jobs:
        run: flutter analyze
 
   ios:
+    needs: setup
     strategy:
       matrix:
         device:
@@ -92,6 +93,7 @@ jobs:
           flutter test integration_test/integration_test.dart
 
   android:
+    needs: ios
     runs-on: macos-latest
     strategy:
       matrix:
