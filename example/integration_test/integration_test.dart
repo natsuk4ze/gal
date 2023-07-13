@@ -1,3 +1,5 @@
+@Timeout(Duration(hours: 2))
+
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart' show Icons;
@@ -9,8 +11,6 @@ import '../lib/main.dart' as app;
 
 /// All tests are done in integration tests,
 /// since only integration tests can call native code.
-// ignore: invalid_annotation_target
-@Timeout(Duration(hours: 2))
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   Platform.isAndroid
