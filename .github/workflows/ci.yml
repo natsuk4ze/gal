@@ -19,13 +19,13 @@ jobs:
        uses: actions/cache@v3
        with:
          path: /opt/hostedtoolcache/Flutter
-         key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
+         key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}-${{ github.run_id }}
 
      - name: Cache Flutter packages
        uses: actions/cache@v3
        with:
          path: ~/.pub-cache
-         key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+         key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_id }}
 
      - name: Install packages
        run: flutter --disable-telemetry && flutter pub get
@@ -47,7 +47,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /opt/hostedtoolcache/Flutter
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}-${{ github.run_id }}
           restore-keys: |
             ${{ runner.os }}-flutter-
 
@@ -60,7 +60,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_id }}
           restore-keys: |
             ${{ runner.os }}-pub-
 
@@ -75,13 +75,13 @@ jobs:
         timeout-minutes: 30
         run: |
           cd example
-          flutter build ios --simulator --target=integration_test/integration_test.dart --timeout 1800s
+          flutter build ios --simulator --target=integration_test/integration_test.dart
 
       - name: Run integration tests
         timeout-minutes: 30
         run: |
           cd example
-          flutter test integration_test/integration_test.dart --timeout 1800s
+          flutter test integration_test/integration_test.dart --timeout none
 
   android:
     needs: setup
@@ -99,7 +99,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /opt/hostedtoolcache/Flutter
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}-${{ github.run_id }}
           restore-keys: |
             ${{ runner.os }}-flutter-
 
@@ -119,7 +119,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_id }}
           restore-keys: |
             ${{ runner.os }}-pub-
 
