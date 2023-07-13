@@ -48,8 +48,6 @@ jobs:
         with:
           path: /opt/hostedtoolcache/Flutter
           key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}-${{ github.run_id }}
-          restore-keys: |
-            ${{ runner.os }}-flutter-
 
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
@@ -61,8 +59,6 @@ jobs:
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_id }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
 
       - name: Install Flutter dependencies
         run: flutter pub get ./example
@@ -100,8 +96,6 @@ jobs:
         with:
           path: /opt/hostedtoolcache/Flutter
           key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}-${{ github.run_id }}
-          restore-keys: |
-            ${{ runner.os }}-flutter-
 
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
@@ -113,8 +107,6 @@ jobs:
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_id }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
 
       - name: Install Flutter dependencies
         run: flutter pub get ./example
@@ -135,28 +127,26 @@ jobs:
             ~/.android/adb*
           key: avd-${{ matrix.api-level }}
 
-      - name: create AVD and generate snapshot for caching
+      - name: Create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
-          force-avd-creation: false
           emulator-boot-timeout: 1800
+          force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: false
           script: echo "Generated AVD snapshot for caching."
 
-      # More info on https://github.com/ReactiveCircus/android-emulator-runner
-      - name: run tests
+      # See: https://github.com/ReactiveCircus/android-emulator-runner
+      - name: Run integration tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          working-directory: ./example
           arch: x86_64
+          emulator-boot-timeout: 1800
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: true
-          emulator-boot-timeout: 1800
-          working-directory: ./example
           script: |
             flutter test integration_test/integration_test.dart --timeout 1800s
