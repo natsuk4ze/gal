@@ -57,7 +57,7 @@ jobs:
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
         with:
-          channel: beta
+          channel: stable
 
       - name: Set up JDK
         uses: actions/setup-java@v3
@@ -74,37 +74,11 @@ jobs:
       - name: Install Flutter dependencies
         run: flutter pub get ./example
 
-      - name: Gradle cache
-        uses: gradle/gradle-build-action@v2
-        
-      - name: AVD cache
-        uses: actions/cache@v3
-        id: avd-cache
-        with:
-          path: |
-            ~/.android/avd/*
-            ~/.android/adb*
-          key: avd-${{ matrix.api-level }}
-
-      - name: create AVD and generate snapshot for caching
-        if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: false
-          arch: x86_64
-          script: echo "Generated AVD snapshot for caching."
-
       # More info on https://github.com/ReactiveCircus/android-emulator-runner
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
-          force-avd-creation: false
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: true
           arch: x86_64
           emulator-boot-timeout: 3000
           working-directory: ./example
