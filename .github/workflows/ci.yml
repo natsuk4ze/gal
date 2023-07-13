@@ -85,8 +85,6 @@ jobs:
         if: steps.Run-integration-tests.outcome == 'failure'
         timeout-minutes: 30
         run: |
-          adb kill-server
-          adb start-server
           cd example
           flutter test integration_test/integration_test.dart --timeout none
 
@@ -163,8 +161,10 @@ jobs:
           force-avd-creation: false
           profile: pixel_6_pro
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: |
-            flutter test integration_test/integration_test.dart --timeout 1800
+          script: flutter test integration_test/integration_test.dart --timeout none
+          pre-emulator-launch-script: |
+            adb kill-server
+            adb start-server
 
       - name: Retry integration tests
         if: steps.Run-integration-tests.outcome == 'failure'
@@ -177,7 +177,7 @@ jobs:
           force-avd-creation: false
           profile: pixel_6_pro
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: |
+          script: flutter test integration_test/integration_test.dart --timeout none
+          pre-emulator-launch-script: |
             adb kill-server
             adb start-server
-            flutter test integration_test/integration_test.dart --timeout 1800
