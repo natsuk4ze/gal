@@ -5,14 +5,10 @@ on:
 
 jobs:
   setup:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
      - name: Check out
        uses: actions/checkout@v3
-
-     - name: Generate random key
-       id: random
-       run: echo "key = $(date +%s%3N)" >> $GITHUB_OUTPUT
      
      - name: Setup Flutter SDK
        uses: subosito/flutter-action@v2
@@ -23,13 +19,13 @@ jobs:
        uses: actions/cache@v3
        with:
          path: /opt/hostedtoolcache/Flutter
-         key: ${{ runner.os }}-flutter-${{ steps.random.outputs.key }}
+         key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
 
      - name: Cache Flutter packages
        uses: actions/cache@v3
        with:
          path: ~/.pub-cache
-         key: ${{ runner.os }}-pub-${{ steps.random.outputs.key }}
+         key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
 
      - name: Install packages
        run: flutter --disable-telemetry && flutter pub get
@@ -76,9 +72,10 @@ jobs:
           model: iPhone 14 Pro Max
       
       - name: Build
+        timeout-minutes: 30
         run: |
           cd example
-          flutter build ios --simulator --target=integration_test/integration_test.dart
+          flutter build ios --simulator --target=integration_test/integration_test.dart --timeout 1800s
 
       - name: Run integration tests
         timeout-minutes: 30
