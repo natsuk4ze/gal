@@ -5,14 +5,10 @@ on:
 
 jobs:
   setup:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
      - name: Check out
        uses: actions/checkout@v3
-
-     - name: Generate random key
-       id: random
-       run: echo "::set-output name=key::$(date +'%s')"
      
      - name: Setup Flutter SDK
        uses: subosito/flutter-action@v2
@@ -23,13 +19,13 @@ jobs:
        uses: actions/cache@v3
        with:
          path: /opt/hostedtoolcache/Flutter
-         key: ${{ runner.os }}-flutter-${{ steps.random.outputs.key }}
+         key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}-${{ github.run_id }}
 
      - name: Cache Flutter packages
        uses: actions/cache@v3
        with:
          path: ~/.pub-cache
-         key: ${{ runner.os }}-pub-${{ steps.random.outputs.key }}
+         key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_id }}
 
      - name: Install packages
        run: flutter --disable-telemetry && flutter pub get
@@ -51,7 +47,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /opt/hostedtoolcache/Flutter
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}-${{ github.run_id }}
           restore-keys: |
             ${{ runner.os }}-flutter-
 
@@ -64,7 +60,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_id }}
           restore-keys: |
             ${{ runner.os }}-pub-
 
@@ -76,6 +72,7 @@ jobs:
           model: iPhone 14 Pro Max
       
       - name: Build
+        timeout-minutes: 30
         run: |
           cd example
           flutter build ios --simulator --target=integration_test/integration_test.dart
@@ -84,7 +81,7 @@ jobs:
         timeout-minutes: 30
         run: |
           cd example
-          flutter test integration_test/integration_test.dart --timeout 1800s
+          flutter test integration_test/integration_test.dart --timeout none
 
   android:
     needs: setup
@@ -102,7 +99,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /opt/hostedtoolcache/Flutter
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}-${{ github.run_id }}
           restore-keys: |
             ${{ runner.os }}-flutter-
 
@@ -122,7 +119,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_id }}
           restore-keys: |
             ${{ runner.os }}-pub-
 
