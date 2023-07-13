@@ -58,12 +58,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: 8
-          distribution: temurin
       
       - name: Flutter clean
         run: flutter clean
