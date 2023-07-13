@@ -10,25 +10,27 @@ jobs:
      - name: Check out
        uses: actions/checkout@v3
 
-     - name: Cache Flutter SDK
-       uses: actions/cache@v2
-       with:
-         path: /opt/hostedtoolcache/Flutter
-         key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
-         restore-keys: |
-           ${{ runner.os }}-flutter-
+     - name: Generate random key
+       id: random
+       run: echo "::set-output name=key::$(date +'%s')"
+     
      - name: Setup Flutter SDK
        uses: subosito/flutter-action@v2
        with:
          channel: beta
 
+     - name: Cache Flutter SDK
+       uses: actions/cache@v2
+       with:
+         path: /opt/hostedtoolcache/Flutter
+         key: ${{ runner.os }}-flutter-${{ steps.random.outputs.key }}
+
      - name: Cache Flutter packages
        uses: actions/cache@v2
        with:
          path: ~/.pub-cache
-         key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-         restore-keys: |
-           ${{ runner.os }}-pub-
+         key: ${{ runner.os }}-pub-${{ steps.random.outputs.key }}
+
      - name: Install packages
        run: flutter --disable-telemetry && flutter pub get
 
@@ -79,10 +81,10 @@ jobs:
           flutter build ios --simulator --target=integration_test/integration_test.dart
 
       - name: Run integration tests
-        timeout-minutes: 60
+        timeout-minutes: 30
         run: |
           cd example
-          flutter test integration_test/integration_test.dart --timeout 3000s
+          flutter test integration_test/integration_test.dart --timeout 1800s
 
   android:
     needs: setup
@@ -111,10 +113,10 @@ jobs:
           channel: beta
 
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
-          java-version: 11
-          distribution: adopt
+          java-version: 8
+          distribution: temurin
           cache: gradle
 
       - name: Cache Flutter packages
@@ -134,7 +136,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
-          emulator-boot-timeout: 3000
+          emulator-boot-timeout: 1800
           working-directory: ./example
           script: |
-            flutter test integration_test/integration_test.dart --timeout 3000s
+            flutter test integration_test/integration_test.dart --timeout 1800s
