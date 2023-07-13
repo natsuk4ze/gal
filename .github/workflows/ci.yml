@@ -74,8 +74,19 @@ jobs:
           flutter build ios --simulator --target=integration_test/integration_test.dart
 
       - name: Run integration tests
+        id: Run-integration-tests
+        continue-on-error: true
         timeout-minutes: 30
         run: |
+          cd example
+          flutter test integration_test/integration_test.dart --timeout none
+
+      - name: Retry integration tests
+        if: steps.Run-integration-tests.outcome == 'failure'
+        timeout-minutes: 30
+        run: |
+          adb kill-server
+          adb start-server
           cd example
           flutter test integration_test/integration_test.dart --timeout none
 
@@ -141,6 +152,22 @@ jobs:
 
       # See: https://github.com/ReactiveCircus/android-emulator-runner
       - name: Run integration tests
+        id: Run-integration-tests
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          working-directory: ./example
+          arch: x86_64
+          emulator-boot-timeout: 600
+          force-avd-creation: false
+          profile: pixel_6_pro
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: |
+            flutter test integration_test/integration_test.dart --timeout 1800
+
+      - name: Retry integration tests
+        if: steps.Run-integration-tests.outcome == 'failure'
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
@@ -151,4 +178,6 @@ jobs:
           profile: pixel_6_pro
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: |
-            flutter test integration_test/integration_test.dart --timeout 1800s
+            adb kill-server
+            adb start-server
+            flutter test integration_test/integration_test.dart --timeout 1800
