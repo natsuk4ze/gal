@@ -35,7 +35,7 @@ jobs:
 
   ios:
     needs: setup
-    timeout-minutes: 120
+    timeout-minutes: 60
     strategy:
       fail-fast: true
     runs-on: macos-latest
@@ -68,7 +68,7 @@ jobs:
           model: iPhone 14 Pro Max
       
       - name: Build
-        timeout-minutes: 30
+        timeout-minutes: 20
         run: |
           cd example
           flutter build ios --simulator --target=integration_test/integration_test.dart
@@ -76,21 +76,21 @@ jobs:
       - name: Run integration tests
         id: Run-integration-tests
         continue-on-error: true
-        timeout-minutes: 30
+        timeout-minutes: 10
         run: |
           cd example
           flutter test integration_test/integration_test.dart --timeout none
 
       - name: Retry integration tests
         if: steps.Run-integration-tests.outcome == 'failure'
-        timeout-minutes: 30
+        timeout-minutes: 20
         run: |
           cd example
           flutter test integration_test/integration_test.dart --timeout none
 
   android:
     needs: setup
-    timeout-minutes: 120
+    timeout-minutes: 60
     runs-on: macos-latest
     strategy:
       matrix:
@@ -142,7 +142,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
-          emulator-boot-timeout: 1800
+          emulator-boot-timeout: 1200
           force-avd-creation: false
           profile: pixel_6_pro
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
@@ -173,7 +173,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 1800
+          emulator-boot-timeout: 1200
           force-avd-creation: false
           profile: pixel_6_pro
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
