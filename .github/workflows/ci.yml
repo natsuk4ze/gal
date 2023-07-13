@@ -58,13 +58,9 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-      
-      - name: Clean and Install Flutter dependencies
-        run: |
-          flutter clean
-          flutter pub get
-          flutter clean ./example
-          flutter pub get ./example
+
+      - name: Install Flutter dependencies
+        run: flutter pub get ./example
 
       # More info on https://github.com/ReactiveCircus/android-emulator-runner
       - name: run tests
