@@ -85,6 +85,10 @@ jobs:
         if: steps.Run-integration-tests.outcome == 'failure'
         timeout-minutes: 20
         run: |
+          flutter clean
+          flutter pub get
+          flutter clean ./example
+          flutter pub get ./example
           cd example
           flutter test integration_test/integration_test.dart --timeout none
 
