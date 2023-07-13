@@ -86,6 +86,7 @@ jobs:
     strategy:
       matrix:
         api-level: [31,30,29,28,27,26,25,24]
+        target: [google_apis]
       fail-fast: true
     steps:
       - name: Check out
@@ -137,6 +138,11 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: echo "Generated AVD snapshot for caching."
+
+      - name: Restart ADB server
+        run: |
+          adb kill-server
+          adb start-server
 
       # See: https://github.com/ReactiveCircus/android-emulator-runner
       - name: Run integration tests
