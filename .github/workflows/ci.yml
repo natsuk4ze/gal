@@ -64,6 +64,9 @@ jobs:
         with:
           java-version: 11
           distribution: temurin
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
       
       - name: Flutter clean
         run: flutter clean
@@ -91,6 +94,7 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
+          arch: x86_64
           script: echo "Generated AVD snapshot for caching."
 
       # More info on https://github.com/ReactiveCircus/android-emulator-runner
@@ -101,6 +105,7 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
+          arch: x86_64
           emulator-boot-timeout: 3000
           working-directory: ./example
           script: |
