@@ -36,6 +36,7 @@ jobs:
        run: flutter analyze
 
   ios:
+    needs: setup
     timeout-minutes: 120
     strategy:
       fail-fast: true
@@ -84,6 +85,7 @@ jobs:
           flutter test integration_test/integration_test.dart --timeout 3000s
 
   android:
+    needs: setup
     timeout-minutes: 120
     runs-on: macos-latest
     strategy:
