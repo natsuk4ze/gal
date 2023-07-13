@@ -4,6 +4,37 @@ on:
   push:
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+     - name: Check out
+       uses: actions/checkout@v3
+
+     - name: Cache Flutter SDK
+       uses: actions/cache@v2
+       with:
+         path: /opt/hostedtoolcache/Flutter
+         key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
+         restore-keys: |
+           ${{ runner.os }}-flutter-
+     - name: Setup Flutter SDK
+       uses: subosito/flutter-action@v2
+       with:
+         channel: beta
+
+     - name: Cache Flutter packages
+       uses: actions/cache@v2
+       with:
+         path: ~/.pub-cache
+         key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+         restore-keys: |
+           ${{ runner.os }}-pub-
+     - name: Install packages
+       run: flutter --disable-telemetry && flutter pub get
+
+     - name: Analyze
+       run: flutter analyze
+
   ios:
     timeout-minutes: 120
     strategy:
@@ -13,13 +44,26 @@ jobs:
       - name: Check out
         uses: actions/checkout@v3
 
+      - name: Cache Flutter SDK
+        uses: actions/cache@v2
+        with:
+          path: /opt/hostedtoolcache/Flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
         with:
           channel: beta
-      
-      - name: Flutter clean
-        run: flutter clean
+
+      - name: Cache Flutter packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
 
       - name: Install Flutter dependencies
         run: flutter pub get ./example
@@ -33,9 +77,6 @@ jobs:
           cd example
           flutter build ios --simulator --target=integration_test/integration_test.dart
 
-      - name: Analyze
-        run: flutter analyze
-
       - name: Run integration tests
         timeout-minutes: 60
         run: |
@@ -48,16 +89,39 @@ jobs:
     strategy:
       matrix:
         api-level: [31,30,29,28,27,26,25,24]
-        target: [default]
+        target: [google_apis]
       fail-fast: true
     steps:
       - name: Check out
         uses: actions/checkout@v3
 
+      - name: Cache Flutter SDK
+        uses: actions/cache@v2
+        with:
+          path: /opt/hostedtoolcache/Flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          channel: beta
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 11
+          distribution: adopt
+          cache: gradle
+
+      - name: Cache Flutter packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
 
       - name: Install Flutter dependencies
         run: flutter pub get ./example
