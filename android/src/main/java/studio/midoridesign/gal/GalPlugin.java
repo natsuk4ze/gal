@@ -208,8 +208,11 @@ public class GalPlugin
 
     @Override
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode != PERMISSION_REQUEST_CODE || grantResults.length == 0) {
+            return false;
+        }
         accessRequestResult.complete(
-                grantResults[0] == PackageManager.PERMISSION_GRANTED && PERMISSION_REQUEST_CODE == requestCode);
+                grantResults[0] == PackageManager.PERMISSION_GRANTED);
         return true;
     }
 
