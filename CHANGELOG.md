@@ -1,3 +1,7 @@
+## 1.6.3
+
+* FIX: Crashing on permission requests for other packages.
+
 ## 1.6.2
 
 * FIX: Returning false when permission granted by default when calling `hasAccess()`,`requestAccess()` in Android.
