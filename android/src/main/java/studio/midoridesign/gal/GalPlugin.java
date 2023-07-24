@@ -61,7 +61,7 @@ public class GalPlugin
         switch (call.method) {
             case "putVideo":
             case "putImage": {
-                CompletableFuture.runAsync(() -> {
+                new Thread(() -> {
                     try {
                         putMedia(pluginBinding.getApplicationContext(), (String) call.argument("path"),
                                 call.method.contains("Image"));
@@ -69,18 +69,18 @@ public class GalPlugin
                     } catch (Exception e) {
                         handleError(e, result);
                     }
-                });
+                }).start();
                 break;
             }
             case "putImageBytes": {
-                CompletableFuture.runAsync(() -> {
+                new Thread(() -> {
                     try {
                         putImageBytes(pluginBinding.getApplicationContext(), (byte[]) call.argument("bytes"));
                         new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                     } catch (Exception e) {
                         handleError(e, result);
                     }
-                });
+                }).start();
                 break;
             }
             case "open": {
