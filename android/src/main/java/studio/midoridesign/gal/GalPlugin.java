@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
-import java.util.concurrent.CompletableFuture;
 
 public class GalPlugin
         implements FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.RequestPermissionsResultListener {
@@ -41,13 +40,13 @@ public class GalPlugin
     private static final Uri IMAGE_URI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
     private static final Uri VIDEO_URI = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
     private static final int PERMISSION_REQUEST_CODE = 1317298; // Anything unique in the app.
-    private static final boolean hasAccessByDefault = Build.VERSION.SDK_INT < Build.VERSION_CODES.M
-            || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
+    private static final boolean hasAccessByDefault = Build.VERSION.SDK_INT < 23
+            || (Build.VERSION.SDK_INT >= 29 && Build.VERSION.SDK_INT < 30);
 
     private MethodChannel channel;
     private FlutterPluginBinding pluginBinding;
-    private CompletableFuture<Boolean> accessRequestResult;
     private Activity activity;
+    private Callback callback;
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -98,7 +97,12 @@ public class GalPlugin
                     result.success(true);
                     return;
                 }
-                requestAccess().thenAccept(result::success);
+                requestAccess(new Callback() {
+                    @Override
+                    public void onComplete(boolean res) {
+                        result.success(res);
+                    }
+                });
                 break;
             }
             default:
@@ -154,10 +158,9 @@ public class GalPlugin
 
     // If permissions have already been granted by the user,
     // returns true immediately without displaying the dialog.
-    private CompletableFuture<Boolean> requestAccess() {
-        accessRequestResult = new CompletableFuture<>();
+    private void requestAccess(Callback callback) {
+        this.callback = callback;
         ActivityCompat.requestPermissions(activity, new String[] { PERMISSION }, PERMISSION_REQUEST_CODE);
-        return accessRequestResult;
     }
 
     private void sendError(String errorCode, String message, StackTraceElement[] stackTrace, Result result) {
@@ -211,8 +214,7 @@ public class GalPlugin
         if (requestCode != PERMISSION_REQUEST_CODE || grantResults.length == 0) {
             return false;
         }
-        accessRequestResult.complete(
-                grantResults[0] == PackageManager.PERMISSION_GRANTED);
+        callback.onComplete(grantResults[0] == PackageManager.PERMISSION_GRANTED);
         return true;
     }
 
@@ -221,4 +223,8 @@ public class GalPlugin
         channel.setMethodCallHandler(null);
         pluginBinding = null;
     }
+}
+
+interface Callback {
+    void onComplete(boolean result);
 }
