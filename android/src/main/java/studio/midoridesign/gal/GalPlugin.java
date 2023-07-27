@@ -145,7 +145,7 @@ public class GalPlugin
         Context context = pluginBinding.getApplicationContext();
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
-        intent.setType("image/*");
+        intent.setData(IMAGE_URI);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
