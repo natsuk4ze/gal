@@ -163,10 +163,13 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: |
+            APK_BUILD_COMMAND="flutter build apk --debug"
+            APK_INSTALL_COMMAND="adb install -r build/app/outputs/flutter-apk/app-debug.apk"
+            PERMISSION_GRANT_COMMAND="adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE"
             if [ ${{ matrix.api-level }} -le 29 ]; then
-              flutter build apk --debug
-              adb install -r build/app/outputs/flutter-apk/app-debug.apk
-              adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
+              $APK_BUILD_COMMAND
+              $APK_INSTALL_COMMAND
+              $PERMISSION_GRANT_COMMAND
             fi
             flutter test integration_test/integration_test.dart --timeout none
 
@@ -183,10 +186,13 @@ jobs:
           script: |
             flutter clean
             flutter pub get
+            APK_BUILD_COMMAND="flutter build apk --debug"
+            APK_INSTALL_COMMAND="adb install -r build/app/outputs/flutter-apk/app-debug.apk"
+            PERMISSION_GRANT_COMMAND="adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE"
             if [ ${{ matrix.api-level }} -le 29 ]; then
-              flutter build apk --debug
-              adb install -r build/app/outputs/flutter-apk/app-debug.apk
-              adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
+              $APK_BUILD_COMMAND
+              $APK_INSTALL_COMMAND
+              $PERMISSION_GRANT_COMMAND
             fi
             flutter test integration_test/integration_test.dart --timeout none
           pre-emulator-launch-script: |
