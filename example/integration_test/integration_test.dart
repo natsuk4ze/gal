@@ -23,6 +23,14 @@ void main() {
             expect(tester.takeException(), isNull);
           });
 
+          testWidgets('requestAccess()', (tester) async {
+            app.main();
+            await tester.pumpAndSettle();
+            final button = find.byIcon(Icons.privacy_tip_outlined);
+            await tester.tap(button);
+            expect(tester.takeException(), isNull);
+          });
+
           testWidgets('putVideo()', (tester) async {
             app.main();
             await tester.pumpAndSettle();
