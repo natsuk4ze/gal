@@ -164,9 +164,9 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: |
             if [ ${{ matrix.api-level }} -le 29 ]; then
-              flutter build apk --debug;
-              adb install -r build/app/outputs/flutter-apk/app-debug.apk;
-              adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE;
+              flutter build apk --debug
+              adb install -r build/app/outputs/flutter-apk/app-debug.apk
+              adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
             fi
             flutter test integration_test/integration_test.dart --timeout none
 
