@@ -164,6 +164,7 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: |
             flutter build apk
+            adb install -r build/app/outputs/flutter-apk/app-release.apk
             adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
             flutter test integration_test/integration_test.dart --timeout none
 
@@ -181,6 +182,7 @@ jobs:
             flutter clean
             flutter pub get
             flutter build apk
+            adb install -r build/app/outputs/flutter-apk/app-release.apk
             adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
             flutter test integration_test/integration_test.dart --timeout none
           pre-emulator-launch-script: |
