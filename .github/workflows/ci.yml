@@ -79,6 +79,7 @@ jobs:
         timeout-minutes: 15
         run: |
           cd example
+          adb shell pm grant gal_example android.permission.WRITE_EXTERNAL_STORAGE
           flutter test integration_test/integration_test.dart --timeout none
 
       - name: Retry integration tests
@@ -90,6 +91,7 @@ jobs:
           flutter clean ./example
           flutter pub get ./example
           cd example
+          adb shell pm grant gal_example android.permission.WRITE_EXTERNAL_STORAGE
           flutter test integration_test/integration_test.dart --timeout none
 
   android:
