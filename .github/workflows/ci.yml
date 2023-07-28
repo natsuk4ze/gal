@@ -166,7 +166,9 @@ jobs:
             flutter build apk
             adb install -r build/app/outputs/flutter-apk/app-release.apk
             adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
-            flutter test integration_test/integration_test.dart --timeout none
+            flutter drive \
+            --driver=test_driver/integration_test.dart \
+            --target=integration_test/integration_test.dart --timeout none
 
       - name: Retry integration tests
         if: steps.Run-integration-tests.outcome == 'failure'
@@ -184,7 +186,9 @@ jobs:
             flutter build apk
             adb install -r build/app/outputs/flutter-apk/app-release.apk
             adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
-            flutter test integration_test/integration_test.dart --timeout none
+            flutter drive \
+            --driver=test_driver/integration_test.dart \
+            --target=integration_test/integration_test.dart --timeout none
           pre-emulator-launch-script: |
             adb kill-server
             adb start-server
