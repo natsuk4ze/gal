@@ -89,7 +89,6 @@ class _AppState extends State<App> {
           } finally {
             setState(() => isLoading = false);
           }
-          setState(() => isLoading = false);
         },
         child: Text(label),
       );
