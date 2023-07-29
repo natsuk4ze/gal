@@ -62,12 +62,10 @@ class App extends StatelessWidget {
                       );
                     },
                     label: 'Best Practice',
-                    icon: Icons.done,
                   ),
                   _Button(
                     onPressed: () async => Gal.open(),
                     label: 'Open Gallery',
-                    icon: Icons.open_in_new,
                   ),
                   _Button(
                     onPressed: () async {
@@ -77,7 +75,6 @@ class App extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
                     label: 'Save Video from local',
-                    icon: Icons.video_file,
                   ),
                   _Button(
                     onPressed: () async {
@@ -91,7 +88,6 @@ class App extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
                     label: 'Download Video',
-                    icon: Icons.video_file_outlined,
                   ),
                   _Button(
                     onPressed: () async {
@@ -101,7 +97,6 @@ class App extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
                     label: 'Save Image from local',
-                    icon: Icons.image,
                   ),
                   _Button(
                     onPressed: () async {
@@ -113,7 +108,6 @@ class App extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
                     label: 'Save Image from bytes',
-                    icon: Icons.image_rounded,
                   ),
                   _Button(
                     onPressed: () async {
@@ -127,7 +121,6 @@ class App extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
                     label: 'Download Image',
-                    icon: Icons.image_outlined,
                   ),
                   _Button(
                     onPressed: () async {
@@ -135,7 +128,6 @@ class App extends StatelessWidget {
                       log('Has Access:${hasAccess.toString()}');
                     },
                     label: 'Has Access',
-                    icon: Icons.question_mark,
                   ),
                   _Button(
                     onPressed: () async {
@@ -143,7 +135,6 @@ class App extends StatelessWidget {
                       log('Request Granted:${requestGranted.toString()}');
                     },
                     label: 'Request Access',
-                    icon: Icons.privacy_tip_outlined,
                   ),
                 ],
               ),
@@ -168,12 +159,10 @@ class App extends StatelessWidget {
 class _Button extends StatelessWidget {
   const _Button({
     required this.label,
-    required this.icon,
     required this.onPressed,
   });
 
   final String label;
-  final IconData icon;
   final void Function() onPressed;
 
   @override
@@ -183,7 +172,6 @@ class _Button extends StatelessWidget {
       child: FloatingActionButton.extended(
         onPressed: onPressed,
         label: Text(label),
-        icon: Icon(icon),
       ),
     );
   }
