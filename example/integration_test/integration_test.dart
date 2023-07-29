@@ -6,7 +6,6 @@ import 'package:flutter/material.dart' show Key;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-// ignore: avoid_relative_lib_imports
 import 'test_app.dart' as app;
 
 /// All tests are done in integration tests,
