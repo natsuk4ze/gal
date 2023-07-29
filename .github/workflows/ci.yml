@@ -4,10 +4,10 @@ on:
   push:
 
 jobs:
-  cancel:
+  cancel-outdated-runs:
     runs-on: ubuntu-latest
     steps:
-      - name: Cancel outdated workflows
+      - name: Cancel
         uses: styfle/cancel-workflow-action@0.9.1
         with:
           access_token: ${{ github.token }}
