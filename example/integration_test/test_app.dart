@@ -16,13 +16,13 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  bool isLoading = false;
+  bool isTesting = false;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         body: Center(
-          child: isLoading
+          child: isTesting
               ? const CircularProgressIndicator()
               : SingleChildScrollView(
                   child: Column(
@@ -80,14 +80,14 @@ class _AppState extends State<App> {
         key: Key(label),
         onPressed: () async {
           logger = Logger();
-          setState(() => isLoading = true);
+          setState(() => isTesting = true);
           try {
             await onPressed();
           } catch (e, st) {
             logger.error = e;
             logger.stackTrace = st;
           } finally {
-            setState(() => isLoading = false);
+            setState(() => isTesting = false);
           }
         },
         child: Text(label),
