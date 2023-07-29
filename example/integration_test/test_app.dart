@@ -6,7 +6,7 @@ import 'package:gal/gal.dart';
 
 var logger = Logger();
 
-Future<void> main() async => runApp(const App());
+void main() => runApp(const App());
 
 class App extends StatefulWidget {
   const App({super.key});
