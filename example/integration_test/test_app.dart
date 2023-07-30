@@ -85,7 +85,7 @@ class _AppState extends State<App> {
             await onPressed();
           } catch (e, st) {
             logger.error = e;
-            logger.stackTrace = st;
+            logger.stackTrace = e is GalException ? e.stackTrace : st;
           } finally {
             setState(() => isTesting = false);
           }
