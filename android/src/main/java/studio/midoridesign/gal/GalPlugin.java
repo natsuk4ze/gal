@@ -158,10 +158,11 @@ public class GalPlugin
                 baseName = name.substring(0, dotIndex);
                 extension = name.substring(dotIndex);
             }
-            File file = new File(directory, name);
+            String newName = name;
+            File file = new File(directory, newName);
             for (int counter = 1; file.exists(); counter++) {
-                name = baseName + "(" + counter + ")" + extension;
-                file = new File(directory, name);
+                newName = baseName + "(" + counter + ")" + extension;
+                file = new File(directory, newName);
             }
             try (OutputStream out = new FileOutputStream(file)) {
                 byte[] buffer = new byte[8192];
