@@ -169,6 +169,7 @@ jobs:
           arch: x86_64
           emulator-boot-timeout: 900
           force-avd-creation: false
+          sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
@@ -183,6 +184,7 @@ jobs:
           arch: x86_64
           emulator-boot-timeout: 1200
           force-avd-creation: false
+          sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
             flutter clean
