@@ -98,7 +98,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        api-level: [31,30,29,28,27,26,25,24]
+        api-level: [31,30,29,28,27,26,25,24,23,22,21]
       fail-fast: false
     steps:
       - name: Check out
