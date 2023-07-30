@@ -4,6 +4,13 @@ on:
   push:
 
 jobs:
+  cancel-outdated-runs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
   setup:
     runs-on: macos-latest
     steps:
@@ -151,7 +158,6 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: echo "Generated AVD snapshot for caching."
 
-      # See: https://github.com/ReactiveCircus/android-emulator-runner
       - name: Run integration tests
         id: Run-integration-tests
         continue-on-error: true
@@ -163,7 +169,9 @@ jobs:
           emulator-boot-timeout: 900
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: flutter test integration_test/integration_test.dart --timeout none
+          script: |
+            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
+            flutter test integration_test/integration_test.dart --timeout none
 
       - name: Retry integration tests
         if: steps.Run-integration-tests.outcome == 'failure'
@@ -178,6 +186,7 @@ jobs:
           script: |
             flutter clean
             flutter pub get
+            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart --timeout none
           pre-emulator-launch-script: |
             adb kill-server

@@ -20,7 +20,7 @@ migrate_working_dir/
 
 # Flutter/Dart/Pub related
 # Libraries should not include pubspec.lock, per https://dart.dev/guides/libraries/private-files#pubspeclock.
-/pubspec.lock
+pubspec.lock
 **/doc/api/
 .dart_tool/
 .packages
@@ -28,3 +28,116 @@ build/
 
 # Private settings related
 .vscode/
+
+# Android related
+*.iml
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+/build
+/captures
+.cxx
+/android/app/debug
+/android/app/profile
+/android/app/release
+gradle-wrapper.jar
+/.gradle
+/captures/
+**/gradlew
+**/gradlew.bat
+**/local.properties
+GeneratedPluginRegistrant.java
+key.properties
+**/*.keystore
+**/*.jks
+
+# iOS related
+.vagrant/
+.sconsign.dblite
+.svn/
+
+.DS_Store
+*.swp
+profile
+
+DerivedData/
+build/
+GeneratedPluginRegistrant.h
+GeneratedPluginRegistrant.m
+
+.generated/
+
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+
+!default.pbxuser
+!default.mode1v3
+!default.mode2v3
+!default.perspectivev3
+
+xcuserdata
+
+*.moved-aside
+
+*.pyc
+*sync/
+Icon?
+.tags*
+
+**/Flutter/Generated.xcconfig
+/Flutter/ephemeral/
+**/Flutter/flutter_export_environment.sh
+**/dgph
+*.mode1v3
+*.mode2v3
+*.moved-aside
+*.pbxuser
+*.perspectivev3
+**/*sync/
+.sconsign.dblite
+.tags*
+**/.vagrant/
+**/DerivedData/
+Icon?
+**/Pods/
+**/.symlinks/
+profile
+xcuserdata
+**/.generated/
+Flutter/App.framework
+Flutter/Flutter.framework
+Flutter/Flutter.podspec
+Flutter/Generated.xcconfig
+Flutter/ephemeral/
+Flutter/app.flx
+Flutter/app.zip
+Flutter/flutter_assets/
+Flutter/flutter_export_environment.sh
+ServiceDefinitions.json
+Runner/GeneratedPluginRegistrant.*
+
+# Exceptions to above rules.
+!default.mode1v3
+!default.mode2v3
+!default.pbxuser
+!default.perspectivev3
+
+# Example related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json

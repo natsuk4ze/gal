@@ -9,7 +9,7 @@
 [![pub package](https://img.shields.io/pub/v/gal.svg)](https://pub.dev/packages/gal)
 
 ### Easy to use Dart3 plugin for saving image/video to gallery app <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/fe/3a/7e/fe3a7e0e-7f52-b750-0ed2-523998c59d48/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/246x0w.webp" alt="ios photo" width="20" height="20"/> <img src="https://play-lh.googleusercontent.com/ZyWNGIfzUyoajtFcD7NhMksHEZh37f-MkHVGr5Yfefa-IX7yj9SMfI82Z7a2wpdKCA=w240-h480-rw" alt="amdroid photo" width="20" height="20"/>
-If you love this pub, Please leave a [like👍](https://pub.dev/packages/gal) and [star⭐️](https://github.com/natsuk4ze/gal).
+If you love this pub, Please leave a [like👍](https://pub.dev/packages/gal) and [star⭐️](https://github.com/natsuk4ze/gal). Currently supports iOS > 10, Android > 23.
 
 ![example](https://github.com/natsuk4ze/gal/raw/main/example/assets/example.gif)
 
@@ -135,15 +135,6 @@ class App extends StatelessWidget {
   }
 }
 ```
-
-## 👌Supported platforms
-Follows the [latest flutter](https://docs.flutter.dev/reference/supported-platforms), 
-**Android 21-23 will be "Supported" soon.**
-
-| Platform | Supported | Best effort | Unsupported |
-| ----- | --- | ------- | ------- |
-| iOS | 16 | 11-15 | 10- |
-| Android | 24-31 | 19-23 | 18-
 
 
 ## 📪FAQ

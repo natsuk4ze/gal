@@ -14,14 +14,6 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final snackBar = SnackBar(
-      content: const Text('Saved! ✅'),
-      action: SnackBarAction(
-        label: 'Gallery ->',
-        onPressed: () async => Gal.open(),
-      ),
-    );
-
     return MaterialApp(
       theme: ThemeData(
         useMaterial3: true,
@@ -33,13 +25,16 @@ class App extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  _Button(
+                  FilledButton(
                     onPressed: () async {
                       final requestGranted = await Gal.requestAccess();
                       if (requestGranted) {
                         final path = await getFilePath('assets/done.jpg');
                         try {
                           await Gal.putImage(path);
+
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         } on GalException catch (e) {
                           log(e.toString());
                         }
@@ -61,49 +56,31 @@ class App extends StatelessWidget {
                         ),
                       );
                     },
-                    label: 'Best Practice',
-                    icon: Icons.done,
+                    child: const Text('Best Practice'),
                   ),
-                  _Button(
+                  FilledButton(
                     onPressed: () async => Gal.open(),
-                    label: 'Open Gallery',
-                    icon: Icons.open_in_new,
+                    child: const Text('Open Gallery'),
                   ),
-                  _Button(
+                  FilledButton(
                     onPressed: () async {
                       final path = await getFilePath('assets/done.mp4');
                       await Gal.putVideo(path);
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
-                    label: 'Save Video from local',
-                    icon: Icons.video_file,
+                    child: const Text('Save Video from file path'),
                   ),
-                  _Button(
-                    onPressed: () async {
-                      final path = '${Directory.systemTemp.path}/done.mp4';
-                      await Dio().download(
-                        'https://github.com/natsuk4ze/gal/raw/main/example/assets/done.mp4',
-                        path,
-                      );
-                      await Gal.putVideo(path);
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    },
-                    label: 'Download Video',
-                    icon: Icons.video_file_outlined,
-                  ),
-                  _Button(
+                  FilledButton(
                     onPressed: () async {
                       final path = await getFilePath('assets/done.jpg');
                       await Gal.putImage(path);
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
-                    label: 'Save Image from local',
-                    icon: Icons.image,
+                    child: const Text('Save Image from file path'),
                   ),
-                  _Button(
+                  FilledButton(
                     onPressed: () async {
                       final byteData = await rootBundle.load('assets/done.jpg');
                       final uint8List = byteData.buffer.asUint8List(
@@ -112,10 +89,9 @@ class App extends StatelessWidget {
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
-                    label: 'Save Image from bytes',
-                    icon: Icons.image_rounded,
+                    child: const Text('Save Image from bytes'),
                   ),
-                  _Button(
+                  FilledButton(
                     onPressed: () async {
                       final path = '${Directory.systemTemp.path}/done.jpg';
                       await Dio().download(
@@ -126,24 +102,34 @@ class App extends StatelessWidget {
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
-                    label: 'Download Image',
-                    icon: Icons.image_outlined,
+                    child: const Text('Download Image'),
                   ),
-                  _Button(
+                  FilledButton(
+                    onPressed: () async {
+                      final path = '${Directory.systemTemp.path}/done.mp4';
+                      await Dio().download(
+                        'https://github.com/natsuk4ze/gal/raw/main/example/assets/done.mp4',
+                        path,
+                      );
+                      await Gal.putVideo(path);
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    },
+                    child: const Text('Download Video'),
+                  ),
+                  FilledButton(
                     onPressed: () async {
                       final hasAccess = await Gal.hasAccess();
                       log('Has Access:${hasAccess.toString()}');
                     },
-                    label: 'Has Access',
-                    icon: Icons.question_mark,
+                    child: const Text('Has Access'),
                   ),
-                  _Button(
+                  FilledButton(
                     onPressed: () async {
                       final requestGranted = await Gal.requestAccess();
                       log('Request Granted:${requestGranted.toString()}');
                     },
-                    label: 'Request Access',
-                    icon: Icons.privacy_tip_outlined,
+                    child: const Text('Request Access'),
                   ),
                 ],
               ),
@@ -154,6 +140,14 @@ class App extends StatelessWidget {
     );
   }
 
+  SnackBar get snackBar => SnackBar(
+        content: const Text('Saved! ✅'),
+        action: SnackBarAction(
+          label: 'Gallery ->',
+          onPressed: () async => Gal.open(),
+        ),
+      );
+
   Future<String> getFilePath(String path) async {
     final byteData = await rootBundle.load(path);
     final file = await File(
@@ -162,29 +156,5 @@ class App extends StatelessWidget {
     await file.writeAsBytes(byteData.buffer
         .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
     return file.path;
-  }
-}
-
-class _Button extends StatelessWidget {
-  const _Button({
-    required this.label,
-    required this.icon,
-    required this.onPressed,
-  });
-
-  final String label;
-  final IconData icon;
-  final void Function() onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(12.0),
-      child: FloatingActionButton.extended(
-        onPressed: onPressed,
-        label: Text(label),
-        icon: Icon(icon),
-      ),
-    );
   }
 }
