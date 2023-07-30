@@ -18,7 +18,7 @@ If you love this pub, Please leave a [like👍](https://pub.dev/packages/gal) an
 * Open gallery
 * Save video
 * Save image
-* Handle pemission
+* Handle permission
 * Handle errors
 * Lots of docs and wiki
 
