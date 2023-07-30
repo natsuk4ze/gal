@@ -44,13 +44,13 @@ public class GalPlugin
     private static final Uri IMAGE_URI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
     private static final Uri VIDEO_URI = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
     private static final int PERMISSION_REQUEST_CODE = 1317298; // Anything unique in the app.
-    private static final boolean hasAccessByDefault = Build.VERSION.SDK_INT < 23
+    private static final boolean HAS_ACCESS_BY_DEFAULT = Build.VERSION.SDK_INT < 23
             || (Build.VERSION.SDK_INT >= 29 && Build.VERSION.SDK_INT < 30);
 
     private MethodChannel channel;
     private FlutterPluginBinding pluginBinding;
     private Activity activity;
-    private Callback callback;
+    private Runnable requestAccessCallback;
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -93,20 +93,21 @@ public class GalPlugin
                 break;
             }
             case "hasAccess": {
-                result.success(hasAccessByDefault ? true : hasAccess());
+                result.success(HAS_ACCESS_BY_DEFAULT ? true : hasAccess());
                 break;
             }
             case "requestAccess": {
-                if (hasAccessByDefault) {
+                if (HAS_ACCESS_BY_DEFAULT) {
                     result.success(true);
                     return;
                 }
-                requestAccess(new Callback() {
+                requestAccessCallback = new Runnable() {
                     @Override
-                    public void onComplete(boolean res) {
-                        result.success(res);
+                    public void run() {
+                        result.success(hasAccess());
                     }
-                });
+                };
+                requestAccess();
                 break;
             }
             default:
@@ -145,7 +146,7 @@ public class GalPlugin
                 }
             }
         } else {
-            File directory = Environment.getExternalStoragedirectoryectory(
+            File directory = Environment.getExternalStoragePublicDirectory(
                     isImage ? Environment.DIRECTORY_PICTURES : Environment.DIRECTORY_MOVIES);
             if (!directory.exists()) {
                 directory.mkdirs();
@@ -188,10 +189,7 @@ public class GalPlugin
         return status == PackageManager.PERMISSION_GRANTED;
     }
 
-    // If permissions have already been granted by the user,
-    // returns true immediately without displaying the dialog.
-    private void requestAccess(Callback callback) {
-        this.callback = callback;
+    private void requestAccess() {
         ActivityCompat.requestPermissions(activity, new String[] { PERMISSION }, PERMISSION_REQUEST_CODE);
     }
 
@@ -246,7 +244,8 @@ public class GalPlugin
         if (requestCode != PERMISSION_REQUEST_CODE || grantResults.length == 0) {
             return false;
         }
-        callback.onComplete(grantResults[0] == PackageManager.PERMISSION_GRANTED);
+        new Handler(Looper.getMainLooper()).post(requestAccessCallback);
+        requestAccessCallback = null;
         return true;
     }
 
@@ -255,8 +254,4 @@ public class GalPlugin
         channel.setMethodCallHandler(null);
         pluginBinding = null;
     }
-}
-
-interface Callback {
-    void onComplete(boolean result);
 }
