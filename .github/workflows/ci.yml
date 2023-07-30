@@ -155,7 +155,7 @@ jobs:
           arch: x86_64
           emulator-boot-timeout: 900
           force-avd-creation: false
-          sdcard-path-or-size: 1000M
+          sdcard-path-or-size: 5000K
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: echo "Generated AVD snapshot for caching."
 
