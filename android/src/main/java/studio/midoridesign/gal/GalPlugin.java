@@ -97,7 +97,7 @@ public class GalPlugin
                 break;
             }
             case "requestAccess": {
-                if (HAS_ACCESS_BY_DEFAULT) {
+                if (hasAccess()) {
                     result.success(true);
                     return;
                 }
