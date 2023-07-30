@@ -21,18 +21,22 @@ import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Build;
+import android.os.Environment;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.Manifest;
 import android.app.Activity;
+import android.media.MediaScannerConnection;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
+import java.util.UUID;
 
 public class GalPlugin
         implements FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.RequestPermissionsResultListener {
@@ -114,30 +118,58 @@ public class GalPlugin
             throws IOException, SecurityException, FileNotFoundException {
         File file = new File(path);
         try (InputStream in = new FileInputStream(file)) {
-            writeContent(context, in, isImage);
+            writeContent(context, in, isImage, file.getName());
         }
     }
 
     private void putImageBytes(Context context, byte[] bytes)
             throws IOException, SecurityException {
         try (InputStream in = new ByteArrayInputStream(bytes)) {
-            writeContent(context, in, true);
+            writeContent(context, in, true, UUID.randomUUID().toString() + ".jpg");
         }
     }
 
-    private void writeContent(Context context, InputStream in, boolean isImage)
+    private void writeContent(Context context, InputStream in, boolean isImage, String name)
             throws IOException, SecurityException {
-        ContentResolver resolver = context.getContentResolver();
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.MediaColumns.DATE_ADDED, System.currentTimeMillis());
-        Uri mediaUri = resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
+        if (Build.VERSION.SDK_INT > 23) {
+            ContentResolver resolver = context.getContentResolver();
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.MediaColumns.DATE_ADDED, System.currentTimeMillis());
+            Uri mediaUri = resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
 
-        try (OutputStream out = resolver.openOutputStream(mediaUri)) {
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            while ((bytesRead = in.read(buffer)) != -1) {
-                out.write(buffer, 0, bytesRead);
+            try (OutputStream out = resolver.openOutputStream(mediaUri)) {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, bytesRead);
+                }
             }
+        } else {
+            File directory = Environment.getExternalStoragedirectoryectory(
+                    isImage ? Environment.DIRECTORY_PICTURES : Environment.DIRECTORY_MOVIES);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+            String baseName = name;
+            String extension = "";
+            int dotIndex = name.lastIndexOf('.');
+            if (dotIndex > 0) {
+                baseName = name.substring(0, dotIndex);
+                extension = name.substring(dotIndex);
+            }
+            File file = new File(directory, name);
+            for (int counter = 1; file.exists(); counter++) {
+                name = baseName + "(" + counter + ")" + extension;
+                file = new File(directory, name);
+            }
+            try (OutputStream out = new FileOutputStream(file)) {
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, bytesRead);
+                }
+            }
+            MediaScannerConnection.scanFile(context, new String[] { file.getAbsolutePath() }, null, null);
         }
     }
 
