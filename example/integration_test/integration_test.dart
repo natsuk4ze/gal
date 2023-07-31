@@ -46,7 +46,7 @@ void execute(String key) => testWidgets(key, (tester) async {
 
       if (app.logger.error == null) return;
       fail("""
-${app.logger.error.runtimeType}: ${app.logger.error}
+${app.logger.error.runtimeType}: ${app.logger.error}\n
 StackTrace: ${app.logger.stackTrace}
 PlatformException: ${app.logger.platformException}""");
     });
