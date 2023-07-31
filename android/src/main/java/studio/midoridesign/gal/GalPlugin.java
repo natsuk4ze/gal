@@ -207,7 +207,8 @@ public class GalPlugin
 
     private void handleError(Exception e, Result result) {
         String errorCode;
-        if (e instanceof SecurityException) {
+        if (e instanceof SecurityException
+                || (e instanceof FileNotFoundException && e.toString().contains("Permission denied"))) {
             errorCode = "ACCESS_DENIED";
         } else if (e instanceof FileNotFoundException) {
             errorCode = "NOT_SUPPORTED_FORMAT";
