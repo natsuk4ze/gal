@@ -41,9 +41,13 @@ void execute(String key) => testWidgets(key, (tester) async {
       await tester.tap(button);
       await tester.pumpAndSettle();
 
-      debugPrint('$key returned: ${app.logger.value}');
+      final value = app.logger.value;
+      if (value != null) debugPrint('returned: $value');
 
       if (app.logger.error == null) return;
-      fail(
-          "${app.logger.error.runtimeType}: ${app.logger.error}\nStackTrace: ${app.logger.stackTrace}");
+      fail("""
+      ${app.logger.error.runtimeType}: ${app.logger.error}
+      StackTrace: ${app.logger.stackTrace}
+      PlatformException: ${app.logger.platformException}
+      """);
     });

@@ -86,6 +86,9 @@ class _AppState extends State<App> {
           } catch (e, st) {
             logger.error = e;
             logger.stackTrace = e is GalException ? e.stackTrace : st;
+            if (e is GalException) {
+              logger.platformException = e.error as PlatformException;
+            }
           } finally {
             setState(() => isTesting = false);
           }
@@ -108,4 +111,5 @@ class Logger {
   dynamic value;
   Object? error;
   StackTrace? stackTrace;
+  PlatformException? platformException;
 }
