@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
+
 import java.util.UUID;
 
 public class GalPlugin
@@ -124,7 +125,7 @@ public class GalPlugin
     private void putImageBytes(Context context, byte[] bytes)
             throws IOException, SecurityException {
         try (InputStream in = new ByteArrayInputStream(bytes)) {
-            writeContent(context, in, true, UUID.randomUUID().toString() + ".jpg");
+            writeContent(context, in, true, "image.jpg");
         }
     }
 
@@ -133,7 +134,6 @@ public class GalPlugin
         if (Build.VERSION.SDK_INT > 23) {
             ContentResolver resolver = context.getContentResolver();
             ContentValues values = new ContentValues();
-            values.put(MediaStore.MediaColumns.DATE_ADDED, System.currentTimeMillis());
             Uri mediaUri = resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
 
             try (OutputStream out = resolver.openOutputStream(mediaUri)) {
@@ -149,19 +149,12 @@ public class GalPlugin
             if (!directory.exists()) {
                 directory.mkdirs();
             }
-            String baseName = name;
             String extension = "";
             int dotIndex = name.lastIndexOf('.');
             if (dotIndex > 0) {
-                baseName = name.substring(0, dotIndex);
                 extension = name.substring(dotIndex);
             }
-            String newName = name;
-            File file = new File(directory, newName);
-            for (int counter = 1; file.exists(); counter++) {
-                newName = baseName + "(" + counter + ")" + extension;
-                file = new File(directory, newName);
-            }
+            File file = new File(directory, UUID.randomUUID().toString() + extension);
             try (OutputStream out = new FileOutputStream(file)) {
                 byte[] buffer = new byte[8192];
                 int bytesRead;
@@ -207,8 +200,7 @@ public class GalPlugin
 
     private void handleError(Exception e, Result result) {
         String errorCode;
-        if (e instanceof SecurityException
-                || (e instanceof FileNotFoundException && e.toString().contains("Permission denied"))) {
+        if (e instanceof SecurityException || e.toString().contains("Permission denied")) {
             errorCode = "ACCESS_DENIED";
         } else if (e instanceof FileNotFoundException) {
             errorCode = "NOT_SUPPORTED_FORMAT";

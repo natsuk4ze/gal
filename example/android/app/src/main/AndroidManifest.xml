@@ -24,13 +24,16 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    
+
     <!-- Gal: If supports API <29 add this key :Gal-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
                  android:maxSdkVersion="29" />
 
-    <!-- Gal: This is only required in a CI. Ignore it :Gal-->
+    <!--Package users can ignore this key: For example-->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!--Package users can ignore this key: For integration test-->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
                  android:maxSdkVersion="23" />
+    
 </manifest>

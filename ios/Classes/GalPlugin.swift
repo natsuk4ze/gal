@@ -107,7 +107,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
       PHErrorCode.multipleIdentifiersFound.rawValue,
       PHErrorCode.requestNotSupportedForAsset.rawValue,
       PHErrorCode.videoConversionFailed.rawValue,
-      PHErrorCode.unsupportedVideoCodecs.rawValue:
+      PHErrorCode.unsupportedVideoCodec.rawValue:
       return FlutterError(code: "NOT_SUPPORTED_FORMAT", message: message, details: details)
 
     case PHErrorCode.notEnoughSpace.rawValue:
@@ -136,7 +136,7 @@ enum PHErrorCode: Int {
   case videoConversionFailed = 3300
 
   // Apple has not released documentation.
-  case unsupportedVideoCodecs = 3302
+  case unsupportedVideoCodec = 3302
 
   // [PHPhotosError.notEnoughSpace]
   case notEnoughSpace = 3305

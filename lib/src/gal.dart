@@ -40,6 +40,8 @@ final class Gal {
       _voidOrThrow(() async => GalPlatform.instance.putImageBytes(bytes));
 
   /// Open the default gallery app.
+  /// 
+  /// In Android API -23, open gallery/pictures. Otherwise, gallery/
   static Future<void> open() async => GalPlatform.instance.open();
 
   /// Check if the app has access permissions.
