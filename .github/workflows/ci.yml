@@ -92,7 +92,7 @@ jobs:
         if: steps.Run-integration-tests.outcome == 'failure'
         timeout-minutes: 20
         run: |
-          flutter clean && flutter pub get && flutter clean ./example && flutter pub get ./example
+          flutter clean && flutter pub get
           cd example
           flutter test integration_test/integration_test.dart --timeout none
 
@@ -164,7 +164,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 600
+          emulator-boot-timeout: 300
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -180,13 +180,15 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 900
+          emulator-boot-timeout: 600
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
-          pre-emulator-launch-script: adb kill-server && adb start-server
+          pre-emulator-launch-script: |
+            adb kill-server
+            adb start-server
           script: |
-            flutter clean && flutter pub get && flutter clean ./example && flutter pub get ./example
+            flutter clean && flutter pub get
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
             if [ ${{ matrix.api-level }} -le 23 ]; then adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart --timeout none
