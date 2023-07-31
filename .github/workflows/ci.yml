@@ -3,6 +3,13 @@ name: CI
 on:
   push:
 
+env:
+  FLUTTER_CLEAN_AND_PUB_GET: flutter clean && flutter pub get && flutter clean ./example && flutter pub get ./example
+  RUN_INTEGRATION_TEST: flutter test integration_test/integration_test.dart --timeout none
+  DEFAULT_ANDROID_OPTIONS: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+  GRANT_ANDROID_WRITE_PERMISSION: flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
+  GRANT_ANDROID_READ_PERMISSION: adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE #Use after granting write
+
 jobs:
   cancel-outdated-runs:
     runs-on: ubuntu-latest
@@ -86,18 +93,15 @@ jobs:
         timeout-minutes: 15
         run: |
           cd example
-          flutter test integration_test/integration_test.dart --timeout none
+          $RUN_INTEGRATION_TEST
 
       - name: Retry integration tests
         if: steps.Run-integration-tests.outcome == 'failure'
         timeout-minutes: 20
         run: |
-          flutter clean
-          flutter pub get
-          flutter clean ./example
-          flutter pub get ./example
+          $FLUTTER_CLEAN_AND_PUB_GET
           cd example
-          flutter test integration_test/integration_test.dart --timeout none
+          $RUN_INTEGRATION_TEST
 
   android:
     needs: setup
@@ -156,7 +160,7 @@ jobs:
           emulator-boot-timeout: 900
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          emulator-options: $DEFAULT_ANDROID_OPTIONS
           script: echo "Generated AVD snapshot for caching."
 
       - name: Run integration tests
@@ -170,11 +174,11 @@ jobs:
           emulator-boot-timeout: 900
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          emulator-options: -no-snapshot-save $DEFAULT_ANDROID_OPTIONS
           script: |
-            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
-            if [ ${{ matrix.api-level }} -le 23 ]; then adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
-            flutter test integration_test/integration_test.dart --timeout none
+            if [ ${{ matrix.api-level }} -le 29 ]; then $GRANT_ANDROID_WRITE_PERMISSION; fi
+            if [ ${{ matrix.api-level }} -le 23 ]; then $GRANT_ANDROID_READ_PERMISSION; fi
+            $RUN_INTEGRATION_TEST
 
       - name: Retry integration tests
         if: steps.Run-integration-tests.outcome == 'failure'
@@ -186,13 +190,12 @@ jobs:
           emulator-boot-timeout: 1200
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
-          script: |
-            flutter clean
-            flutter pub get
-            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
-            if [ ${{ matrix.api-level }} -le 23 ]; then adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
-            flutter test integration_test/integration_test.dart --timeout none
+          emulator-options: -no-snapshot-save $DEFAULT_ANDROID_OPTIONS
           pre-emulator-launch-script: |
             adb kill-server
             adb start-server
+          script: |
+            $FLUTTER_CLEAN_AND_PUB_GET
+            if [ ${{ matrix.api-level }} -le 29 ]; then $GRANT_ANDROID_WRITE_PERMISSION; fi
+            if [ ${{ matrix.api-level }} -le 23 ]; then $GRANT_ANDROID_READ_PERMISSION; fi
+            $RUN_INTEGRATION_TEST
