@@ -157,7 +157,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
-          emulator-boot-timeout: 900
+          emulator-boot-timeout: 600
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: $DEFAULT_ANDROID_OPTIONS
@@ -171,7 +171,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 900
+          emulator-boot-timeout: 600
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: -no-snapshot-save $DEFAULT_ANDROID_OPTIONS
@@ -187,7 +187,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 1200
+          emulator-boot-timeout: 900
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: -no-snapshot-save $DEFAULT_ANDROID_OPTIONS
