@@ -29,6 +29,8 @@
     <!-- Gal: If supports API <29 add this key :Gal-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
                  android:maxSdkVersion="29" />
-    <!-- Gal: If supports API <29 add this key :Gal-->
-    
+
+    <!-- Gal: This is only required in a CI. Ignore it :Gal-->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+                 android:maxSdkVersion="23" />
 </manifest>
