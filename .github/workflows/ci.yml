@@ -4,11 +4,11 @@ on:
   push:
 
 env:
-  FLUTTER_CLEAN_AND_PUB_GET: flutter clean && flutter pub get && flutter clean ./example && flutter pub get ./example
-  RUN_INTEGRATION_TEST: flutter test integration_test/integration_test.dart --timeout none
-  DEFAULT_ANDROID_OPTIONS: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
-  GRANT_ANDROID_WRITE_PERMISSION: flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
-  GRANT_ANDROID_READ_PERMISSION: adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE #Use after granting write
+  FLUTTER_CLEAN_AND_PUB_GET: "flutter clean && flutter pub get && flutter clean ./example && flutter pub get ./example"
+  RUN_INTEGRATION_TEST: "flutter test integration_test/integration_test.dart --timeout none"
+  DEFAULT_ANDROID_OPTIONS: "-no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none"
+  GRANT_ANDROID_WRITE_PERMISSION: "flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE"
+  GRANT_ANDROID_READ_PERMISSION: "adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE" #Use after granting write
 
 jobs:
   cancel-outdated-runs:
