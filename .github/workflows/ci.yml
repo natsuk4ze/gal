@@ -92,7 +92,7 @@ jobs:
         if: steps.Run-integration-tests.outcome == 'failure'
         timeout-minutes: 20
         run: |
-          flutter clean && flutter pub get && flutter clean --directory ./example && flutter pub get --directory ./example
+          flutter clean && flutter pub get
           cd example
           flutter test integration_test/integration_test.dart --timeout none
 
@@ -188,7 +188,7 @@ jobs:
             adb kill-server
             adb start-server
           script: |
-            flutter clean && flutter pub get && flutter clean --directory ./example && flutter pub get --directory ./example
+            flutter clean && flutter pub get
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
             if [ ${{ matrix.api-level }} -le 23 ]; then adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart --timeout none
