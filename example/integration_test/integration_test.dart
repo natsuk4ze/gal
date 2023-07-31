@@ -2,7 +2,7 @@
 
 import 'dart:io' show Platform;
 
-import 'package:flutter/material.dart' show Key;
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -40,6 +40,9 @@ void execute(String key) => testWidgets(key, (tester) async {
 
       await tester.tap(button);
       await tester.pumpAndSettle();
+
+      debugPrint('$key returned: ${app.logger.value}');
+
       if (app.logger.error == null) return;
       fail(
           "${app.logger.error.runtimeType}: ${app.logger.error}\nStackTrace: ${app.logger.stackTrace}");

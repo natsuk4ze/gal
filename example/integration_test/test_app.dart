@@ -82,7 +82,7 @@ class _AppState extends State<App> {
           logger = Logger();
           setState(() => isTesting = true);
           try {
-            await onPressed();
+            logger.value = await onPressed();
           } catch (e, st) {
             logger.error = e;
             logger.stackTrace = e is GalException ? e.stackTrace : st;
@@ -105,6 +105,7 @@ class _AppState extends State<App> {
 }
 
 class Logger {
+  dynamic value;
   Object? error;
   StackTrace? stackTrace;
 }
