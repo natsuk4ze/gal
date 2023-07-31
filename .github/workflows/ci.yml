@@ -35,7 +35,7 @@ jobs:
          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_id }}
 
      - name: Install packages
-       run: flutter --disable-telemetry && flutter pub get
+       run: flutter --disable-telemetry && flutter clean && flutter pub get
 
      - name: Analyze
        run: flutter analyze
@@ -92,10 +92,7 @@ jobs:
         if: steps.Run-integration-tests.outcome == 'failure'
         timeout-minutes: 20
         run: |
-          flutter clean
-          flutter pub get
-          flutter clean ./example
-          flutter pub get ./example
+          flutter clean && flutter pub get && flutter clean ./example && flutter pub get ./example
           cd example
           flutter test integration_test/integration_test.dart --timeout none
 
@@ -105,7 +102,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        api-level: [31,30,29,28,27,26,25,24]
+        api-level: [31,30,29,28,27,26,25,24,23,22,21]
       fail-fast: false
     steps:
       - name: Check out
@@ -153,9 +150,10 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
-          emulator-boot-timeout: 900
+          emulator-boot-timeout: 600
           force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: echo "Generated AVD snapshot for caching."
 
       - name: Run integration tests
@@ -166,11 +164,13 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 900
+          emulator-boot-timeout: 600
           force-avd-creation: false
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
+            if [ ${{ matrix.api-level }} -le 23 ]; then adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart --timeout none
 
       - name: Retry integration tests
@@ -180,14 +180,13 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 1200
+          emulator-boot-timeout: 900
           force-avd-creation: false
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          pre-emulator-launch-script: adb kill-server && adb start-server
           script: |
-            flutter clean
-            flutter pub get
+            flutter clean && flutter pub get && flutter clean ./example && flutter pub get ./example
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
+            if [ ${{ matrix.api-level }} -le 23 ]; then adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart --timeout none
-          pre-emulator-launch-script: |
-            adb kill-server
-            adb start-server
