@@ -35,7 +35,7 @@ jobs:
          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_id }}
 
      - name: Install packages
-       run: flutter --disable-telemetry && flutter pub get
+       run: flutter --disable-telemetry && flutter clean && flutter pub get
 
      - name: Analyze
        run: flutter analyze
@@ -150,7 +150,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
-          emulator-boot-timeout: 300
+          emulator-boot-timeout: 600
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -164,7 +164,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 300
+          emulator-boot-timeout: 600
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -180,7 +180,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 600
+          emulator-boot-timeout: 900
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
