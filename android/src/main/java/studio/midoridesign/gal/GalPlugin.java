@@ -180,7 +180,13 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         Context context = pluginBinding.getApplicationContext();
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
-        intent.setData(IMAGE_URI);
+        if (Build.VERSION.SDK_INT < 23) {
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setType("*/*");
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
+        } else {
+            intent.setData(IMAGE_URI);
+        }
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
