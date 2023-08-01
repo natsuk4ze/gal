@@ -38,8 +38,6 @@ build/
 /build
 /captures
 .cxx
-/android/app/debug
-/android/app/profile
 /android/app/release
 gradle-wrapper.jar
 /.gradle
@@ -135,6 +133,8 @@ Runner/GeneratedPluginRegistrant.*
 .pub-cache/
 .pub/
 /build/
+example/android/app/src/debug/
+example/android/app/src/profile/
 
 # Symbolication related
 app.*.symbols
