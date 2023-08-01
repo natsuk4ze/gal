@@ -1,6 +1,6 @@
 name: gal
 description: Gal is a Flutter plugin for saving image/video to gallary app. You can also easily handle permissions.
-version: 1.6.3
+version: 1.7.0
 homepage: https://pub.dev/packages/gal
 repository: https://github.com/natsuk4ze/gal
 

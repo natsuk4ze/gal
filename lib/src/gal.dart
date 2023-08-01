@@ -41,7 +41,7 @@ final class Gal {
 
   /// Open gallery app.
   /// 
-  /// If there are multiple gallery apps, a picker may be displayed.
+  /// If there are multiple gallery apps, App selection sheet may be displayed.
   static Future<void> open() async => GalPlatform.instance.open();
 
   /// Check if the app has access permissions.

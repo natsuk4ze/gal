@@ -1,3 +1,7 @@
+## 1.7.0
+
+* Add: Support Android API 21-23.
+
 ## 1.6.3
 
 * FIX: Crashing on permission requests for other packages.
