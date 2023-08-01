@@ -36,14 +36,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
+
 import java.util.UUID;
 
-public class GalPlugin
-        implements FlutterPlugin, MethodCallHandler, ActivityAware, PluginRegistry.RequestPermissionsResultListener {
+public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware,
+        PluginRegistry.RequestPermissionsResultListener {
     private static final String PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE;
     private static final Uri IMAGE_URI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
     private static final Uri VIDEO_URI = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
     private static final int PERMISSION_REQUEST_CODE = 1317298; // Anything unique in the app.
+    private static final boolean USE_MEDIA_STORE = Build.VERSION.SDK_INT > 23;
+    private static final boolean HAS_ACCESS_BY_DEFAULT =
+            Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT >= 29;
 
     private MethodChannel channel;
     private FlutterPluginBinding pluginBinding;
@@ -64,8 +68,8 @@ public class GalPlugin
             case "putImage": {
                 new Thread(() -> {
                     try {
-                        putMedia(pluginBinding.getApplicationContext(), (String) call.argument("path"),
-                                call.method.contains("Image"));
+                        putMedia(pluginBinding.getApplicationContext(),
+                                (String) call.argument("path"), call.method.contains("Image"));
                         new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                     } catch (Exception e) {
                         handleError(e, result);
@@ -76,7 +80,8 @@ public class GalPlugin
             case "putImageBytes": {
                 new Thread(() -> {
                     try {
-                        putImageBytes(pluginBinding.getApplicationContext(), (byte[]) call.argument("bytes"));
+                        putMediaBytes(pluginBinding.getApplicationContext(),
+                                (byte[]) call.argument("bytes"));
                         new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                     } catch (Exception e) {
                         handleError(e, result);
@@ -86,8 +91,7 @@ public class GalPlugin
             }
             case "open": {
                 open();
-                new Handler(Looper.getMainLooper())
-                        .post(() -> result.success(null));
+                new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                 break;
             }
             case "hasAccess": {
@@ -117,59 +121,58 @@ public class GalPlugin
             throws IOException, SecurityException, FileNotFoundException {
         File file = new File(path);
         try (InputStream in = new FileInputStream(file)) {
-            writeContent(context, in, isImage, file.getName());
+            if (USE_MEDIA_STORE) {
+                putMediaToMediaStore(context, in, isImage);
+            } else {
+                putMediaToExternalStorage(context, in, isImage, file.getName());
+            }
         }
     }
 
-    private void putImageBytes(Context context, byte[] bytes)
+    private void putMediaBytes(Context context, byte[] bytes)
             throws IOException, SecurityException {
         try (InputStream in = new ByteArrayInputStream(bytes)) {
-            writeContent(context, in, true, UUID.randomUUID().toString() + ".jpg");
+            if (USE_MEDIA_STORE) {
+                putMediaToMediaStore(context, in, true);
+            } else {
+                putMediaToExternalStorage(context, in, true, "image.jpg");
+            }
         }
     }
 
-    private void writeContent(Context context, InputStream in, boolean isImage, String name)
-            throws IOException, SecurityException {
-        if (Build.VERSION.SDK_INT > 23) {
-            ContentResolver resolver = context.getContentResolver();
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.MediaColumns.DATE_ADDED, System.currentTimeMillis());
-            Uri mediaUri = resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
+    private void putMediaToMediaStore(Context context, InputStream in, boolean isImage)
+            throws IOException, SecurityException, FileNotFoundException {
+        ContentResolver resolver = context.getContentResolver();
+        ContentValues values = new ContentValues();
+        Uri uri = resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
 
-            try (OutputStream out = resolver.openOutputStream(mediaUri)) {
-                byte[] buffer = new byte[8192];
-                int bytesRead;
-                while ((bytesRead = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, bytesRead);
-                }
-            }
-        } else {
-            File directory = Environment.getExternalStoragePublicDirectory(
-                    isImage ? Environment.DIRECTORY_PICTURES : Environment.DIRECTORY_MOVIES);
-            if (!directory.exists()) {
-                directory.mkdirs();
-            }
-            String baseName = name;
-            String extension = "";
-            int dotIndex = name.lastIndexOf('.');
-            if (dotIndex > 0) {
-                baseName = name.substring(0, dotIndex);
-                extension = name.substring(dotIndex);
-            }
-            String newName = name;
-            File file = new File(directory, newName);
-            for (int counter = 1; file.exists(); counter++) {
-                newName = baseName + "(" + counter + ")" + extension;
-                file = new File(directory, newName);
-            }
-            try (OutputStream out = new FileOutputStream(file)) {
-                byte[] buffer = new byte[8192];
-                int bytesRead;
-                while ((bytesRead = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, bytesRead);
-                }
-            }
-            MediaScannerConnection.scanFile(context, new String[] { file.getAbsolutePath() }, null, null);
+        try (OutputStream out = resolver.openOutputStream(uri)) {
+            writeData(in, out);
+        }
+    }
+
+    private void putMediaToExternalStorage(Context context, InputStream in, boolean isImage,
+            String name) throws IOException, SecurityException, FileNotFoundException {
+        File directory = Environment.getExternalStoragePublicDirectory(
+                isImage ? Environment.DIRECTORY_PICTURES : Environment.DIRECTORY_MOVIES);
+        if (!directory.exists()) directory.mkdirs();
+
+        int dotIndex = name.lastIndexOf('.');
+        if (dotIndex == -1) throw new FileNotFoundException("Extension not found.");
+        String extension = name.substring(dotIndex);
+        File file = new File(directory, UUID.randomUUID().toString() + extension);
+
+        try (OutputStream out = new FileOutputStream(file)) {
+            writeData(in, out);
+        }
+        MediaScannerConnection.scanFile(context, new String[] {file.getAbsolutePath()}, null, null);
+    }
+
+    private void writeData(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[8192];
+        int bytesRead;
+        while ((bytesRead = in.read(buffer)) != -1) {
+            out.write(buffer, 0, bytesRead);
         }
     }
 
@@ -183,19 +186,19 @@ public class GalPlugin
     }
 
     private boolean hasAccess() {
-        if (Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT >= 29) {
-            return true;
-        }
+        if (HAS_ACCESS_BY_DEFAULT) return true;
         Context context = pluginBinding.getApplicationContext();
         int status = ContextCompat.checkSelfPermission(context, PERMISSION);
         return status == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestAccess() {
-        ActivityCompat.requestPermissions(activity, new String[] { PERMISSION }, PERMISSION_REQUEST_CODE);
+        ActivityCompat.requestPermissions(activity, new String[] {PERMISSION},
+                PERMISSION_REQUEST_CODE);
     }
 
-    private void sendError(String errorCode, String message, StackTraceElement[] stackTrace, Result result) {
+    private void sendError(String errorCode, String message, StackTraceElement[] stackTrace,
+            Result result) {
         StringBuilder trace = new StringBuilder();
         for (StackTraceElement st : stackTrace) {
             trace.append(st.toString());
@@ -207,8 +210,7 @@ public class GalPlugin
 
     private void handleError(Exception e, Result result) {
         String errorCode;
-        if (e instanceof SecurityException
-                || (e instanceof FileNotFoundException && e.toString().contains("Permission denied"))) {
+        if (e instanceof SecurityException || e.toString().contains("Permission denied")) {
             errorCode = "ACCESS_DENIED";
         } else if (e instanceof FileNotFoundException) {
             errorCode = "NOT_SUPPORTED_FORMAT";
@@ -232,7 +234,8 @@ public class GalPlugin
     }
 
     @Override
-    public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding activityPluginBinding) {
+    public void onReattachedToActivityForConfigChanges(
+            @NonNull ActivityPluginBinding activityPluginBinding) {
         activity = activityPluginBinding.getActivity();
         activityPluginBinding.addRequestPermissionsResultListener(this);
     }
@@ -243,10 +246,9 @@ public class GalPlugin
     }
 
     @Override
-    public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode != PERMISSION_REQUEST_CODE || grantResults.length == 0) {
-            return false;
-        }
+    public boolean onRequestPermissionsResult(int requestCode, String[] permissions,
+            int[] grantResults) {
+        if (requestCode != PERMISSION_REQUEST_CODE || grantResults.length == 0) return false;
         new Handler(Looper.getMainLooper()).post(requestAccessCallback);
         requestAccessCallback = null;
         return true;
