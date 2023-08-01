@@ -39,9 +39,9 @@ final class Gal {
   static Future<void> putImageBytes(Uint8List bytes) async =>
       _voidOrThrow(() async => GalPlatform.instance.putImageBytes(bytes));
 
-  /// Open the default gallery app.
+  /// Open gallery app.
   /// 
-  /// In Android API -23, open gallery/pictures. Otherwise, gallery/
+  /// If there are multiple gallery apps, a picker may be displayed.
   static Future<void> open() async => GalPlatform.instance.open();
 
   /// Check if the app has access permissions.

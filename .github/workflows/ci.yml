@@ -94,6 +94,7 @@ jobs:
         run: |
           flutter clean && flutter pub get
           cd example
+          flutter clean && flutter pub get
           flutter test integration_test/integration_test.dart --timeout none
 
   android:
