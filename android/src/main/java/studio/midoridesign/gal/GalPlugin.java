@@ -26,11 +26,9 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.Manifest;
 import android.app.Activity;
-import android.media.MediaScannerConnection;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
