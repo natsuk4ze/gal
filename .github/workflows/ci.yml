@@ -56,11 +56,6 @@ jobs:
           path: /opt/hostedtoolcache/Flutter
           key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}-${{ github.run_id }}
 
-      - name: Setup Flutter SDK
-        uses: subosito/flutter-action@v2
-        with:
-          channel: beta
-
       - name: Cache Flutter packages
         uses: actions/cache@v3
         with:
@@ -114,11 +109,6 @@ jobs:
         with:
           path: /opt/hostedtoolcache/Flutter
           key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}-${{ github.run_id }}
-
-      - name: Setup Flutter SDK
-        uses: subosito/flutter-action@v2
-        with:
-          channel: beta
 
       - name: Cache Flutter packages
         uses: actions/cache@v3
