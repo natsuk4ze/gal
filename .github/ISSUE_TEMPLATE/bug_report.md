@@ -8,21 +8,18 @@ assignees: natsuk4ze
 ---
 
 **Describe the bug**
-*replace this text to a clear and concise description of what the bug is.*
+*Clear and concise description of what the bug is.*
 
-**To Reproduce(Optional)**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
+**Log**
+*Please prvide error log*
 
-**Expected behavior(Optional)**
-*replace this text to a clear and concise description of what you expected to happen.*
+**To Reproduce**
+Steps to reproduce the behavior
 
-**Screenshots(Optional)**
+**Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Smartphone (Optional):**
+**Environment**
  - Device: [e.g. iPhone6]
  - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+ - Gal Version: [e.g. 1.7.0]
