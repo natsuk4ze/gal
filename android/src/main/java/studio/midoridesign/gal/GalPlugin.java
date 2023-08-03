@@ -159,7 +159,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         Context context = pluginBinding.getApplicationContext();
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
-        if (Build.VERSION.SDK_INT < 23) {
+        if (USE_EXTERNAL_STORAGE) {
             intent.setType("*/*");
             intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
         } else {
