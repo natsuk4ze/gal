@@ -14,7 +14,7 @@ jobs:
 
   ios:
     needs: set-up
-    timeout-minutes: 60
+    timeout-minutes: 30
     strategy:
       fail-fast: true
     runs-on: macos-latest
@@ -35,7 +35,7 @@ jobs:
           model: iPhone 14 Pro Max
       
       - name: Build
-        timeout-minutes: 20
+        timeout-minutes: 10
         run: |
           cd example
           flutter build ios --simulator --target=integration_test/integration_test.dart
@@ -59,7 +59,7 @@ jobs:
 
   android:
     needs: set-up
-    timeout-minutes: 60
+    timeout-minutes: 30
     runs-on: macos-latest
     strategy:
       matrix:
@@ -99,7 +99,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
-          emulator-boot-timeout: 600
+          emulator-boot-timeout: 300
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -113,13 +113,12 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 300
+          emulator-boot-timeout: 120
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
-            if [ ${{ matrix.api-level }} -le 23 ]; then adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart --timeout none
 
       - name: Retry integration tests
@@ -129,7 +128,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 600
+          emulator-boot-timeout: 300
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -139,5 +138,4 @@ jobs:
           script: |
             flutter clean && flutter pub get
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
-            if [ ${{ matrix.api-level }} -le 23 ]; then adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart --timeout none
