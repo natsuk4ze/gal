@@ -4,7 +4,7 @@ on:
   push:
 
 jobs:
-  cancel-outdated-runs:
+  set-up:
     runs-on: ubuntu-latest
     steps:
       - name: Cancel
@@ -13,6 +13,7 @@ jobs:
           access_token: ${{ github.token }}
 
   ios:
+    needs: set-up
     timeout-minutes: 60
     strategy:
       fail-fast: true
@@ -57,6 +58,7 @@ jobs:
           flutter test integration_test/integration_test.dart --timeout none
 
   android:
+    needs: set-up
     timeout-minutes: 60
     runs-on: macos-latest
     strategy:
