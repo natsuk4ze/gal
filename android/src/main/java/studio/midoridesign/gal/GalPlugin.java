@@ -131,7 +131,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private void putMediaBytes(Context context, byte[] bytes)
             throws IOException, SecurityException {
         try (InputStream in = new ByteArrayInputStream(bytes)) {
-            writeData(context, in, true, "jpg");
+            writeData(context, in, true, ".jpg");
         }
     }
 
@@ -142,7 +142,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         if (USE_EXTERNAL_STORAGE) {
             String path = Environment.getExternalStoragePublicDirectory(
                     isImage ? Environment.DIRECTORY_PICTURES : Environment.DIRECTORY_MOVIES)
-                    + File.separator + UUID.randomUUID().toString() + "." + extension;
+                    + File.separator + UUID.randomUUID().toString() + extension;
             values.put(MediaStore.MediaColumns.DATA, path);
         }
         Uri uri = resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
