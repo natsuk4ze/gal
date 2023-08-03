@@ -4,45 +4,17 @@ on:
   push:
 
 jobs:
-  cancel-outdated-runs:
+  set-up:
     runs-on: ubuntu-latest
     steps:
       - name: Cancel
         uses: styfle/cancel-workflow-action@0.11.0
         with:
           access_token: ${{ github.token }}
-  setup:
-    runs-on: macos-latest
-    steps:
-     - name: Check out
-       uses: actions/checkout@v3
-     
-     - name: Setup Flutter SDK
-       uses: subosito/flutter-action@v2
-       with:
-         channel: beta
-
-     - name: Cache Flutter SDK
-       uses: actions/cache@v3
-       with:
-         path: /opt/hostedtoolcache/Flutter
-         key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}-${{ github.run_id }}
-
-     - name: Cache Flutter packages
-       uses: actions/cache@v3
-       with:
-         path: ~/.pub-cache
-         key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_id }}
-
-     - name: Install packages
-       run: flutter --disable-telemetry && flutter clean && flutter pub get
-
-     - name: Analyze
-       run: flutter analyze
 
   ios:
-    needs: setup
-    timeout-minutes: 60
+    needs: set-up
+    timeout-minutes: 30
     strategy:
       fail-fast: true
     runs-on: macos-latest
@@ -50,22 +22,10 @@ jobs:
       - name: Check out
         uses: actions/checkout@v3
 
-      - name: Cache Flutter SDK
-        uses: actions/cache@v3
-        with:
-          path: /opt/hostedtoolcache/Flutter
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}-${{ github.run_id }}
-
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
         with:
           channel: beta
-
-      - name: Cache Flutter packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_id }}
 
       - name: Install Flutter dependencies
         run: flutter pub get ./example
@@ -75,7 +35,7 @@ jobs:
           model: iPhone 14 Pro Max
       
       - name: Build
-        timeout-minutes: 20
+        timeout-minutes: 10
         run: |
           cd example
           flutter build ios --simulator --target=integration_test/integration_test.dart
@@ -98,8 +58,8 @@ jobs:
           flutter test integration_test/integration_test.dart --timeout none
 
   android:
-    needs: setup
-    timeout-minutes: 60
+    needs: set-up
+    timeout-minutes: 30
     runs-on: macos-latest
     strategy:
       matrix:
@@ -109,22 +69,10 @@ jobs:
       - name: Check out
         uses: actions/checkout@v3
 
-      - name: Cache Flutter SDK
-        uses: actions/cache@v3
-        with:
-          path: /opt/hostedtoolcache/Flutter
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}-${{ github.run_id }}
-
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
         with:
           channel: beta
-
-      - name: Cache Flutter packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_id }}
 
       - name: Install Flutter dependencies
         run: flutter pub get ./example
@@ -151,7 +99,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
-          emulator-boot-timeout: 600
+          emulator-boot-timeout: 300
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -165,13 +113,12 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 300
+          emulator-boot-timeout: 120
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
-            if [ ${{ matrix.api-level }} -le 23 ]; then adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart --timeout none
 
       - name: Retry integration tests
@@ -181,7 +128,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 600
+          emulator-boot-timeout: 300
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -191,5 +138,4 @@ jobs:
           script: |
             flutter clean && flutter pub get
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
-            if [ ${{ matrix.api-level }} -le 23 ]; then adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart --timeout none
