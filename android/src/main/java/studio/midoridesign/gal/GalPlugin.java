@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
-
 import java.util.UUID;
 
 public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware,
