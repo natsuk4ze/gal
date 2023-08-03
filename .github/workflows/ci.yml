@@ -11,37 +11,8 @@ jobs:
         uses: styfle/cancel-workflow-action@0.11.0
         with:
           access_token: ${{ github.token }}
-  setup:
-    runs-on: macos-latest
-    steps:
-     - name: Check out
-       uses: actions/checkout@v3
-     
-     - name: Setup Flutter SDK
-       uses: subosito/flutter-action@v2
-       with:
-         channel: beta
-
-     - name: Cache Flutter SDK
-       uses: actions/cache@v3
-       with:
-         path: /opt/hostedtoolcache/Flutter
-         key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}-${{ github.run_id }}
-
-     - name: Cache Flutter packages
-       uses: actions/cache@v3
-       with:
-         path: ~/.pub-cache
-         key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}-${{ github.run_id }}
-
-     - name: Install packages
-       run: flutter --disable-telemetry && flutter clean && flutter pub get
-
-     - name: Analyze
-       run: flutter analyze
 
   ios:
-    needs: setup
     timeout-minutes: 60
     strategy:
       fail-fast: true
@@ -55,6 +26,11 @@ jobs:
         with:
           path: /opt/hostedtoolcache/Flutter
           key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}-${{ github.run_id }}
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: beta
 
       - name: Cache Flutter packages
         uses: actions/cache@v3
@@ -93,7 +69,6 @@ jobs:
           flutter test integration_test/integration_test.dart --timeout none
 
   android:
-    needs: setup
     timeout-minutes: 60
     runs-on: macos-latest
     strategy:
@@ -109,6 +84,11 @@ jobs:
         with:
           path: /opt/hostedtoolcache/Flutter
           key: ${{ runner.os }}-flutter-${{ hashFiles('**/flutter/bin/cache/**') }}-${{ github.run_id }}
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: beta
 
       - name: Cache Flutter packages
         uses: actions/cache@v3
