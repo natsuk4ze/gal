@@ -34,7 +34,6 @@ void main() {
 
 void execute(String key) => testWidgets(key, (tester) async {
       await tester.pumpWidget(const app.App());
-      await tester.pumpAndSettle();
 
       final button = find.byKey(Key(key));
 

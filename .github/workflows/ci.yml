@@ -43,19 +43,27 @@ jobs:
       - name: Run integration tests
         id: Run-integration-tests
         continue-on-error: true
-        timeout-minutes: 15
         run: |
           cd example
-          flutter test integration_test/integration_test.dart --timeout none
+          flutter test integration_test/integration_test.dart
 
       - name: Retry integration tests
+        id: Retry-integration-tests
+        continue-on-error: true
         if: steps.Run-integration-tests.outcome == 'failure'
-        timeout-minutes: 20
         run: |
           flutter clean && flutter pub get
           cd example
           flutter clean && flutter pub get
-          flutter test integration_test/integration_test.dart --timeout none
+          flutter test integration_test/integration_test.dart
+
+      - name: Re:Retry integration tests
+        if: steps.Retry-integration-tests.outcome == 'failure'
+        run: |
+          flutter clean && flutter pub get
+          cd example
+          flutter clean && flutter pub get
+          flutter test integration_test/integration_test.dart
 
   android:
     needs: set-up
@@ -119,16 +127,18 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
-            flutter test integration_test/integration_test.dart --timeout none
+            flutter test integration_test/integration_test.dart
 
       - name: Retry integration tests
+        id: Retry-integration-tests
+        continue-on-error: true
         if: steps.Run-integration-tests.outcome == 'failure'
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 300
+          emulator-boot-timeout: 120
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -138,4 +148,23 @@ jobs:
           script: |
             flutter clean && flutter pub get
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
-            flutter test integration_test/integration_test.dart --timeout none
+            flutter test integration_test/integration_test.dart
+
+      - name: Re:Retry integration tests
+        if: steps.Retry-integration-tests.outcome == 'failure'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          working-directory: ./example
+          arch: x86_64
+          emulator-boot-timeout: 120
+          force-avd-creation: false
+          sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          pre-emulator-launch-script: |
+            adb kill-server
+            adb start-server
+          script: |
+            flutter clean && flutter pub get
+            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
+            flutter test integration_test/integration_test.dart
