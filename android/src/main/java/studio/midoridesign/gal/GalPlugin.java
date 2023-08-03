@@ -45,7 +45,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private static final Uri IMAGE_URI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
     private static final Uri VIDEO_URI = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
     private static final int PERMISSION_REQUEST_CODE = 1317298; // Anything unique in the app.
-    private static final boolean USE_MEDIA_STORE = Build.VERSION.SDK_INT > 23;
+    private static final boolean USE_EXTERNAL_STORAGE = Build.VERSION.SDK_INT <= 23;
     private static final boolean HAS_ACCESS_BY_DEFAULT =
             Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT >= 29;
 
@@ -120,59 +120,38 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private void putMedia(Context context, String path, boolean isImage)
             throws IOException, SecurityException, FileNotFoundException {
         File file = new File(path);
+        String name = file.getName();
+        int dotIndex = name.lastIndexOf('.');
+        if (dotIndex == -1) throw new FileNotFoundException("Extension not found.");
         try (InputStream in = new FileInputStream(file)) {
-            if (USE_MEDIA_STORE) {
-                putMediaToMediaStore(context, in, isImage);
-            } else {
-                putMediaToExternalStorage(context, in, isImage, file.getName());
-            }
+            writeData(context, in, isImage, name.substring(dotIndex));
         }
     }
 
     private void putMediaBytes(Context context, byte[] bytes)
             throws IOException, SecurityException {
         try (InputStream in = new ByteArrayInputStream(bytes)) {
-            if (USE_MEDIA_STORE) {
-                putMediaToMediaStore(context, in, true);
-            } else {
-                putMediaToExternalStorage(context, in, true, "image.jpg");
-            }
+            writeData(context, in, true, "jpg");
         }
     }
 
-    private void putMediaToMediaStore(Context context, InputStream in, boolean isImage)
-            throws IOException, SecurityException, FileNotFoundException {
+    private void writeData(Context context, InputStream in, boolean isImage,
+            String extension) throws IOException, SecurityException, FileNotFoundException {
         ContentResolver resolver = context.getContentResolver();
         ContentValues values = new ContentValues();
+        if (USE_EXTERNAL_STORAGE) {
+            String path = Environment.getExternalStoragePublicDirectory(
+                    isImage ? Environment.DIRECTORY_PICTURES : Environment.DIRECTORY_MOVIES)
+                    + File.separator + UUID.randomUUID().toString() + "." + extension;
+            values.put(MediaStore.MediaColumns.DATA, path);
+        }
         Uri uri = resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
-
         try (OutputStream out = resolver.openOutputStream(uri)) {
-            writeData(in, out);
-        }
-    }
-
-    private void putMediaToExternalStorage(Context context, InputStream in, boolean isImage,
-            String name) throws IOException, SecurityException, FileNotFoundException {
-        File directory = Environment.getExternalStoragePublicDirectory(
-                isImage ? Environment.DIRECTORY_PICTURES : Environment.DIRECTORY_MOVIES);
-        if (!directory.exists()) directory.mkdirs();
-
-        int dotIndex = name.lastIndexOf('.');
-        if (dotIndex == -1) throw new FileNotFoundException("Extension not found.");
-        String extension = name.substring(dotIndex);
-        File file = new File(directory, UUID.randomUUID().toString() + extension);
-
-        try (OutputStream out = new FileOutputStream(file)) {
-            writeData(in, out);
-        }
-        MediaScannerConnection.scanFile(context, new String[] {file.getAbsolutePath()}, null, null);
-    }
-
-    private void writeData(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[8192];
-        int bytesRead;
-        while ((bytesRead = in.read(buffer)) != -1) {
-            out.write(buffer, 0, bytesRead);
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
+            }
         }
     }
 
@@ -180,7 +159,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         Context context = pluginBinding.getApplicationContext();
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
-        if (Build.VERSION.SDK_INT < 23) {
+        if (USE_EXTERNAL_STORAGE) {
             intent.setType("*/*");
             intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
         } else {
