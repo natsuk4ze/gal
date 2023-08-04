@@ -8,16 +8,15 @@ assignees: natsuk4ze
 ---
 
 **Describe the bug**
-*Clear and concise description of what the bug is.*
 
 **Log**
-*Please prvide error log*
 
 **To Reproduce**
-Steps to reproduce the behavior
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**Media you want to save**
+- File: [upload here if you can]
+- File Name: [e.g. video.mp4]
+- Codec (Video Only): [e.g. H.264]
 
 **Environment**
  - Device: [e.g. iPhone6]
