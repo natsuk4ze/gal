@@ -5,6 +5,8 @@
 	<!-- gal -->
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>We need add only access to save media files</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need add only access to save media files</string>
 	<!-- gal -->
 
 	<key>CFBundleDevelopmentRegion</key>
