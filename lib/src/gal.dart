@@ -20,7 +20,8 @@ final class Gal {
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
   static Future<void> putVideo(String path, {String? album}) async =>
-      _voidOrThrow(() async => GalPlatform.instance.putVideo(path));
+      _voidOrThrow(
+          () async => GalPlatform.instance.putVideo(path, album: album));
 
   /// Save a image to the gallery from file [path].
   ///
@@ -28,7 +29,8 @@ final class Gal {
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
   static Future<void> putImage(String path, {String? album}) async =>
-      _voidOrThrow(() async => GalPlatform.instance.putImage(path));
+      _voidOrThrow(
+          () async => GalPlatform.instance.putImage(path, album: album));
 
   /// Save a image to the gallery from [Uint8List].
   ///
@@ -37,7 +39,8 @@ final class Gal {
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
   static Future<void> putImageBytes(Uint8List bytes, {String? album}) async =>
-      _voidOrThrow(() async => GalPlatform.instance.putImageBytes(bytes));
+      _voidOrThrow(
+          () async => GalPlatform.instance.putImageBytes(bytes, album: album));
 
   /// Open gallery app.
   ///
