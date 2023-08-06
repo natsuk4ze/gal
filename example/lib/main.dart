@@ -9,9 +9,15 @@ import 'package:gal/gal.dart';
 
 void main() => runApp(const App());
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
 
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  bool toAlbum = false;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -25,6 +31,9 @@ class App extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  Switch(
+                      value: toAlbum,
+                      onChanged: (_) => setState(() => toAlbum = !toAlbum)),
                   FilledButton(
                     onPressed: () async {
                       final requestGranted = await Gal.requestAccess();
@@ -65,7 +74,7 @@ class App extends StatelessWidget {
                   FilledButton(
                     onPressed: () async {
                       final path = await getFilePath('assets/done.mp4');
-                      await Gal.putVideo(path);
+                      await Gal.putVideo(path, album: toAlbum ? 'Album' : null);
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
@@ -74,7 +83,7 @@ class App extends StatelessWidget {
                   FilledButton(
                     onPressed: () async {
                       final path = await getFilePath('assets/done.jpg');
-                      await Gal.putImage(path);
+                      await Gal.putImage(path, album: toAlbum ? 'Album' : null);
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
