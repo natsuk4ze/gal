@@ -10,16 +10,25 @@ final class MethodChannelGal extends GalPlatform {
   final methodChannel = const MethodChannel('gal');
 
   @override
-  Future<void> putVideo(String path) async =>
-      methodChannel.invokeMethod<void>('putVideo', {'path': path});
+  Future<void> putVideo(String path, {String? album}) async =>
+      methodChannel.invokeMethod<void>('putVideo', {
+        'path': path,
+        'album': album,
+      });
 
   @override
-  Future<void> putImage(String path) async =>
-      methodChannel.invokeMethod<void>('putImage', {'path': path});
+  Future<void> putImage(String path, {String? album}) async =>
+      methodChannel.invokeMethod<void>('putImage', {
+        'path': path,
+        'album': album,
+      });
 
   @override
-  Future<void> putImageBytes(Uint8List bytes) async =>
-      methodChannel.invokeMethod<void>('putImageBytes', {'bytes': bytes});
+  Future<void> putImageBytes(Uint8List bytes, {String? album}) async =>
+      methodChannel.invokeMethod<void>('putImageBytes', {
+        'bytes': bytes,
+        'album': album,
+      });
 
   @override
   Future<void> open() async => methodChannel.invokeMethod<void>('open');
