@@ -16,8 +16,6 @@ migrate_working_dir/
 *.iws
 .idea/
 
-.vscode/
-
 # Flutter/Dart/Pub related
 # Libraries should not include pubspec.lock, per https://dart.dev/guides/libraries/private-files#pubspeclock.
 pubspec.lock
@@ -32,10 +30,9 @@ build/
 # Android related
 *.iml
 .gradle
-/local.properties
+local.properties
 /.idea/workspace.xml
 /.idea/libraries
-/build
 /captures
 .cxx
 /android/app/release
@@ -54,16 +51,11 @@ key.properties
 .vagrant/
 .sconsign.dblite
 .svn/
-
 .DS_Store
 *.swp
 profile
 
 DerivedData/
-build/
-GeneratedPluginRegistrant.h
-GeneratedPluginRegistrant.m
-
 .generated/
 
 *.pbxuser
@@ -86,42 +78,23 @@ Icon?
 .tags*
 
 **/Flutter/Generated.xcconfig
-/Flutter/ephemeral/
-**/Flutter/flutter_export_environment.sh
-**/dgph
-*.mode1v3
-*.mode2v3
-*.moved-aside
-*.pbxuser
-*.perspectivev3
-**/*sync/
+ios/Flutter/ephemeral/
 .sconsign.dblite
 .tags*
 **/.vagrant/
 **/DerivedData/
-Icon?
 **/Pods/
 **/.symlinks/
 profile
 xcuserdata
 **/.generated/
-Flutter/App.framework
-Flutter/Flutter.framework
-Flutter/Flutter.podspec
-Flutter/Generated.xcconfig
-Flutter/ephemeral/
-Flutter/app.flx
-Flutter/app.zip
-Flutter/flutter_assets/
-Flutter/flutter_export_environment.sh
+App.framework
+Flutter.framework
+Flutter.podspec
+Generated.xcconfig
+flutter_export_environment.sh
 ServiceDefinitions.json
-Runner/GeneratedPluginRegistrant.*
-
-# Exceptions to above rules.
-!default.mode1v3
-!default.mode2v3
-!default.pbxuser
-!default.perspectivev3
+GeneratedPluginRegistrant.*
 
 # Example related
 **/doc/api/
