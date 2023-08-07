@@ -107,14 +107,10 @@ xcuserdata
 **/.generated/
 Flutter/App.framework
 Flutter/Flutter.framework
-Flutter/Flutter.podspec
-Flutter/Generated.xcconfig
+Flutter.podspec
+Generated.xcconfig
 Flutter/ephemeral/
-Flutter/app.flx
-Flutter/app.zip
-Flutter/flutter_assets/
-Flutter/flutter_export_environment.sh
-ServiceDefinitions.json
+flutter_export_environment.sh
 Runner/GeneratedPluginRegistrant.*
 
 # Exceptions to above rules.
