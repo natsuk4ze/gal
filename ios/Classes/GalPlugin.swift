@@ -12,9 +12,10 @@ public class GalPlugin: NSObject, FlutterPlugin {
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
     case "putVideo", "putImage":
-      let args = call.arguments as! [String: String]
+      let args = call.arguments as! [String: Any]
       self.putMedia(
-        path: args["path"]!,
+        path: args["path"] as! String,
+        album: args["album"] as? String,
         isImage: call.method == "putImage"
       ) { _, error in
         if let error = error as NSError? {
@@ -24,9 +25,10 @@ public class GalPlugin: NSObject, FlutterPlugin {
         }
       }
     case "putImageBytes":
-      let args = call.arguments as! [String: FlutterStandardTypedData]
-      self.putImageBytes(
-        bytes: args["bytes"]!.data
+      let args = call.arguments as! [String: Any]
+      self.putMediaBytes(
+        bytes: (args["bytes"] as! FlutterStandardTypedData).data,
+        album: args["album"] as? String
       ) { _, error in
         if let error = error as NSError? {
           result(self.handleError(error: error))
@@ -49,23 +51,77 @@ public class GalPlugin: NSObject, FlutterPlugin {
     }
   }
 
-  private func putMedia(path: String, isImage: Bool, completion: @escaping (Bool, Error?) -> Void) {
-    PHPhotoLibrary.shared().performChanges(
-      {
+  private func putMedia(
+    path: String, album: String?, isImage: Bool, completion: @escaping (Bool, Error?) -> Void
+  ) {
+    writeContent(
+      assetChangeRequest: {
         isImage
           ? PHAssetChangeRequest.creationRequestForAsset(
             from: UIImage(contentsOfFile: path)!)
           : PHAssetChangeRequest.creationRequestForAssetFromVideo(
-            atFileURL: URL(fileURLWithPath: path))
+            atFileURL: URL(fileURLWithPath: path))!
+      }, album: album, completion: completion)
+  }
+
+  private func putMediaBytes(
+    bytes: Data, album: String?, completion: @escaping (Bool, Error?) -> Void
+  ) {
+    writeContent(
+      assetChangeRequest: {
+        PHAssetChangeRequest.creationRequestForAsset(from: UIImage(data: bytes)!)
+      }, album: album, completion: completion)
+  }
+
+  private func writeContent(
+    assetChangeRequest: @escaping () -> PHAssetChangeRequest,
+    album: String?,
+    completion: @escaping (Bool, Error?) -> Void
+  ) {
+    if let album = album {
+      getAlbum(album: album) { collection, error in
+        if let error = error {
+          completion(false, error)
+          return
+        }
+        PHPhotoLibrary.shared().performChanges(
+          {
+            let albumChangeRequest = PHAssetCollectionChangeRequest(for: collection!)
+            albumChangeRequest!.addAssets(
+              [assetChangeRequest().placeholderForCreatedAsset] as NSArray)
+          },
+          completionHandler: completion)
+      }
+      return
+    }
+    PHPhotoLibrary.shared().performChanges(
+      {
+        assetChangeRequest()
       },
       completionHandler: completion)
   }
 
-  private func putImageBytes(bytes: Data, completion: @escaping (Bool, Error?) -> Void) {
+  private func getAlbum(album: String, completion: @escaping (PHAssetCollection?, Error?) -> Void) {
+    let fetchOptions = PHFetchOptions()
+    fetchOptions.predicate = NSPredicate(format: "title = %@", album)
+    let collections: PHFetchResult = PHAssetCollection.fetchAssetCollections(
+      with: .album, subtype: .any, options: fetchOptions)
+    if let collection = collections.firstObject {
+      completion(collection, nil)
+      return
+    }
     PHPhotoLibrary.shared().performChanges(
       {
-        PHAssetChangeRequest.creationRequestForAsset(from: UIImage(data: bytes)!)
-      }, completionHandler: completion)
+        PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: album)
+      },
+      completionHandler: { success, error in
+        if success {
+          self.getAlbum(album: album, completion: completion)
+          return
+        }
+        completion(nil, error)
+      }
+    )
   }
 
   private func open(completion: @escaping () -> Void) {
@@ -83,7 +139,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
 
   /// If permissions have already been granted or denied by the user,
   /// returns the result immediately, without displaying a dialog.
-  /// For more info: https://qiita.com/fuziki/items/87a3a1a8e481a1546b38
+  /// See: https://qiita.com/fuziki/items/87a3a1a8e481a1546b38
   private func requestAccess(completion: @escaping (Bool) -> Void) {
     if #available(iOS 14, *) {
       PHPhotoLibrary.requestAuthorization(for: .addOnly) { _ in
