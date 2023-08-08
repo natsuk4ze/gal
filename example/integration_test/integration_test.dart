@@ -15,11 +15,18 @@ void main() {
 
   Platform.isAndroid
       ? group('Android Test', () {
-          execute('hasAccess()');
-          execute('requestAccess()');
-          execute('putImage()');
-          execute('putImageBytes()');
-          execute('putVideo()');
+          bool toAlbum = false;
+          for (var i = 0; i < 2; i++) {
+            if (i == 1) {
+              execute('Toggle toAlbum');
+              toAlbum = true;
+            }
+            execute('hasAccess(toAlbum: $toAlbum)');
+            execute('requestAccess(toAlbum: $toAlbum)');
+            execute('putImage(toAlbum: $toAlbum)');
+            execute('putImageBytes(toAlbum: $toAlbum)');
+            execute('putVideo(toAlbum: $toAlbum)');
+          }
           execute('open()');
         })
       : group('iOS Test', () {

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:gal/gal.dart';
 
 var logger = Logger();
+bool toAlbum = false;
 
 void main() => runApp(const App());
 
@@ -27,20 +28,26 @@ class _AppState extends State<App> {
               : SingleChildScrollView(
                   child: Column(
                     children: [
+                      Text('toAlbum: $toAlbum'),
+                      buildButton(
+                        onPressed: () async => toAlbum = !toAlbum,
+                        label: 'Toggle toAlbum',
+                      ),
                       buildButton(
                         onPressed: () async => Gal.hasAccess(),
-                        label: 'hasAccess()',
+                        label: 'hasAccess(toAlbum: $toAlbum)',
                       ),
                       buildButton(
                         onPressed: () async => Gal.requestAccess(),
-                        label: 'requestAccess()',
+                        label: 'requestAccess(toAlbum: $toAlbum)',
                       ),
                       buildButton(
                         onPressed: () async {
                           final path = await getFilePath('assets/done.jpg');
-                          await Gal.putImage(path);
+                          await Gal.putImage(path,
+                              album: toAlbum ? 'Album' : null);
                         },
-                        label: 'putImage()',
+                        label: 'putImage(toAlbum: $toAlbum)',
                       ),
                       buildButton(
                         onPressed: () async {
@@ -48,17 +55,18 @@ class _AppState extends State<App> {
                               await rootBundle.load('assets/done.jpg');
                           final uint8List = byteData.buffer.asUint8List(
                               byteData.offsetInBytes, byteData.lengthInBytes);
-                          await Gal.putImageBytes(
-                              Uint8List.fromList(uint8List));
+                          await Gal.putImageBytes(Uint8List.fromList(uint8List),
+                              album: toAlbum ? 'Album' : null);
                         },
-                        label: 'putImageBytes()',
+                        label: 'putImageBytes(toAlbum: $toAlbum)',
                       ),
                       buildButton(
                         onPressed: () async {
                           final path = await getFilePath('assets/done.mp4');
-                          await Gal.putVideo(path);
+                          await Gal.putVideo(path,
+                              album: toAlbum ? 'Album' : null);
                         },
-                        label: 'putVideo()',
+                        label: 'putVideo(toAlbum: $toAlbum)',
                       ),
                       buildButton(
                         onPressed: () async => Gal.open(),
