@@ -37,9 +37,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
         }
       }
     case "open":
-      self.open {
-        result(nil)
-      }
+      self.open { result(nil) }
     case "hasAccess":
       result(self.hasAccess())
     case "requestAccess":
@@ -155,18 +153,16 @@ public class GalPlugin: NSObject, FlutterPlugin {
   private func handleError(error: NSError) -> FlutterError {
     let message = error.localizedDescription
     let details = Thread.callStackSymbols
-    switch error.code {
-    case PHErrorCode.accessRestricted.rawValue, PHErrorCode.accessUserDenied.rawValue:
+
+    switch PHErrorCode(rawValue: error.code) {
+    case .accessRestricted, .accessUserDenied:
       return FlutterError(code: "ACCESS_DENIED", message: message, details: details)
 
-    case PHErrorCode.identifierNotFound.rawValue,
-      PHErrorCode.multipleIdentifiersFound.rawValue,
-      PHErrorCode.requestNotSupportedForAsset.rawValue,
-      PHErrorCode.videoConversionFailed.rawValue,
-      PHErrorCode.unsupportedVideoCodec.rawValue:
+    case .identifierNotFound, .multipleIdentifiersFound, .requestNotSupportedForAsset,
+      .videoConversionFailed, .unsupportedVideoCodec:
       return FlutterError(code: "NOT_SUPPORTED_FORMAT", message: message, details: details)
 
-    case PHErrorCode.notEnoughSpace.rawValue:
+    case .notEnoughSpace:
       return FlutterError(code: "NOT_ENOUGH_SPACE", message: message, details: details)
 
     default:
