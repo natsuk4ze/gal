@@ -31,6 +31,7 @@ class _AppState extends State<App> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  const Text('toAlbum'),
                   Switch(
                       value: toAlbum,
                       onChanged: (_) => setState(() => toAlbum = !toAlbum)),
@@ -128,14 +129,15 @@ class _AppState extends State<App> {
                   ),
                   FilledButton(
                     onPressed: () async {
-                      final hasAccess = await Gal.hasAccess();
+                      final hasAccess = await Gal.hasAccess(toAlbum: toAlbum);
                       log('Has Access:${hasAccess.toString()}');
                     },
                     child: const Text('Has Access'),
                   ),
                   FilledButton(
                     onPressed: () async {
-                      final requestGranted = await Gal.requestAccess();
+                      final requestGranted =
+                          await Gal.requestAccess(toAlbum: toAlbum);
                       log('Request Granted:${requestGranted.toString()}');
                     },
                     child: const Text('Request Access'),
