@@ -34,14 +34,18 @@ final class MethodChannelGal extends GalPlatform {
   Future<void> open() async => methodChannel.invokeMethod<void>('open');
 
   @override
-  Future<bool> hasAccess() async {
-    final hasAccess = await methodChannel.invokeMethod<bool>('hasAccess');
+  Future<bool> hasAccess({bool toAlbum = false}) async {
+    final hasAccess = await methodChannel.invokeMethod<bool>('hasAccess', {
+      'toAlbum': toAlbum,
+    });
     return hasAccess ?? false;
   }
 
   @override
-  Future<bool> requestAccess() async {
-    final granted = await methodChannel.invokeMethod<bool>('requestAccess');
+  Future<bool> requestAccess({bool toAlbum = false}) async {
+    final granted = await methodChannel.invokeMethod<bool>('requestAccess', {
+      'toAlbum': toAlbum,
+    });
     return granted ?? false;
   }
 }

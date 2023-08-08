@@ -50,15 +50,16 @@ final class Gal {
   /// Check if the app has access permissions.
   ///
   /// See: [Permissions](https://github.com/natsuk4ze/gal/wiki/Permissions)
-  static Future<bool> hasAccess() async => GalPlatform.instance.hasAccess();
+  static Future<bool> hasAccess({bool toAlbum = false}) async =>
+      GalPlatform.instance.hasAccess(toAlbum: toAlbum);
 
   /// Request access permissions.
   ///
   /// Returns [true] if access is granted, [false] if denied.
   /// If access was already granted, the dialog is not displayed and returns true.
   /// See: [Permissions](https://github.com/natsuk4ze/gal/wiki/Permissions)
-  static Future<bool> requestAccess() async =>
-      GalPlatform.instance.requestAccess();
+  static Future<bool> requestAccess({bool toAlbum = false}) async =>
+      GalPlatform.instance.requestAccess(toAlbum: toAlbum);
 
   static Future<void> _voidOrThrow(Future<void> Function() cb) async {
     try {
