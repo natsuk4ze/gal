@@ -140,9 +140,8 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             String album) throws IOException, SecurityException, FileNotFoundException {
         ContentResolver resolver = context.getContentResolver();
         ContentValues values = new ContentValues();
-        String dirPath = isImage || album != null ? Environment.DIRECTORY_PICTURES
-                : Environment.DIRECTORY_MOVIES;
-
+        String dirPath = isImage || album != null ? "Pictures" : "Movies";
+        
         if (USE_EXTERNAL_STORAGE) {
             File dir = new File(Environment.getExternalStoragePublicDirectory(dirPath),
                     album != null ? album : "");
