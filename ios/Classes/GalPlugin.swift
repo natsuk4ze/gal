@@ -18,11 +18,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
         album: args["album"] as? String,
         isImage: call.method == "putImage"
       ) { _, error in
-        if let error = error as NSError? {
-          result(self.handleError(error: error))
-        } else {
-          result(nil)
-        }
+        result(error == nil ? nil : self.handleError(error: error!))
       }
     case "putImageBytes":
       let args = call.arguments as! [String: Any]
@@ -30,11 +26,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
         bytes: (args["bytes"] as! FlutterStandardTypedData).data,
         album: args["album"] as? String
       ) { _, error in
-        if let error = error as NSError? {
-          result(self.handleError(error: error))
-        } else {
-          result(nil)
-        }
+        result(error == nil ? nil : self.handleError(error: error!))
       }
     case "open":
       open { result(nil) }
@@ -53,12 +45,6 @@ public class GalPlugin: NSObject, FlutterPlugin {
             result(granted)
           }
         )
-      requestAccess(
-        toAlbum: toAlbum,
-        completion: { granted in
-          result(granted)
-        }
-      )
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -123,11 +109,9 @@ public class GalPlugin: NSObject, FlutterPlugin {
     PHPhotoLibrary.shared().performChanges({
       PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: album)
     }, completionHandler: { success, error in
-      if success {
-        self.getAlbum(album: album, completion: completion)
-        return
-      }
-      completion(nil, error)
+      success
+        ? self.getAlbum(album: album, completion: completion)
+        : completion(nil, error)
     })
   }
 
@@ -162,24 +146,27 @@ public class GalPlugin: NSObject, FlutterPlugin {
     }
   }
 
-  private func handleError(error: NSError) -> FlutterError {
-    let message = error.localizedDescription
-    let details = Thread.callStackSymbols
+  private func handleError(error: Error) -> FlutterError {
+    if let error = error as? NSError {
+      let message = error.localizedDescription
+      let details = Thread.callStackSymbols
 
-    switch PHErrorCode(rawValue: error.code) {
-    case .accessRestricted, .accessUserDenied:
-      return FlutterError(code: "ACCESS_DENIED", message: message, details: details)
+      switch PHErrorCode(rawValue: error.code) {
+      case .accessRestricted, .accessUserDenied:
+        return FlutterError(code: "ACCESS_DENIED", message: message, details: details)
 
-    case .identifierNotFound, .multipleIdentifiersFound, .requestNotSupportedForAsset,
-         .videoConversionFailed, .unsupportedVideoCodec:
-      return FlutterError(code: "NOT_SUPPORTED_FORMAT", message: message, details: details)
+      case .identifierNotFound, .multipleIdentifiersFound, .requestNotSupportedForAsset,
+           .videoConversionFailed, .unsupportedVideoCodec:
+        return FlutterError(code: "NOT_SUPPORTED_FORMAT", message: message, details: details)
 
-    case .notEnoughSpace:
-      return FlutterError(code: "NOT_ENOUGH_SPACE", message: message, details: details)
+      case .notEnoughSpace:
+        return FlutterError(code: "NOT_ENOUGH_SPACE", message: message, details: details)
 
-    default:
-      return FlutterError(code: "UNEXPECTED", message: message, details: details)
+      default:
+        return FlutterError(code: "UNEXPECTED", message: message, details: details)
+      }
     }
+    return FlutterError(code: "UNEXPECTED", message: "Did not NSError.", details: nil)
   }
 }
 
