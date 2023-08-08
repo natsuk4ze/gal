@@ -30,7 +30,15 @@ void main() {
           execute('open()');
         })
       : group('iOS Test', () {
-          execute('hasAccess()');
+          bool toAlbum = false;
+          for (var i = 0; i < 2; i++) {
+            if (i == 1) {
+              execute('Toggle toAlbum');
+              toAlbum = true;
+            }
+            execute('hasAccess(toAlbum: $toAlbum)');
+          }
+
           execute('open()');
 
           /// Other functions take longer to implement
