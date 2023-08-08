@@ -37,7 +37,8 @@ class _AppState extends State<App> {
                       onChanged: (_) => setState(() => toAlbum = !toAlbum)),
                   FilledButton(
                     onPressed: () async {
-                      final requestGranted = await Gal.requestAccess();
+                      final requestGranted =
+                          await Gal.requestAccess(toAlbum: toAlbum);
                       if (requestGranted) {
                         final path = await getFilePath('assets/done.jpg');
                         try {
