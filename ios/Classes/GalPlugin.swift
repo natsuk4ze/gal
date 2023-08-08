@@ -87,16 +87,11 @@ public class GalPlugin: NSObject, FlutterPlugin {
             let albumChangeRequest = PHAssetCollectionChangeRequest(for: collection!)
             albumChangeRequest!.addAssets(
               [assetChangeRequest().placeholderForCreatedAsset] as NSArray)
-          },
-          completionHandler: completion)
+          }, completionHandler: completion)
       }
       return
     }
-    PHPhotoLibrary.shared().performChanges(
-      {
-        assetChangeRequest()
-      },
-      completionHandler: completion)
+    PHPhotoLibrary.shared().performChanges({ assetChangeRequest() }, completionHandler: completion)
   }
 
   private func getAlbum(album: String, completion: @escaping (PHAssetCollection?, Error?) -> Void) {
@@ -109,9 +104,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
       return
     }
     PHPhotoLibrary.shared().performChanges(
-      {
-        PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: album)
-      },
+      { PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: album) },
       completionHandler: { success, error in
         if success {
           self.getAlbum(album: album, completion: completion)
