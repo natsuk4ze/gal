@@ -42,7 +42,7 @@ class _AppState extends State<App> {
                       if (requestGranted) {
                         final path = await getFilePath('assets/done.jpg');
                         try {
-                          await Gal.putImage(path);
+                          await Gal.putImage(path, album: album);
 
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -76,7 +76,7 @@ class _AppState extends State<App> {
                   FilledButton(
                     onPressed: () async {
                       final path = await getFilePath('assets/done.mp4');
-                      await Gal.putVideo(path, album: toAlbum ? 'Album' : null);
+                      await Gal.putVideo(path, album: album);
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
@@ -85,7 +85,7 @@ class _AppState extends State<App> {
                   FilledButton(
                     onPressed: () async {
                       final path = await getFilePath('assets/done.jpg');
-                      await Gal.putImage(path, album: toAlbum ? 'Album' : null);
+                      await Gal.putImage(path, album: album);
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
@@ -151,6 +151,8 @@ class _AppState extends State<App> {
       ),
     );
   }
+
+  String? get album => toAlbum ? 'Album' : null;
 
   SnackBar get snackBar => SnackBar(
         content: const Text('Saved! ✅'),
