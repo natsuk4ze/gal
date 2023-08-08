@@ -6,7 +6,7 @@ import 'gal_platform_interface.dart';
 
 /// A main class of gal.
 ///
-/// Note: For Android emulators with API level 23 or lower will save media
+/// Note: For Android emulators with API < 29 will save media
 /// on the SD card. Therefore, be sure to set the SD card. You can ignore
 /// this for real devices.
 /// See: [wiki](https://github.com/natsuk4ze/gal/wiki)
