@@ -39,11 +39,24 @@ public class GalPlugin: NSObject, FlutterPlugin {
     case "open":
       self.open { result(nil) }
     case "hasAccess":
-      result(self.hasAccess())
+      let args = call.arguments as! [String: Bool]
+      result(self.hasAccess(toAlbum: args["toAlbum"] as! Bool))
     case "requestAccess":
-      self.requestAccess(completion: { granted in
-        result(granted)
-      })
+      let args = call.arguments as! [String: Bool]
+      let toAlbum = args["toAlbum"] as! Bool
+
+      self.hasAccess(toAlbum: toAlbum)
+        ? result(true)
+        : self.requestAccess(
+          toAlbum: toAlbum,
+          completion: { granted in
+            result(granted)
+          })
+      self.requestAccess(
+        toAlbum: toAlbum,
+        completion: { granted in
+          result(granted)
+        })
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -120,9 +133,12 @@ public class GalPlugin: NSObject, FlutterPlugin {
     UIApplication.shared.open(url, options: [:]) { _ in completion() }
   }
 
-  private func hasAccess() -> Bool {
+  private func hasAccess(toAlbum: Bool) -> Bool {
     if #available(iOS 14, *) {
-      return PHPhotoLibrary.authorizationStatus(for: .addOnly) == .authorized
+      return toAlbum
+        ? PHPhotoLibrary.authorizationStatus(for: .readWrite) == .authorized
+          || PHPhotoLibrary.authorizationStatus(for: .readWrite) == .limited
+        : PHPhotoLibrary.authorizationStatus(for: .addOnly) == .authorized
     } else {
       return PHPhotoLibrary.authorizationStatus() == .authorized
     }
@@ -131,10 +147,10 @@ public class GalPlugin: NSObject, FlutterPlugin {
   /// If permissions have already been granted or denied by the user,
   /// returns the result immediately, without displaying a dialog.
   /// See: https://qiita.com/fuziki/items/87a3a1a8e481a1546b38
-  private func requestAccess(completion: @escaping (Bool) -> Void) {
+  private func requestAccess(toAlbum: Bool, completion: @escaping (Bool) -> Void) {
     if #available(iOS 14, *) {
-      PHPhotoLibrary.requestAuthorization(for: .addOnly) { _ in
-        completion(PHPhotoLibrary.authorizationStatus(for: .addOnly) == .authorized)
+      PHPhotoLibrary.requestAuthorization(for: toAlbum ? .readWrite : .addOnly) { _ in
+        completion(self.hasAccess(toAlbum: toAlbum))
       }
     } else {
       PHPhotoLibrary.requestAuthorization { _ in
