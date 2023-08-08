@@ -113,7 +113,7 @@ jobs:
           arch: x86_64
           emulator-boot-timeout: 300
           force-avd-creation: false
-          sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
+          sdcard-path-or-size: ${{ matrix.api-level <= 28 && '10M' || null }}
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: echo "Generated AVD snapshot for caching."
 
@@ -128,7 +128,7 @@ jobs:
           arch: x86_64
           emulator-boot-timeout: 120
           force-avd-creation: false
-          sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
+          sdcard-path-or-size: ${{ matrix.api-level <= 28 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; fi
@@ -146,7 +146,7 @@ jobs:
           arch: x86_64
           emulator-boot-timeout: 120
           force-avd-creation: false
-          sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
+          sdcard-path-or-size: ${{ matrix.api-level <= 28 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
             adb kill-server
@@ -166,7 +166,7 @@ jobs:
           arch: x86_64
           emulator-boot-timeout: 120
           force-avd-creation: false
-          sdcard-path-or-size: ${{ matrix.api-level <= 23 && '10M' || null }}
+          sdcard-path-or-size: ${{ matrix.api-level <= 28 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
             adb kill-server
