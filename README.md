@@ -13,8 +13,8 @@
 |                | Android | iOS       |
 |----------------|---------|-----------|
 | **Support**    | SDK 21+ | iOS 11.0+ |
+| **Example**    | <img src="https://github.com/natsuk4ze/gal/raw/main/readme_assets/ios.gif" alt="ios" height="340"/> | <img src="https://github.com/natsuk4ze/gal/raw/main/readme_assets/android.gif" alt="android" height="340"/> |
 
-<img src="https://github.com/natsuk4ze/gal/raw/main/readme_assets/android.gif" alt="ios" style="height:340px;"> <img src="https://github.com/natsuk4ze/gal/raw/main/readme_assets/ios.gif" alt="ios" style="height:340px;">
 
 ## ✨Features
 
