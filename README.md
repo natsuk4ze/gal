@@ -21,8 +21,8 @@
 ## ✨Features
 
 * Open gallery
-* Save video
-* Save image
+* Save video (to album)
+* Save image (to album)
 * Handle permission
 * Handle errors
 * Lots of docs and wiki
@@ -42,7 +42,10 @@ $ flutter pub add gal
 Add the following key to your _Info.plist_ file, located in
 `<project root>/ios/Runner/Info.plist`:
 
-* `<key>NSPhotoLibraryAddUsageDescription</key>` - you can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
+* `<key>NSPhotoLibraryAddUsageDescription</key>`
+* `<key>NSPhotoLibraryUsageDescription</key>` Requried If you want to save media to album.
+
+you can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
 
 ### Android (API <29)
 
@@ -50,19 +53,25 @@ Add the following key to your _AndroidManifest_ file, located in
 `<project root>/android/app/src/main/AndroidManifest.xml`:
 
 * `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-                 android:maxSdkVersion="29" />` - you can copy from [AndroidManifest.xml in example](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
+                 android:maxSdkVersion="29" />`
+
+you can copy from [AndroidManifest.xml in example](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
 
 ## ✅Usage
 
 ### Save from local
 
 ```dart
-//Save Image (Supports two ways)
+// Save Image (Supports two ways)
 await Gal.putImage('$filePath');
 await Gal.putImageBytes('$uint8List');
 
-//Save Video
+// Save Video
 await Gal.putVideo('$filePath');
+
+// Save to album
+await Gal.putImage('$filePath', album: '$album')
+...
 ```
 
 ### Download from Internet
@@ -72,12 +81,12 @@ $ flutter pub add dio
 ```
 
 ```dart
-//Download Image
+// Download Image
 final imagePath = '${Directory.systemTemp.path}/image.jpg';
 await Dio().download('$url',imagePath);
 await Gal.putImage(imagePath);
 
-//Download Video
+// Download Video
 final videoPath = '${Directory.systemTemp.path}/video.mp4';
 await Dio().download('$url',videoPath);
 await Gal.putVideo(videoPath);
@@ -86,10 +95,10 @@ await Gal.putVideo(videoPath);
 ### Handle Permission
 
 ```dart
-//Check Permission
+// Check Permission
 await Gal.hasAccess();
 
-//Request Access
+// Request Permission
 await Gal.requestAccess();
 ```
 
@@ -102,9 +111,7 @@ Here is a minimal example. A [best practice](https://github.com/natsuk4ze/gal/wi
 import 'package:flutter/material.dart';
 import 'package:gal/gal.dart';
 
-void main() {
-  runApp(const App());
-}
+void main() => runApp(const App());
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -113,27 +120,26 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FilledButton.icon(
-                onPressed: () async => Gal.open(),
-                label: const Text('Open Gallery'),
-                icon: const Icon(Icons.open_in_new),
-              ),
-              FilledButton.icon(
-                onPressed: () async => Gal.putVideo('TODO: Change this text to video path'),
-                label: const Text('Save Video'),
-                icon: const Icon(Icons.video_file),
-              ),
-              FilledButton.icon(
-                onPressed: () async => Gal.putImage('TODO: Change this text to image path'),
-                label: const Text('Save Image'),
-                icon: const Icon(Icons.image),
-              ),
-            ],
-          ),
+        body: Column(
+          children: [
+            FilledButton.icon(
+              onPressed: () async => Gal.open(),
+              label: const Text('Open Gallery'),
+              icon: const Icon(Icons.open_in_new),
+            ),
+            FilledButton.icon(
+              onPressed: () async =>
+                  Gal.putVideo('TODO: Change this text to video path'),
+              label: const Text('Save Video'),
+              icon: const Icon(Icons.video_file),
+            ),
+            FilledButton.icon(
+              onPressed: () async =>
+                  Gal.putImage('TODO: Change this text to image path'),
+              label: const Text('Save Image'),
+              icon: const Icon(Icons.image),
+            ),
+          ],
         ),
       ),
     );
