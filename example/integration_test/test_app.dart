@@ -16,11 +16,11 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: Center(
-          child: SingleChildScrollView(
+        body: SafeArea(
+          child: Center(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text('toAlbum: $toAlbum'),
                 buildButton(
                   onPressed: () async => toAlbum = !toAlbum,
                   label: 'Toggle toAlbum',
