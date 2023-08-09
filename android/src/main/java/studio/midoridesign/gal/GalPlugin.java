@@ -42,7 +42,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private static final Uri IMAGE_URI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
     private static final Uri VIDEO_URI = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
     private static final int PERMISSION_REQUEST_CODE = 1317298; // Anything unique in the app.
-    private static final boolean USE_EXTERNAL_STORAGE = Build.VERSION.SDK_INT < 29;
+    private static final boolean USE_EXTERNAL_STORAGE = Build.VERSION.SDK_INT <= 29;
     private static final boolean HAS_ACCESS_BY_DEFAULT =
             Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT >= 29;
 
@@ -140,8 +140,9 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             String album) throws IOException, SecurityException, FileNotFoundException {
         ContentResolver resolver = context.getContentResolver();
         ContentValues values = new ContentValues();
-        String dirPath = isImage || album != null ? "Pictures" : "Movies";
-        
+        String dirPath = isImage || album != null ? Environment.DIRECTORY_PICTURES
+                : Environment.DIRECTORY_MOVIES;
+
         if (USE_EXTERNAL_STORAGE) {
             File dir = new File(Environment.getExternalStoragePublicDirectory(dirPath),
                     album != null ? album : "");
