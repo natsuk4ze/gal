@@ -17,52 +17,50 @@ class App extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         body: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Text('toAlbum: $toAlbum'),
-                buildButton(
-                  onPressed: () async => toAlbum = !toAlbum,
-                  label: 'Toggle toAlbum',
-                ),
-                buildButton(
-                  onPressed: () async => Gal.hasAccess(),
-                  label: 'hasAccess(toAlbum: $toAlbum)',
-                ),
-                buildButton(
-                  onPressed: () async => Gal.requestAccess(),
-                  label: 'requestAccess(toAlbum: $toAlbum)',
-                ),
-                buildButton(
-                  onPressed: () async {
-                    final path = await getFilePath('assets/done.jpg');
-                    await Gal.putImage(path, album: album);
-                  },
-                  label: 'putImage(toAlbum: $toAlbum)',
-                ),
-                buildButton(
-                  onPressed: () async {
-                    final byteData = await rootBundle.load('assets/done.jpg');
-                    final uint8List = byteData.buffer.asUint8List(
-                        byteData.offsetInBytes, byteData.lengthInBytes);
-                    await Gal.putImageBytes(Uint8List.fromList(uint8List),
-                        album: album);
-                  },
-                  label: 'putImageBytes(toAlbum: $toAlbum)',
-                ),
-                buildButton(
-                  onPressed: () async {
-                    final path = await getFilePath('assets/done.mp4');
-                    await Gal.putVideo(path, album: album);
-                  },
-                  label: 'putVideo(toAlbum: $toAlbum)',
-                ),
-                buildButton(
-                  onPressed: () async => Gal.open(),
-                  label: 'open()',
-                ),
-              ],
-            ),
+          child: Column(
+            children: [
+              Text('toAlbum: $toAlbum'),
+              buildButton(
+                onPressed: () async => toAlbum = !toAlbum,
+                label: 'Toggle toAlbum',
+              ),
+              buildButton(
+                onPressed: () async => Gal.hasAccess(),
+                label: 'hasAccess(toAlbum: $toAlbum)',
+              ),
+              buildButton(
+                onPressed: () async => Gal.requestAccess(),
+                label: 'requestAccess(toAlbum: $toAlbum)',
+              ),
+              buildButton(
+                onPressed: () async {
+                  final path = await getFilePath('assets/done.jpg');
+                  await Gal.putImage(path, album: album);
+                },
+                label: 'putImage(toAlbum: $toAlbum)',
+              ),
+              buildButton(
+                onPressed: () async {
+                  final byteData = await rootBundle.load('assets/done.jpg');
+                  final uint8List = byteData.buffer.asUint8List(
+                      byteData.offsetInBytes, byteData.lengthInBytes);
+                  await Gal.putImageBytes(Uint8List.fromList(uint8List),
+                      album: album);
+                },
+                label: 'putImageBytes(toAlbum: $toAlbum)',
+              ),
+              buildButton(
+                onPressed: () async {
+                  final path = await getFilePath('assets/done.mp4');
+                  await Gal.putVideo(path, album: album);
+                },
+                label: 'putVideo(toAlbum: $toAlbum)',
+              ),
+              buildButton(
+                onPressed: () async => Gal.open(),
+                label: 'open()',
+              ),
+            ],
           ),
         ),
       ),
