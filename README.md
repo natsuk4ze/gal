@@ -12,7 +12,7 @@
 **Please leave a [like👍](https://pub.dev/packages/gal) and [star⭐️](https://github.com/natsuk4ze/gal) for more features.**
 | **Support** | Android SDK 21+ | iOS 11.0+ |
 |-------------|---------|-----------|
-| **Example** | <img src="https://github.com/natsuk4ze/gal/raw/update-assets/readme_assets/android.gif" alt="ios" style="height:450px;"> | <img src="https://github.com/natsuk4ze/gal/raw/update-assets/readme_assets/ios.gif" alt="ios" style="height:450px;"> |
+| **Example** | <img src="https://github.com/natsuk4ze/gal/raw/update-assets/readme_assets/android.gif" alt="ios" style="height:300px;"> | <img src="https://github.com/natsuk4ze/gal/raw/update-assets/readme_assets/ios.gif" alt="ios" style="height:300px;"> |
 
 ## ✨Features
 
