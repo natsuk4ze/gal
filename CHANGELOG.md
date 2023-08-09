@@ -1,6 +1,10 @@
+## 1.8.0
+
+* FEAT: Gal supports album option for saving medias. **iOS needs additional permission settings, see latest README or [wiki](https://github.com/natsuk4ze/gal/wiki/Permissions)**.
+
 ## 1.7.0
 
-* Add: Support Android API 21-23.
+* ADD: Support Android API 21-23.
 
 ## 1.6.3
 
