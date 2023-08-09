@@ -18,17 +18,17 @@ abstract class GalPlatform extends PlatformInterface {
 
   /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
   /// define [putVideo].
-  Future<void> putVideo(String path) =>
+  Future<void> putVideo(String path, {String? album}) =>
       throw UnimplementedError('putVideo() has not been implemented.');
 
   /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
   /// define [putImage].
-  Future<void> putImage(String path) =>
+  Future<void> putImage(String path, {String? album}) =>
       throw UnimplementedError('putImage() has not been implemented.');
 
   /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
   /// define [putImageBytes].
-  Future<void> putImageBytes(Uint8List bytes) =>
+  Future<void> putImageBytes(Uint8List bytes, {String? album}) =>
       throw UnimplementedError('putImageBytes() has not been implemented.');
 
   /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
@@ -38,11 +38,11 @@ abstract class GalPlatform extends PlatformInterface {
 
   /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
   /// define [hasAccess].
-  Future<bool> hasAccess() =>
+  Future<bool> hasAccess({bool toAlbum = false}) =>
       throw UnimplementedError('hasAccess() has not been implemented.');
 
   /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
   /// define [requestAccess].
-  Future<bool> requestAccess() =>
+  Future<bool> requestAccess({bool toAlbum = false}) =>
       throw UnimplementedError('requestAccess() has not been implemented.');
 }

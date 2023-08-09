@@ -9,9 +9,15 @@ import 'package:gal/gal.dart';
 
 void main() => runApp(const App());
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
 
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  bool toAlbum = false;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -25,13 +31,18 @@ class App extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  const Text('toAlbum'),
+                  Switch(
+                      value: toAlbum,
+                      onChanged: (_) => setState(() => toAlbum = !toAlbum)),
                   FilledButton(
                     onPressed: () async {
-                      final requestGranted = await Gal.requestAccess();
+                      final requestGranted =
+                          await Gal.requestAccess(toAlbum: toAlbum);
                       if (requestGranted) {
                         final path = await getFilePath('assets/done.jpg');
                         try {
-                          await Gal.putImage(path);
+                          await Gal.putImage(path, album: album);
 
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -65,7 +76,7 @@ class App extends StatelessWidget {
                   FilledButton(
                     onPressed: () async {
                       final path = await getFilePath('assets/done.mp4');
-                      await Gal.putVideo(path);
+                      await Gal.putVideo(path, album: album);
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
@@ -74,7 +85,7 @@ class App extends StatelessWidget {
                   FilledButton(
                     onPressed: () async {
                       final path = await getFilePath('assets/done.jpg');
-                      await Gal.putImage(path);
+                      await Gal.putImage(path, album: album);
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
@@ -119,14 +130,15 @@ class App extends StatelessWidget {
                   ),
                   FilledButton(
                     onPressed: () async {
-                      final hasAccess = await Gal.hasAccess();
+                      final hasAccess = await Gal.hasAccess(toAlbum: toAlbum);
                       log('Has Access:${hasAccess.toString()}');
                     },
                     child: const Text('Has Access'),
                   ),
                   FilledButton(
                     onPressed: () async {
-                      final requestGranted = await Gal.requestAccess();
+                      final requestGranted =
+                          await Gal.requestAccess(toAlbum: toAlbum);
                       log('Request Granted:${requestGranted.toString()}');
                     },
                     child: const Text('Request Access'),
@@ -139,6 +151,8 @@ class App extends StatelessWidget {
       ),
     );
   }
+
+  String? get album => toAlbum ? 'Album' : null;
 
   SnackBar get snackBar => SnackBar(
         content: const Text('Saved! ✅'),

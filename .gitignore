@@ -88,6 +88,7 @@ ios/Flutter/ephemeral/
 profile
 xcuserdata
 **/.generated/
+
 App.framework
 Flutter.framework
 Flutter.podspec

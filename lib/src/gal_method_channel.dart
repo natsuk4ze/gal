@@ -10,29 +10,42 @@ final class MethodChannelGal extends GalPlatform {
   final methodChannel = const MethodChannel('gal');
 
   @override
-  Future<void> putVideo(String path) async =>
-      methodChannel.invokeMethod<void>('putVideo', {'path': path});
+  Future<void> putVideo(String path, {String? album}) async =>
+      methodChannel.invokeMethod<void>('putVideo', {
+        'path': path,
+        'album': album,
+      });
 
   @override
-  Future<void> putImage(String path) async =>
-      methodChannel.invokeMethod<void>('putImage', {'path': path});
+  Future<void> putImage(String path, {String? album}) async =>
+      methodChannel.invokeMethod<void>('putImage', {
+        'path': path,
+        'album': album,
+      });
 
   @override
-  Future<void> putImageBytes(Uint8List bytes) async =>
-      methodChannel.invokeMethod<void>('putImageBytes', {'bytes': bytes});
+  Future<void> putImageBytes(Uint8List bytes, {String? album}) async =>
+      methodChannel.invokeMethod<void>('putImageBytes', {
+        'bytes': bytes,
+        'album': album,
+      });
 
   @override
   Future<void> open() async => methodChannel.invokeMethod<void>('open');
 
   @override
-  Future<bool> hasAccess() async {
-    final hasAccess = await methodChannel.invokeMethod<bool>('hasAccess');
+  Future<bool> hasAccess({bool toAlbum = false}) async {
+    final hasAccess = await methodChannel.invokeMethod<bool>('hasAccess', {
+      'toAlbum': toAlbum,
+    });
     return hasAccess ?? false;
   }
 
   @override
-  Future<bool> requestAccess() async {
-    final granted = await methodChannel.invokeMethod<bool>('requestAccess');
+  Future<bool> requestAccess({bool toAlbum = false}) async {
+    final granted = await methodChannel.invokeMethod<bool>('requestAccess', {
+      'toAlbum': toAlbum,
+    });
     return granted ?? false;
   }
 }

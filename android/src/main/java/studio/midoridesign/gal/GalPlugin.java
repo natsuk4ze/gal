@@ -42,7 +42,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private static final Uri IMAGE_URI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
     private static final Uri VIDEO_URI = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
     private static final int PERMISSION_REQUEST_CODE = 1317298; // Anything unique in the app.
-    private static final boolean USE_EXTERNAL_STORAGE = Build.VERSION.SDK_INT <= 23;
+    private static final boolean USE_EXTERNAL_STORAGE = Build.VERSION.SDK_INT <= 29;
     private static final boolean HAS_ACCESS_BY_DEFAULT =
             Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT >= 29;
 
@@ -66,7 +66,9 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                 new Thread(() -> {
                     try {
                         putMedia(pluginBinding.getApplicationContext(),
-                                call.argument("path"), call.method.contains("Image"));
+                                call.argument("path"), call.argument("album"),
+                                call.method.contains("Image"));
+
                         new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                     } catch (Exception e) {
                         handleError(e, result);
@@ -77,7 +79,9 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             case "putImageBytes": {
                 new Thread(() -> {
                     try {
-                        putMediaBytes(pluginBinding.getApplicationContext(), call.argument("bytes"));
+                        putMediaBytes(pluginBinding.getApplicationContext(),
+                                call.argument("bytes"), call.argument("album"));
+                      
                         new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                     } catch (Exception e) {
                         handleError(e, result);
@@ -113,34 +117,45 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         }
     }
 
-    private void putMedia(Context context, String path, boolean isImage)
+    private void putMedia(Context context, String path, String album, boolean isImage)
             throws IOException, SecurityException, FileNotFoundException {
         File file = new File(path);
         String name = file.getName();
         int dotIndex = name.lastIndexOf('.');
         if (dotIndex == -1) throw new FileNotFoundException("Extension not found.");
+
         try (InputStream in = new FileInputStream(file)) {
-            writeData(context, in, isImage, name.substring(dotIndex));
+            writeData(context, in, isImage, name.substring(dotIndex + 1), album);
         }
     }
 
-    private void putMediaBytes(Context context, byte[] bytes)
+    private void putMediaBytes(Context context, byte[] bytes, String album)
             throws IOException, SecurityException {
         try (InputStream in = new ByteArrayInputStream(bytes)) {
-            writeData(context, in, true, ".jpg");
+            writeData(context, in, true, "jpg", album);
         }
     }
 
-    private void writeData(Context context, InputStream in, boolean isImage,
-            String extension) throws IOException, SecurityException, FileNotFoundException {
+    private void writeData(Context context, InputStream in, boolean isImage, String extension,
+            String album) throws IOException, SecurityException, FileNotFoundException {
         ContentResolver resolver = context.getContentResolver();
         ContentValues values = new ContentValues();
+        String dirPath = isImage || album != null ? Environment.DIRECTORY_PICTURES
+                : Environment.DIRECTORY_MOVIES;
+
         if (USE_EXTERNAL_STORAGE) {
-            String path = Environment.getExternalStoragePublicDirectory(
-                    isImage ? Environment.DIRECTORY_PICTURES : Environment.DIRECTORY_MOVIES)
-                    + File.separator + UUID.randomUUID().toString() + extension;
+            File dir = new File(Environment.getExternalStoragePublicDirectory(dirPath),
+                    album != null ? album : "");
+            if (!dir.exists()) dir.mkdirs();
+            String path =
+                    dir.getPath() + File.separator + UUID.randomUUID().toString() + "." + extension;
             values.put(MediaStore.MediaColumns.DATA, path);
+        } else {
+            String path = dirPath + (album != null ? File.separator + album : "");
+            values.put(isImage ? MediaStore.Images.Media.RELATIVE_PATH
+                    : MediaStore.Video.Media.RELATIVE_PATH, path);
         }
+
         Uri uri = resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
         try (OutputStream out = resolver.openOutputStream(uri)) {
             byte[] buffer = new byte[8192];
@@ -155,7 +170,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         Context context = pluginBinding.getApplicationContext();
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
-        if (USE_EXTERNAL_STORAGE) {
+        if (Build.VERSION.SDK_INT <= 23) {
             intent.setType("*/*");
             intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
         } else {
