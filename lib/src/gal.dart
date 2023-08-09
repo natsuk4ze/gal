@@ -4,9 +4,9 @@ import 'package:gal/src/gal_exception.dart';
 
 import 'gal_platform_interface.dart';
 
-/// A main class of gal.
+/// Main class of gal.
 ///
-/// Note: For Android emulators with API < 29 will save media
+/// NOTE: For Android emulators with API < 29 will save media
 /// on the SD card. Therefore, be sure to set the SD card. You can ignore
 /// this for real devices.
 /// See: [wiki](https://github.com/natsuk4ze/gal/wiki)
@@ -16,6 +16,7 @@ final class Gal {
 
   /// Save a video to the gallery from file [path].
   ///
+  /// Specify the album with [album]. If it does not exist, it will be created.
   /// Throws an [GalException] If you do not have access premission or
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
@@ -25,6 +26,7 @@ final class Gal {
 
   /// Save a image to the gallery from file [path].
   ///
+  /// Specify the album with [album]. If it does not exist, it will be created.
   /// Throws an [GalException] If you do not have access premission or
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
@@ -34,7 +36,7 @@ final class Gal {
 
   /// Save a image to the gallery from [Uint8List].
   ///
-  /// Save a image directly from memory without using a temporary file.
+  /// Specify the album with [album]. If it does not exist, it will be created.
   /// Throws an [GalException] If you do not have access premission or
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
@@ -49,6 +51,9 @@ final class Gal {
 
   /// Check if the app has access permissions.
   ///
+  /// On iOS, use the [toAlbum] option, which requires additional permissions
+  /// to save to an album. on android, it is ignored. If you want to save to 
+  /// an album other than the one created by your app
   /// See: [Permissions](https://github.com/natsuk4ze/gal/wiki/Permissions)
   static Future<bool> hasAccess({bool toAlbum = false}) async =>
       GalPlatform.instance.hasAccess(toAlbum: toAlbum);
@@ -57,10 +62,13 @@ final class Gal {
   ///
   /// Returns [true] if access is granted, [false] if denied.
   /// If access was already granted, the dialog is not displayed and returns true.
+  /// On iOS, use the [toAlbum] option, which requires additional permissions
+  /// to save to an album.
   /// See: [Permissions](https://github.com/natsuk4ze/gal/wiki/Permissions)
   static Future<bool> requestAccess({bool toAlbum = false}) async =>
       GalPlatform.instance.requestAccess(toAlbum: toAlbum);
 
+  /// Throw [GalException] when [PlatformException] was throwed by native api.
   static Future<void> _voidOrThrow(Future<void> Function() cb) async {
     try {
       return await cb();
