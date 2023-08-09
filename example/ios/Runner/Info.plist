@@ -2,12 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- gal -->
+	<!-- gal: For just saving media -->
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>We need add only access to save media files</string>
+	<string>We need add only access to save medias</string>
+	<!-- gal: For just saving media -->
+
+	<!-- gal: For saving media to album-->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need add only access to save media files</string>
-	<!-- gal -->
+	<string>We need access to save medias</string>
+	<!-- gal: For saving media to album-->
 
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
