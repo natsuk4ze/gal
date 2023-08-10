@@ -1,7 +1,5 @@
 @Timeout(Duration(minutes: 20))
 
-import 'dart:io' show Platform;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -13,38 +11,19 @@ import 'test_app.dart' as app;
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  Platform.isAndroid
-      ? group('Android Test', () {
-          bool toAlbum = false;
-          for (var i = 0; i < 2; i++) {
-            if (i == 1) {
-              execute('Toggle toAlbum');
-              toAlbum = true;
-            }
-            execute('hasAccess(toAlbum: $toAlbum)');
-            execute('requestAccess(toAlbum: $toAlbum)');
-            execute('putImage(toAlbum: $toAlbum)');
-            execute('putImageBytes(toAlbum: $toAlbum)');
-            execute('putVideo(toAlbum: $toAlbum)');
-          }
-          execute('open()');
-        })
-      : group('iOS Test', () {
-          bool toAlbum = false;
-          for (var i = 0; i < 2; i++) {
-            if (i == 1) {
-              execute('Toggle toAlbum');
-              toAlbum = true;
-            }
-            execute('hasAccess(toAlbum: $toAlbum)');
-          }
-
-          execute('open()');
-
-          /// Other functions take longer to implement
-          /// because of the possibility of interacting with native dialogs.
-          /// For more info: https://github.com/flutter/flutter/wiki/Plugin-Tests
-        });
+  bool toAlbum = false;
+  for (var i = 0; i < 2; i++) {
+    if (i == 1) {
+      execute('Toggle toAlbum');
+      toAlbum = true;
+    }
+    execute('hasAccess(toAlbum: $toAlbum)');
+    execute('requestAccess(toAlbum: $toAlbum)');
+    execute('putImage(toAlbum: $toAlbum)');
+    execute('putImageBytes(toAlbum: $toAlbum)');
+    execute('putVideo(toAlbum: $toAlbum)');
+  }
+  execute('open()');
 }
 
 void execute(String key) => testWidgets(key, (tester) async {

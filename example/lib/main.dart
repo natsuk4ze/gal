@@ -143,6 +143,12 @@ class _AppState extends State<App> {
                     },
                     child: const Text('Request Access'),
                   ),
+
+                  // Package user can ignore this (this is for XCTest in gal).
+                  FilledButton(
+                    onPressed: () async => Gal.requestAccess(toAlbum: true),
+                    child: const Text('Request Access to Album'),
+                  ),
                 ],
               ),
             ),
