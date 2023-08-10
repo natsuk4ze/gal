@@ -34,11 +34,13 @@ jobs:
         with:
           model: iPhone 14 Pro Max
       
-      - name: Build
-        timeout-minutes: 10
+      - name: Build and Grant permission
+        timeout-minutes: 15
         run: |
           cd example
-          flutter build ios --simulator --target=integration_test/integration_test.dart
+          flutter build ios --simulator --no-codesign
+          cd ios
+          xcodebuild test -workspace Runner.xcworkspace -scheme Runner -destination 'platform=iOS Simulator,name=iPhone 14 Pro Max' -only-testing:RunnerUITests
 
       - name: Run integration tests
         id: Run-integration-tests
