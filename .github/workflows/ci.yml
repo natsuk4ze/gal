@@ -44,7 +44,7 @@ jobs:
           cd example
           flutter build ios --simulator --no-codesign
           cd ios
-          xcodebuild test -workspace Runner.xcworkspace -scheme Runner -destination "id=$SIMULATOR_UUID" -only-testing:RunnerUITests
+          xcodebuild test -workspace Runner.xcworkspace -scheme Runner -destination "id=$SIMULATOR_UUID" -only-testing:RunnerUITests -quiet
 
       - name: Run integration tests
         id: Run-integration-tests
