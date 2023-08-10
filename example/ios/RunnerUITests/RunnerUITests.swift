@@ -2,7 +2,7 @@ import XCTest
 import Photos
 
 final class RunnerUITests: XCTestCase {
-    func testPhotosAuthorization() {
+    func grantPhotosPermission() {
         let app = XCUIApplication()
         app.launch()
         app.buttons["Request Access to Album"].tap()
