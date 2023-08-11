@@ -31,23 +31,20 @@ jobs:
       - uses: futureware-tech/simulator-action@v2
         with:
           model: iPhone 14 Pro Max
-
-      - name: Get simulator UUID
-        run: echo "SIMULATOR_UUID=$(xcrun simctl list devices available | grep 'iPhone 14 Pro Max' | awk -F '[()]' '{print $2}')" >> $GITHUB_ENV
       
       - name: Build and Grant permission
-        timeout-minutes: 20
+        timeout-minutes: 10
         run: |
           cd example
           flutter clean && flutter pub get
           flutter build ios --simulator --no-codesign
           cd ios
-          xcodebuild test -workspace Runner.xcworkspace -scheme Runner -destination "id=$SIMULATOR_UUID" -only-testing:RunnerUITests -quiet
+          xcrun simctl privacy booted grant photos studio.midoridesign.galExample
 
       - name: Run integration tests
         id: Run-integration-tests
         continue-on-error: true
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: |
           cd example
           flutter test integration_test/integration_test.dart
