@@ -2,10 +2,10 @@ import XCTest
 import Photos
 
 final class RunnerUITests: XCTestCase {
-    func testPhotosAuthorization() {
+    func testAllowAccessToAllPhotos() {
         let app = XCUIApplication()
         app.launch()
-        app.buttons["Request Access to Album"].tap()
+        app.buttons["XCTest"].tap()
 
         addUIInterruptionMonitor(withDescription: "\"Gal\" Would Like to Access\nYour Photos") { alert in
             alert.buttons["Allow Access to All Photos"].tap()

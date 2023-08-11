@@ -143,11 +143,14 @@ class _AppState extends State<App> {
                     },
                     child: const Text('Request Access'),
                   ),
-
-                  // Package user can ignore this (this is for XCTest in gal).
+                  const SizedBox(height: 20),
+                  const Text('Please ignore this'),
                   FilledButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(Colors.grey)),
                     onPressed: () async => Gal.requestAccess(toAlbum: true),
-                    child: const Text('Request Access to Album'),
+                    child: const Text('XCTest'),
                   ),
                 ],
               ),
