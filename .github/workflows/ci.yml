@@ -33,7 +33,7 @@ jobs:
           model: iPhone 14 Pro Max
       
       - name: Build and Grant permission
-        timeout-minutes: 20
+        timeout-minutes: 10
         run: |
           cd example
           flutter clean && flutter pub get
@@ -44,7 +44,7 @@ jobs:
       - name: Run integration tests
         id: Run-integration-tests
         continue-on-error: true
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: |
           cd example
           flutter test integration_test/integration_test.dart
