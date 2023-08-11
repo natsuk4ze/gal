@@ -27,9 +27,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: beta
-
-      - name: Install Flutter dependencies
-        run: flutter pub get ./example
       
       - uses: futureware-tech/simulator-action@v2
         with:
@@ -39,9 +36,10 @@ jobs:
         run: echo "SIMULATOR_UUID=$(xcrun simctl list devices available | grep 'iPhone 14 Pro Max' | awk -F '[()]' '{print $2}')" >> $GITHUB_ENV
       
       - name: Build and Grant permission
-        timeout-minutes: 15
+        timeout-minutes: 20
         run: |
           cd example
+          flutter clean && flutter pub get
           flutter build ios --simulator --no-codesign
           cd ios
           xcodebuild test -workspace Runner.xcworkspace -scheme Runner -destination "id=$SIMULATOR_UUID" -only-testing:RunnerUITests -quiet
@@ -126,7 +124,7 @@ jobs:
       - name: Run integration tests
         id: Run-integration-tests
         continue-on-error: true
-        timeout-minutes: 10
+        timeout-minutes: 15
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
@@ -143,7 +141,7 @@ jobs:
       - name: Retry integration tests
         id: Retry-integration-tests
         continue-on-error: true
-        timeout-minutes: 10
+        timeout-minutes: 15
         if: steps.Run-integration-tests.outcome == 'failure'
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -164,7 +162,7 @@ jobs:
  
       - name: Re:Retry integration tests
         if: steps.Retry-integration-tests.outcome == 'failure'
-        timeout-minutes: 10
+        timeout-minutes: 15
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}

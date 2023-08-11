@@ -32,10 +32,10 @@ public class GalPlugin: NSObject, FlutterPlugin {
       open { result(nil) }
     case "hasAccess":
       let args = call.arguments as! [String: Bool]
-      result(hasAccess(toAlbum: args["toAlbum"] as! Bool))
+      result(hasAccess(toAlbum: args["toAlbum"]!))
     case "requestAccess":
       let args = call.arguments as! [String: Bool]
-      let toAlbum = args["toAlbum"] as! Bool
+      let toAlbum = args["toAlbum"]!
 
       hasAccess(toAlbum: toAlbum)
         ? result(true)
@@ -93,7 +93,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
       }
       return
     }
-    PHPhotoLibrary.shared().performChanges({ assetChangeRequest() }, completionHandler: completion)
+    PHPhotoLibrary.shared().performChanges({ _ = assetChangeRequest() }, completionHandler: completion)
   }
 
   private func getAlbum(album: String, completion: @escaping (PHAssetCollection?, Error?) -> Void) {
@@ -147,26 +147,24 @@ public class GalPlugin: NSObject, FlutterPlugin {
   }
 
   private func handleError(error: Error) -> FlutterError {
-    if let error = error as? NSError {
-      let message = error.localizedDescription
-      let details = Thread.callStackSymbols
+    let error = error as NSError
+    let message = error.localizedDescription
+    let details = Thread.callStackSymbols
 
-      switch PHErrorCode(rawValue: error.code) {
-      case .accessRestricted, .accessUserDenied:
-        return FlutterError(code: "ACCESS_DENIED", message: message, details: details)
+    switch PHErrorCode(rawValue: error.code) {
+    case .accessRestricted, .accessUserDenied:
+      return FlutterError(code: "ACCESS_DENIED", message: message, details: details)
 
-      case .identifierNotFound, .multipleIdentifiersFound, .requestNotSupportedForAsset,
-           .videoConversionFailed, .unsupportedVideoCodec:
-        return FlutterError(code: "NOT_SUPPORTED_FORMAT", message: message, details: details)
+    case .identifierNotFound, .multipleIdentifiersFound, .requestNotSupportedForAsset,
+         .videoConversionFailed, .unsupportedVideoCodec:
+      return FlutterError(code: "NOT_SUPPORTED_FORMAT", message: message, details: details)
 
-      case .notEnoughSpace:
-        return FlutterError(code: "NOT_ENOUGH_SPACE", message: message, details: details)
+    case .notEnoughSpace:
+      return FlutterError(code: "NOT_ENOUGH_SPACE", message: message, details: details)
 
-      default:
-        return FlutterError(code: "UNEXPECTED", message: message, details: details)
-      }
+    default:
+      return FlutterError(code: "UNEXPECTED", message: message, details: details)
     }
-    return FlutterError(code: "UNEXPECTED", message: "Did not NSError.", details: nil)
   }
 }
 
