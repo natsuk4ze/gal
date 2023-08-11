@@ -70,7 +70,7 @@ jobs:
           flutter test integration_test/integration_test.dart
 
   android:
-    needs: ios
+    needs: set-up
     timeout-minutes: 60
     runs-on: macos-latest
     strategy:
