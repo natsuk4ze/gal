@@ -31,6 +31,16 @@ jobs:
       - uses: futureware-tech/simulator-action@v2
         with:
           model: iPhone 14 Pro Max
+
+      - name: Cache Brew packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            $(brew --cache)
+            /usr/local/Homebrew/Library/Taps/wix/homebrew-brew
+          key: ${{ runner.os }}-brew-${{ hashFiles('**/Brewfile.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-brew-
       
       - name: Grant permission
         run: |
