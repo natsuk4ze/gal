@@ -42,6 +42,7 @@ jobs:
 
       - name: Grant permission
         run: |
+          brew link applesimutils
           brew tap wix/brew
           brew install applesimutils
           cd example
