@@ -32,14 +32,12 @@ jobs:
         with:
           model: iPhone 14 Pro Max
       
-      - name: Build and Grant permission
-        timeout-minutes: 10
+      - name: Grant permission
         run: |
+          brew tap wix/brew
+          brew install applesimutils
           cd example
-          flutter clean && flutter pub get
-          flutter build ios --simulator --no-codesign
-          cd ios
-          xcrun simctl privacy booted grant photos studio.midoridesign.galExample
+          applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
 
       - name: Run integration tests
         id: Run-integration-tests
