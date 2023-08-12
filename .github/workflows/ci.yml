@@ -33,7 +33,7 @@ jobs:
           model: iPhone 14 Pro Max
       
       - name: Cache applesimutils
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             /usr/local/Homebrew/Library/Taps/wix/homebrew-brew
