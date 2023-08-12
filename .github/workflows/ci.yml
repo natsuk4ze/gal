@@ -32,14 +32,11 @@ jobs:
         with:
           model: iPhone 14 Pro Max
       
-      - name: Build and Grant permission
-        timeout-minutes: 10
+      - name: Grant permission
+        timeout-minutes: 5
         run: |
           cd example
-          flutter clean && flutter pub get
-          flutter build ios --simulator --no-codesign
-          cd ios
-          xcrun simctl privacy booted grant photos studio.midoridesign.galExample
+          xcrun simctl privacy booted grant all studio.midoridesign.galExample
 
       - name: Run integration tests
         id: Run-integration-tests
