@@ -93,10 +93,8 @@ class _AppState extends State<App> {
                   ),
                   FilledButton(
                     onPressed: () async {
-                      final byteData = await rootBundle.load('assets/done.jpg');
-                      final uint8List = byteData.buffer.asUint8List(
-                          byteData.offsetInBytes, byteData.lengthInBytes);
-                      await Gal.putImageBytes(Uint8List.fromList(uint8List),album: album);
+                      final bytes = await getBytesData('assets/done.jpg');
+                      await Gal.putImageBytes(bytes, album: album);
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
@@ -170,5 +168,12 @@ class _AppState extends State<App> {
     await file.writeAsBytes(byteData.buffer
         .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
     return file.path;
+  }
+
+  Future<Uint8List> getBytesData(String path) async {
+    final byteData = await rootBundle.load(path);
+    final uint8List = byteData.buffer
+        .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
+    return Uint8List.fromList(uint8List);
   }
 }
