@@ -26,11 +26,11 @@ class App extends StatelessWidget {
                   label: 'Toggle toAlbum',
                 ),
                 buildButton(
-                  onPressed: () async => Gal.hasAccess(),
+                  onPressed: () async => Gal.hasAccess(toAlbum: toAlbum),
                   label: 'hasAccess(toAlbum: $toAlbum)',
                 ),
                 buildButton(
-                  onPressed: () async => Gal.requestAccess(),
+                  onPressed: () async => Gal.requestAccess(toAlbum: toAlbum),
                   label: 'requestAccess(toAlbum: $toAlbum)',
                 ),
                 buildButton(
@@ -42,11 +42,8 @@ class App extends StatelessWidget {
                 ),
                 buildButton(
                   onPressed: () async {
-                    final byteData = await rootBundle.load('assets/done.jpg');
-                    final uint8List = byteData.buffer.asUint8List(
-                        byteData.offsetInBytes, byteData.lengthInBytes);
-                    await Gal.putImageBytes(Uint8List.fromList(uint8List),
-                        album: album);
+                    final bytes = await getBytesData('assets/done.jpg');
+                    await Gal.putImageBytes(bytes, album: album);
                   },
                   label: 'putImageBytes(toAlbum: $toAlbum)',
                 ),
@@ -100,6 +97,13 @@ class App extends StatelessWidget {
     await file.writeAsBytes(byteData.buffer
         .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
     return file.path;
+  }
+
+  Future<Uint8List> getBytesData(String path) async {
+    final byteData = await rootBundle.load(path);
+    final uint8List = byteData.buffer
+        .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
+    return Uint8List.fromList(uint8List);
   }
 }
 
