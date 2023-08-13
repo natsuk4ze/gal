@@ -96,7 +96,7 @@ class _AppState extends State<App> {
                       final byteData = await rootBundle.load('assets/done.jpg');
                       final uint8List = byteData.buffer.asUint8List(
                           byteData.offsetInBytes, byteData.lengthInBytes);
-                      await Gal.putImageBytes(Uint8List.fromList(uint8List));
+                      await Gal.putImageBytes(Uint8List.fromList(uint8List),album: album);
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
                     },
