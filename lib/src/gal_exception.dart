@@ -24,7 +24,7 @@ class GalException implements Exception {
     return GalException(type: type, error: error, stackTrace: stackTrace);
   }
   @override
-  String toString() => "GalException ${type.name}: ${type.message}";
+  String toString() => "[GalException/${type.code}]: ${type.message}";
 }
 
 enum GalExceptionType {
