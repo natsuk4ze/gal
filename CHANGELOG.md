@@ -4,6 +4,7 @@
 * FIX: example with toAlbum
 * UPDATE: example in readme
 * UPDATE: assets in example
+* UPDATE: `GalException` error messages
 
 ## 1.8.0
 
