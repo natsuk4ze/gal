@@ -1,3 +1,11 @@
+## 1.8.1
+
+* REMOVE: plugin_platform_interface #84
+* FIX: example with toAlbum
+* UPDATE: example in readme
+* UPDATE: assets in example
+* UPDATE: `GalException` error messages
+
 ## 1.8.0
 
 * FEAT: Gal supports album option for saving medias. **iOS needs additional permission settings, see latest README or [wiki](https://github.com/natsuk4ze/gal/wiki/Permissions)**.
