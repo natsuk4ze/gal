@@ -120,22 +120,25 @@ class App extends StatelessWidget {
       home: Scaffold(
         body: Column(
           children: [
-            FilledButton.icon(
+            TextButton(
               onPressed: () async => Gal.open(),
-              label: const Text('Open Gallery'),
-              icon: const Icon(Icons.open_in_new),
+              child: const Text('Open Gallery'),
             ),
-            FilledButton.icon(
-              onPressed: () async =>
-                  Gal.putVideo('TODO: Change this text to video path'),
-              label: const Text('Save Video'),
-              icon: const Icon(Icons.video_file),
+            TextButton(
+              onPressed: () async => Gal.putVideo('Replace to video path'),
+              child: const Text('Save Video'),
             ),
-            FilledButton.icon(
-              onPressed: () async =>
-                  Gal.putImage('TODO: Change this text to image path'),
-              label: const Text('Save Image'),
-              icon: const Icon(Icons.image),
+            TextButton(
+              onPressed: () async => Gal.putImage('Replace to image path'),
+              child: const Text('Save Image'),
+            ),
+            TextButton(
+              onPressed: () async => Gal.hasAccess(),
+              child: const Text('Chack Permission'),
+            ),
+            TextButton(
+              onPressed: () async => Gal.requestAccess(),
+              child: const Text('Request Permission'),
             ),
           ],
         ),
