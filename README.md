@@ -125,11 +125,11 @@ class App extends StatelessWidget {
               child: const Text('Open Gallery'),
             ),
             TextButton(
-              onPressed: () async => Gal.putVideo('Replace to video path'),
+              onPressed: () async => Gal.putVideo('VIDEO_PATH'),
               child: const Text('Save Video'),
             ),
             TextButton(
-              onPressed: () async => Gal.putImage('Replace to image path'),
+              onPressed: () async => Gal.putImage('IMAGE_PATH'),
               child: const Text('Save Image'),
             ),
             TextButton(
