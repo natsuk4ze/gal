@@ -35,8 +35,7 @@ enum GalExceptionType {
   notEnoughSpace,
 
   /// When trying to save a file in an unsupported format.
-  /// For details please see
-  /// https://github.com/natsuk4ze/gal/wiki/Formats
+  /// See: https://github.com/natsuk4ze/gal/wiki/Formats
   notSupportedFormat,
 
   /// When an error occurs with unexpected.
