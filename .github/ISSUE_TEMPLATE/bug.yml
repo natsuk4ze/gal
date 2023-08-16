@@ -1,0 +1,92 @@
+name: Report a bug
+description: Create a report to help us improve
+labels: "\U0001F41D bug, \U0001F440 in triage"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for using gal!
+        If you are looking for support, please check out our documentation.
+
+          - https://github.com/natsuk4ze/gal/wiki
+          - https://github.com/natsuk4ze/gal/discussions
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      options:
+      - label: I have searched the [existing issues](https://github.com/natsuk4ze/gal/issues)
+        required: true
+      - label: I have read the [contribution guide](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md)
+        required: true
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      description: Please tell us exactly how to reproduce the problem you are running into.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected results
+      description: Please tell us what is expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Actual results
+      description: Please tell us what is actually happening.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Code sample
+      description: Please create a minimal reproducible sample
+      value: |
+        <details><summary>Code sample</summary>
+
+        ```dart
+        [Paste your code here]
+        ```
+
+        </details>
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: File you could not save
+      description: Please upload the file if you can.
+      value: |
+        <details>
+        <summary>Screenshots / Video demonstration</summary>
+
+        [Upload media here]
+
+        </details>
+  - type: textarea
+    attributes:
+      label: Logs
+      description: Please show the error log.
+      value: |
+        <details><summary>Logs</summary>
+
+        ```console
+        [Paste your logs here]
+        ```
+
+        </details>
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Environment
+      description: Please tell us your environment.
+      placeholder: |
+        - Device: [e.g. iPhone14 emulator]
+        - OS: [e.g. iOS16]
+        - gal Version: [e.g. 1.8.0]
+    validations:
+      required: true
