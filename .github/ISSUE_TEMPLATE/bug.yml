@@ -15,7 +15,6 @@ body:
     attributes:
       label: Overview
       description: Please clarify what kind of bug it is.
-      placeholder: 
     validations:
       required: true
   - type: textarea
