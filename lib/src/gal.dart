@@ -4,9 +4,6 @@ import 'package:gal/src/gal_platform.dart';
 
 /// Main class of gal.
 ///
-/// NOTE: For Android emulators with API < 29 will save media
-/// on the SD card. Therefore, be sure to set the SD card. You can ignore
-/// this for real devices.
 /// See: [wiki](https://github.com/natsuk4ze/gal/wiki)
 @immutable
 final class Gal {
