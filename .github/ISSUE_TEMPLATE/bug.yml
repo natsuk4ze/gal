@@ -14,14 +14,10 @@ body:
   - type: textarea
     attributes:
       label: Overview
-      description: Please clarify what kind of bug it is.
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: Steps to reproduce
-      description: Please tell us exactly how to reproduce the problem you are running into.
+      description: |
+        Please clarify what kind of bug it is, and show us steps to reproduce
       placeholder: |
+        Steps to reproduce
         1. ...
         2. ...
         3. ...
@@ -43,6 +39,18 @@ body:
       required: true
   - type: textarea
     attributes:
+      label: Environment
+      description: Please tell us your environment.
+      placeholder: |
+        - Device: [e.g. iPhone14 emulator]
+        - OS: [e.g. iOS16]
+        - gal Version: [e.g. 1.8.0]
+        - File filed to save: [Please upload here if you can]
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
       label: Logs
       description: Please show the error log.
       value: |
@@ -54,26 +62,4 @@ body:
 
         </details>
     validations:
-      required: true
-
-  - type: textarea
-    attributes:
-      label: Environment
-      description: Please tell us your environment.
-      placeholder: |
-        - Device: [e.g. iPhone14 emulator]
-        - OS: [e.g. iOS16]
-        - gal Version: [e.g. 1.8.0]
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: File you want to save
-      description: Please upload the file if you can.
-      value: |
-        <details>
-        <summary>Screenshots / Video demonstration</summary>
-
-        [Upload media here]
-
-        </details>
+      required: false
