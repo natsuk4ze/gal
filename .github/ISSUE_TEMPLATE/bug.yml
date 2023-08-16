@@ -13,6 +13,13 @@ body:
           - https://github.com/natsuk4ze/gal/discussions
   - type: textarea
     attributes:
+      label: Overview
+      description: Please clarify what kind of bug it is.
+      placeholder: 
+    validations:
+      required: true
+  - type: textarea
+    attributes:
       label: Steps to reproduce
       description: Please tell us exactly how to reproduce the problem you are running into.
       placeholder: |
