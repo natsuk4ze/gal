@@ -17,7 +17,9 @@ body:
       description: |
         Please clarify what kind of bug it is, and show us steps to reproduce
       placeholder: |
-        Steps to reproduce
+        Description of the bug:
+
+        Steps to reproduce:
         1. ...
         2. ...
         3. ...
