@@ -103,7 +103,7 @@ await Gal.requestAccess();
 ## 🎯Example
 
 Here is a minimal example. A [best practice](https://github.com/natsuk4ze/gal/wiki/Best-Practice) and more detailed one 
-can be found in [example](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart).
+can be found in [example](https://pub.dev/packages/gal/example).
 
 ``` dart
 import 'package:flutter/material.dart';
