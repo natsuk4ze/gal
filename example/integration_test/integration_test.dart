@@ -1,13 +1,9 @@
-@Timeout(Duration(minutes: 20))
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'test_app.dart' as app;
 
-/// All tests are done in integration tests,
-/// since only integration tests can call native code.
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
