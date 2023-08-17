@@ -2,7 +2,7 @@
 
 * FIX: `put-` does not run with Future #96
 * FIX: `put-` with album and user selects 'selected photos' in permission dialog #95
-* ADD: `requestAccess` when called `run-` #97 
+* ADD: `requestAccess` when called `put-` #97 
 
 ## 1.8.1
 
