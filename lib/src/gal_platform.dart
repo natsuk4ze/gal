@@ -19,14 +19,18 @@ final class GalPlatform {
     }
   }
 
-  static Future<void> putVideo(String path, {String? album}) =>
-      _invokeMethod<void>('putVideo', {'path': path, 'album': album});
+  static Future<void> putVideo(String path, {String? album}) async {
+    await _invokeMethod<void>('putVideo', {'path': path, 'album': album});
+  }
 
-  static Future<void> putImage(String path, {String? album}) =>
-      _invokeMethod<void>('putImage', {'path': path, 'album': album});
+  static Future<void> putImage(String path, {String? album}) async {
+    await _invokeMethod<void>('putImage', {'path': path, 'album': album});
+  }
 
-  static Future<void> putImageBytes(Uint8List bytes, {String? album}) =>
-      _invokeMethod<void>('putImageBytes', {'bytes': bytes, 'album': album});
+  static Future<void> putImageBytes(Uint8List bytes, {String? album}) async {
+    await _invokeMethod<void>(
+        'putImageBytes', {'bytes': bytes, 'album': album});
+  }
 
   static Future<void> open() async => _invokeMethod<void>('open', {});
 
