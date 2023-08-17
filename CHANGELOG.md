@@ -1,3 +1,7 @@
+## 1.8.3
+
+* FIX: dart format
+
 ## 1.8.2
 
 * FIX: `put-` does not run with Future #96
