@@ -8,28 +8,30 @@ on:
 jobs:
   remove-label:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
       - name: Remove under dev label from linked issue
         uses: actions/github-script@v6
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const prNumber = context.issue.number;
-            const { data: pr } = await github.rest.pulls.get({
+            const issueNumber = context.payload.pull_request?.issue_number;
+            if (!issueNumber) return;
+
+            const linkedIssues = await github.pulls.listAssociatedIssues({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: prNumber
+              pull_number: context.payload.pull_request.number,
             });
 
-            if (pr.linked_issue_url) {
-              const issueNumber = pr.linked_issue_url.split('/').pop();
-              github.rest.issues.removeLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                name: '🛠️ under dev'
-              });
+            for (const issue of linkedIssues.data) {
+              if (issue.repository.id === context.repo.id) {
+                await github.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  name: "🛠️ under dev",
+                });
+              }
             }
+          github-token: ${{ secrets.GITHUB_TOKEN }}
