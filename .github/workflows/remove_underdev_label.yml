@@ -1,0 +1,35 @@
+name: Remove under dev label when PR closed
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  remove-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Remove under dev label from linked issue
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const prNumber = context.issue.number;
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+
+            if (pr.linked_issue_url) {
+              const issueNumber = pr.linked_issue_url.split('/').pop();
+              github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                name: '🛠️ under dev'
+              });
+            }
