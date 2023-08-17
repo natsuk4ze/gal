@@ -8,19 +8,17 @@ on:
 jobs:
   label:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
       - name: Add under dev label
         uses: actions/github-script@v6
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const issueNumber = context.issue.number;
             github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: issueNumber,
-              labels: ['🛠️ under dev']
+              issue_number: context.issue.number,
+              labels: ["🛠️ under dev"]
             });
