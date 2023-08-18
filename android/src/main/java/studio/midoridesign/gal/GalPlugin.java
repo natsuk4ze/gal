@@ -124,14 +124,14 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         if (dotIndex == -1) throw new FileNotFoundException("Extension not found.");
 
         try (InputStream in = new FileInputStream(file)) {
-            writeData(context, in, isImage, name.substring(dotIndex + 1), album);
+            writeData(context, in, isImage, name.substring(dotIndex), album);
         }
     }
 
     private void putMediaBytes(Context context, byte[] bytes, String album)
             throws IOException, SecurityException {
         try (InputStream in = new ByteArrayInputStream(bytes)) {
-            writeData(context, in, true, "jpg", album);
+            writeData(context, in, true, ".jpg", album);
         }
     }
 
@@ -141,20 +141,20 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         ContentValues values = new ContentValues();
         String dirPath = isImage || album != null ? Environment.DIRECTORY_PICTURES
                 : Environment.DIRECTORY_MOVIES;
+        String name = UUID.randomUUID().toString();
 
         if (USE_EXTERNAL_STORAGE) {
             File dir = new File(Environment.getExternalStoragePublicDirectory(dirPath),
                     album != null ? album : "");
             if (!dir.exists()) dir.mkdirs();
-            String path =
-                    dir.getPath() + File.separator + UUID.randomUUID().toString() + "." + extension;
+            String path = dir.getPath() + File.separator + name + extension;
             values.put(MediaStore.MediaColumns.DATA, path);
         } else {
             String path = dirPath + (album != null ? File.separator + album : "");
             values.put(isImage ? MediaStore.Images.Media.RELATIVE_PATH
                     : MediaStore.Video.Media.RELATIVE_PATH, path);
         }
-
+        values.put(MediaStore.MediaColumns.DISPLAY_NAME, name + extension);
         Uri uri = resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
         try (OutputStream out = resolver.openOutputStream(uri)) {
             byte[] buffer = new byte[8192];
