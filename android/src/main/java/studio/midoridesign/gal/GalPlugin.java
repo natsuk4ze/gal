@@ -36,6 +36,9 @@ import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
 import java.util.UUID;
 
+import org.apache.commons.imaging.ImageFormat;
+import org.apache.commons.imaging.Imaging;
+
 public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware,
         PluginRegistry.RequestPermissionsResultListener {
     private static final String PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -130,8 +133,10 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
 
     private void putMediaBytes(Context context, byte[] bytes, String album)
             throws IOException, SecurityException {
+        ImageFormat imageFormat = Imaging.guessFormat(bytes);
+        String extension = "." + imageFormat.getDefaultExtension().toLowerCase();
         try (InputStream in = new ByteArrayInputStream(bytes)) {
-            writeData(context, in, true, ".jpg", album);
+            writeData(context, in, true, extension, album);
         }
     }
 
