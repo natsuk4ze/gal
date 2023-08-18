@@ -1,3 +1,7 @@
+## 1.8.4
+
+* FIX: file auto conversion #105 
+
 ## 1.8.3
 
 * FIX: dart format
