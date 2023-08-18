@@ -53,13 +53,12 @@ public class GalPlugin: NSObject, FlutterPlugin {
   private func putMedia(
     path: String, album: String?, isImage: Bool, completion: @escaping (Bool, Error?) -> Void
   ) {
+    let url = URL(fileURLWithPath: path)
     writeContent(
       assetChangeRequest: {
         isImage
-          ? PHAssetChangeRequest.creationRequestForAsset(
-            from: UIImage(contentsOfFile: path)!)
-          : PHAssetChangeRequest.creationRequestForAssetFromVideo(
-            atFileURL: URL(fileURLWithPath: path))!
+          ? PHAssetChangeRequest.creationRequestForAssetFromImage(atFileURL: url)!
+          : PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: url)!
       }, album: album, completion: completion
     )
   }
