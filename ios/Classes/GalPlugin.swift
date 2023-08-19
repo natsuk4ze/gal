@@ -68,7 +68,9 @@ public class GalPlugin: NSObject, FlutterPlugin {
   ) {
     writeContent(
       assetChangeRequest: {
-        PHAssetChangeRequest.creationRequestForAsset(from: UIImage(data: bytes)!)
+        let request = PHAssetCreationRequest.forAsset()
+        request.addResource(with: .photo, data: bytes, options: nil)
+        return request
       }, album: album, completion: completion
     )
   }
