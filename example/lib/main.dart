@@ -36,40 +36,6 @@ class _AppState extends State<App> {
                       value: toAlbum,
                       onChanged: (_) => setState(() => toAlbum = !toAlbum)),
                   FilledButton(
-                    onPressed: () async {
-                      final requestGranted =
-                          await Gal.requestAccess(toAlbum: toAlbum);
-                      if (requestGranted) {
-                        final path = await getFilePath('assets/done.jpg');
-                        try {
-                          await Gal.putImage(path, album: album);
-
-                          if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        } on GalException catch (e) {
-                          log(e.toString());
-                        }
-                        return;
-                      }
-                      if (!context.mounted) return;
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text("Unable to save"),
-                          content: const Text(
-                              "Please allow access to the Photos app."),
-                          actions: [
-                            TextButton(
-                              child: const Text("OK"),
-                              onPressed: () => Navigator.pop(context),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    child: const Text('Best Practice'),
-                  ),
-                  FilledButton(
                     onPressed: () async => Gal.open(),
                     child: const Text('Open Gallery'),
                   ),
