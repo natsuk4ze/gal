@@ -1,6 +1,6 @@
 name: Feature request
 description: Suggest a new idea for gal.
-labels: "✨ feature, \U0001F4A1 idia, \U0001F440 in triage"
+labels: "✨ feature, \U0001F4A1 idea, \U0001F440 in triage"
 assignees: natsuk4ze
 body:
   - type: markdown
