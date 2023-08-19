@@ -1,3 +1,7 @@
+## 1.8.5
+
+* UPDATE: `putImageBytes` in iOS to get metadata 
+
 ## 1.8.4
 
 * FIX: file auto conversion #105 
