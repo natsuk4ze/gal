@@ -1,4 +1,4 @@
-# Gal🖼️
+# Gal 🖼️
 
 [![pub points](https://img.shields.io/pub/points/gal?color=2E8B57&label=pub%20points)](https://pub.dev/packages/gal/score)
 [![Maintainability](https://api.codeclimate.com/v1/badges/4472a09f02bff9d6e0b9/maintainability)](https://codeclimate.com/github/natsuk4ze/gal/maintainability)
@@ -9,13 +9,13 @@
 [![pub package](https://img.shields.io/pub/v/gal.svg)](https://pub.dev/packages/gal)
 
 ### Easy to use Dart3 plugin for saving image/video to gallery app <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/fe/3a/7e/fe3a7e0e-7f52-b750-0ed2-523998c59d48/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/246x0w.webp" alt="ios photo" width="20" height="20"/> <img src="https://play-lh.googleusercontent.com/ZyWNGIfzUyoajtFcD7NhMksHEZh37f-MkHVGr5Yfefa-IX7yj9SMfI82Z7a2wpdKCA=w240-h480-rw" alt="amdroid photo" width="20" height="20"/>
-**Please leave a [like👍](https://pub.dev/packages/gal) and [star⭐️](https://github.com/natsuk4ze/gal) for more features.**
+**Please leave a [like👍](https://pub.dev/packages/gal) and [star⭐️](https://github.com/natsuk4ze/gal) for continued maintenance.**
 | **Support** |    iOS 11.0+   | Android SDK 21+ |
 |-------------|----------------|-----------------|
 | **Example** | <img src="https://github.com/natsuk4ze/gal/raw/main/readme_assets/ios.gif" alt="ios" width="270"/> | <img src="https://github.com/natsuk4ze/gal/raw/main/readme_assets/android.gif" alt="android" width="270"/> |
 
 
-## ✨Features
+## ✨ Features
 
 * Open gallery
 * Save video (to album)
@@ -24,7 +24,7 @@
 * Handle errors
 * Lots of docs and wiki
 
-## 🚀Get started
+## 🚀 Get started
 
 ### Add dependency
 
@@ -57,7 +57,7 @@ you can copy from [AndroidManifest.xml in example](https://github.com/natsuk4ze/
 > **🔴 Warning:**
 Android emulators with API < 29 require SD card setup. Real devices don't.
 
-## ✅Usage
+## ✅ Usage
 
 ### Save from local
 
@@ -129,7 +129,7 @@ enum GalExceptionType {
 ```
 
 
-## 🎯Example
+## 🎯 Example
 
 Here is a minimal example. A [best practice](https://github.com/natsuk4ze/gal/wiki/Best-Practice) and more detailed one 
 can be found in [example](https://pub.dev/packages/gal/example).
@@ -178,20 +178,9 @@ class App extends StatelessWidget {
 ```
 
 
-## 📪FAQ
+## 📝 Ducuments
 
-- ### What is the best practice?
-
-  Please see [Best Practice](https://github.com/natsuk4ze/gal/wiki/Best-Practice) in project wiki.
-
-- ### I have a question.
-
-  Please see the [Wiki](https://github.com/natsuk4ze/gal/wiki) first. If that didn't solve the problem.
-  You should go to the [Discussion](https://github.com/natsuk4ze/gal/discussions/categories/q-a?discussions_q=).
-  Once you are sure there are no duplicates, please ask them through Q&A.
-
-
-## 💚Contributing
-
-Welcome! Feel free to create issue or PR. 
-We kindly suggest considering to read [this very short guide](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md).
+- ### [👌 Best Practice](https://github.com/natsuk4ze/gal/wiki/Best-Practice)
+- ### [🏠 Wiki](https://github.com/natsuk4ze/gal/wiki)
+- ### [💬 Q&A](https://github.com/natsuk4ze/gal/discussions/categories/q-a)
+- ### [💚 Contributing](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md)
