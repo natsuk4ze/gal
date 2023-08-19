@@ -102,6 +102,32 @@ await Gal.hasAccess();
 await Gal.requestAccess();
 ```
 
+### Handle Errors
+
+```dart
+// Save Image with try-catch
+try {
+  await Gal.putImage($imagePath);
+} on GalException catch (e) {
+  log(e.type.message);
+}
+
+// Exception Type
+enum GalExceptionType {
+  accessDenied,
+  notEnoughSpace,
+  notSupportedFormat,
+  unexpected;
+
+  String get message => switch (this) {
+        accessDenied => 'You do not have permission to access the gallery app.',
+        notEnoughSpace => 'Not enough space for storage.',
+        notSupportedFormat => 'Unsupported file formats.',
+        unexpected => 'An unexpected error has occurred.',
+      };
+}
+```
+
 
 ## 🎯Example
 
