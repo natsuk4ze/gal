@@ -127,9 +127,8 @@ public class GalPlugin: NSObject, FlutterPlugin {
         ? PHPhotoLibrary.authorizationStatus(for: .readWrite) == .authorized
         || PHPhotoLibrary.authorizationStatus(for: .readWrite) == .limited
         : PHPhotoLibrary.authorizationStatus(for: .addOnly) == .authorized
-    } else {
-      return PHPhotoLibrary.authorizationStatus() == .authorized
     }
+    return PHPhotoLibrary.authorizationStatus() == .authorized
   }
 
   /// If permissions have already been granted or denied by the user,
@@ -140,10 +139,10 @@ public class GalPlugin: NSObject, FlutterPlugin {
       PHPhotoLibrary.requestAuthorization(for: toAlbum ? .readWrite : .addOnly) { _ in
         completion(self.hasAccess(toAlbum: toAlbum))
       }
-    } else {
-      PHPhotoLibrary.requestAuthorization { _ in
-        completion(PHPhotoLibrary.authorizationStatus() == .authorized)
-      }
+      return
+    }
+    PHPhotoLibrary.requestAuthorization { _ in
+      completion(PHPhotoLibrary.authorizationStatus() == .authorized)
     }
   }
 
@@ -155,14 +154,11 @@ public class GalPlugin: NSObject, FlutterPlugin {
     switch PHErrorCode(rawValue: error.code) {
     case .accessRestricted, .accessUserDenied:
       return FlutterError(code: "ACCESS_DENIED", message: message, details: details)
-
     case .identifierNotFound, .multipleIdentifiersFound, .requestNotSupportedForAsset,
          .videoConversionFailed, .unsupportedVideoCodec:
       return FlutterError(code: "NOT_SUPPORTED_FORMAT", message: message, details: details)
-
     case .notEnoughSpace:
       return FlutterError(code: "NOT_ENOUGH_SPACE", message: message, details: details)
-
     default:
       return FlutterError(code: "UNEXPECTED", message: message, details: details)
     }
