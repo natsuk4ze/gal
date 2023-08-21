@@ -92,6 +92,29 @@ await Dio().download('$url',videoPath);
 await Gal.putVideo(videoPath);
 ```
 
+### Save from Camera
+
+```console
+$ flutter pub add image_picker
+```
+
+```dart
+// Shot and Save
+final image = ImagePicker.pickImage(source: ImageSource.camera);
+await Gal.putImage(image.path);
+```
+
+```console
+$ flutter pub add camera
+```
+```dart
+// Record and Save
+...
+await controller.startVideoRecording();
+final video = await controller.stopVideoRecording();
+await Gal.putVideo(video.path);
+```
+
 ### Handle Permission
 
 ```dart
