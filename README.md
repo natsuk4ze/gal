@@ -110,7 +110,6 @@ $ flutter pub add camera
 ```dart
 // Record and Save
 ...
-await controller.startVideoRecording();
 final video = await controller.stopVideoRecording();
 await Gal.putVideo(video.path);
 ```
