@@ -100,7 +100,7 @@ $ flutter pub add image_picker
 
 ```dart
 // Shot and Save
-final image = ImagePicker.pickImage(source: ImageSource.camera);
+final image = await ImagePicker.pickImage(source: ImageSource.camera);
 await Gal.putImage(image.path);
 ```
 
