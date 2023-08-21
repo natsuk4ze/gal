@@ -47,7 +47,7 @@ body:
         - Device: [e.g. iPhone14 emulator]
         - OS: [e.g. iOS16]
         - gal Version: [e.g. 1.8.0]
-        - File filed to save: [Please upload here if you can]
+        - File: [Please upload here if you can]
     validations:
       required: true
 
