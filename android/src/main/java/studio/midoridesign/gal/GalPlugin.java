@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
-import java.util.UUID;
 
 import org.apache.commons.imaging.ImageFormat;
 import org.apache.commons.imaging.Imaging;
@@ -68,9 +67,8 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             case "putImage": {
                 new Thread(() -> {
                     try {
-                        putMedia(pluginBinding.getApplicationContext(), call.argument("path"),
-                                call.argument("album"), call.method.contains("Image"));
-
+                        putMedia(call.argument("path"), call.argument("album"),
+                                call.method.contains("Image"));
                         new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                     } catch (Exception e) {
                         handleError(e, result);
@@ -81,9 +79,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             case "putImageBytes": {
                 new Thread(() -> {
                     try {
-                        putMediaBytes(pluginBinding.getApplicationContext(), call.argument("bytes"),
-                                call.argument("album"));
-
+                        putMediaBytes(call.argument("bytes"), call.argument("album"));
                         new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                     } catch (Exception e) {
                         handleError(e, result);
@@ -119,7 +115,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         }
     }
 
-    private void putMedia(Context context, String path, String album, boolean isImage)
+    private void putMedia(String path, String album, boolean isImage)
             throws IOException, SecurityException, FileNotFoundException {
         File file = new File(path);
         String name = file.getName();
@@ -127,39 +123,23 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         if (dotIndex == -1) throw new FileNotFoundException("Extension not found.");
 
         try (InputStream in = new FileInputStream(file)) {
-            writeData(context, in, isImage, name.substring(dotIndex), album);
+            writeData(in, isImage, name.substring(0, dotIndex), name.substring(dotIndex), album);
         }
     }
 
-    private void putMediaBytes(Context context, byte[] bytes, String album)
-            throws IOException, SecurityException {
+    private void putMediaBytes(byte[] bytes, String album) throws IOException, SecurityException {
         ImageFormat imageFormat = Imaging.guessFormat(bytes);
         String extension = "." + imageFormat.getDefaultExtension().toLowerCase();
         try (InputStream in = new ByteArrayInputStream(bytes)) {
-            writeData(context, in, true, extension, album);
+            writeData(in, true, "image", extension, album);
         }
     }
 
-    private void writeData(Context context, InputStream in, boolean isImage, String extension,
+    private void writeData(InputStream in, boolean isImage, String name, String extension,
             String album) throws IOException, SecurityException, FileNotFoundException {
-        ContentResolver resolver = context.getContentResolver();
-        ContentValues values = new ContentValues();
-        String dirPath = isImage || album != null ? Environment.DIRECTORY_PICTURES
-                : Environment.DIRECTORY_MOVIES;
-        String name = UUID.randomUUID().toString();
+        ContentResolver resolver = pluginBinding.getApplicationContext().getContentResolver();
+        ContentValues values = createContentValues(isImage, name, extension, album);
 
-        if (USE_EXTERNAL_STORAGE) {
-            File dir = new File(Environment.getExternalStoragePublicDirectory(dirPath),
-                    album != null ? album : "");
-            if (!dir.exists()) dir.mkdirs();
-            String path = dir.getPath() + File.separator + name + extension;
-            values.put(MediaStore.MediaColumns.DATA, path);
-        } else {
-            String path = dirPath + (album != null ? File.separator + album : "");
-            values.put(isImage ? MediaStore.Images.Media.RELATIVE_PATH
-                    : MediaStore.Video.Media.RELATIVE_PATH, path);
-        }
-        values.put(MediaStore.MediaColumns.DISPLAY_NAME, name + extension);
         Uri uri = resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
         try (OutputStream out = resolver.openOutputStream(uri)) {
             byte[] buffer = new byte[8192];
@@ -170,8 +150,32 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         }
     }
 
+    @SuppressWarnings("EmptyStatementCheck")
+    private ContentValues createContentValues(boolean isImage, String name, String extension,
+            String album) {
+        ContentValues values = new ContentValues();
+        String dirPath = isImage || album != null ? Environment.DIRECTORY_PICTURES
+                : Environment.DIRECTORY_MOVIES;
+
+        if (USE_EXTERNAL_STORAGE) {
+            File dir = new File(Environment.getExternalStoragePublicDirectory(dirPath),
+                    album != null ? album : "");
+            if (!dir.exists()) dir.mkdirs();
+            String path;
+            String n = dir.getPath() + File.separator + name;
+            for (int i = 0; new File(path = n + (i == 0 ? "" : i) + extension).exists(); i++);
+
+            values.put(MediaStore.MediaColumns.DATA, path);
+        } else {
+            String path = dirPath + (album != null ? File.separator + album : "");
+            values.put(isImage ? MediaStore.Images.Media.RELATIVE_PATH
+                    : MediaStore.Video.Media.RELATIVE_PATH, path);
+        }
+        values.put(MediaStore.MediaColumns.DISPLAY_NAME, name + extension);
+        return values;
+    }
+
     private void open() {
-        Context context = pluginBinding.getApplicationContext();
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
         if (Build.VERSION.SDK_INT <= 23) {
@@ -181,7 +185,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             intent.setData(IMAGE_URI);
         }
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
+        pluginBinding.getApplicationContext().startActivity(intent);
     }
 
     private boolean hasAccess() {
