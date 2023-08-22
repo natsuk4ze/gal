@@ -154,9 +154,8 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                     album != null ? album : "");
             if (!dir.exists()) dir.mkdirs();
             String path;
-            for (int i = 0; new File(path =
-                    dir.getPath() + File.separator + name + (i == 0 ? "" : "_" + i) + extension)
-                            .exists(); i++);
+            String n = dir.getPath() + File.separator + name;
+            for (int i = 0; new File(path = n + (i == 0 ? "" : i) + extension).exists(); i++);
 
             values.put(MediaStore.MediaColumns.DATA, path);
         } else {
