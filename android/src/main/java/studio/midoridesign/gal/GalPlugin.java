@@ -127,7 +127,8 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         if (dotIndex == -1) throw new FileNotFoundException("Extension not found.");
 
         try (InputStream in = new FileInputStream(file)) {
-            writeData(context, in, isImage, name.substring(dotIndex), album);
+            writeData(context, in, isImage, name.substring(0, dotIndex), name.substring(dotIndex),
+                    album);
         }
     }
 
@@ -136,23 +137,27 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         ImageFormat imageFormat = Imaging.guessFormat(bytes);
         String extension = "." + imageFormat.getDefaultExtension().toLowerCase();
         try (InputStream in = new ByteArrayInputStream(bytes)) {
-            writeData(context, in, true, extension, album);
+            writeData(context, in, true, "image", extension, album);
         }
     }
 
-    private void writeData(Context context, InputStream in, boolean isImage, String extension,
-            String album) throws IOException, SecurityException, FileNotFoundException {
+    private void writeData(Context context, InputStream in, boolean isImage, String name,
+            String extension, String album)
+            throws IOException, SecurityException, FileNotFoundException {
         ContentResolver resolver = context.getContentResolver();
         ContentValues values = new ContentValues();
         String dirPath = isImage || album != null ? Environment.DIRECTORY_PICTURES
                 : Environment.DIRECTORY_MOVIES;
-        String name = UUID.randomUUID().toString();
 
         if (USE_EXTERNAL_STORAGE) {
             File dir = new File(Environment.getExternalStoragePublicDirectory(dirPath),
                     album != null ? album : "");
             if (!dir.exists()) dir.mkdirs();
-            String path = dir.getPath() + File.separator + name + extension;
+            String path;
+            for (int i = 0; new File(path =
+                    dir.getPath() + File.separator + name + (i == 0 ? "" : "_" + i) + extension)
+                            .exists(); i++);
+
             values.put(MediaStore.MediaColumns.DATA, path);
         } else {
             String path = dirPath + (album != null ? File.separator + album : "");
