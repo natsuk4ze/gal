@@ -1,3 +1,8 @@
+## 1.8.6
+
+* UPDATE: Keep file name when saving #115
+* UPDATE: README.md
+
 ## 1.8.5
 
 * UPDATE: `putImageBytes` in iOS to get metadata 
