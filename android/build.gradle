@@ -22,15 +22,16 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    // Conditional for compatibility with AGP <4.2.
+    // For AGP <4.2
     if (project.android.hasProperty("namespace")) {
       namespace 'studio.midoridesign.ga'
     }
+
     buildFeatures {
       buildConfig = true
     }
     
-    compileSdk 34
+    compileSdkVersion 33
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
