@@ -3,6 +3,6 @@
 <module name="Checker">
     <module name="TreeWalker">
         <module name="EmptyStatement">
-        <property name="severity" value="ignore" />
+            <property name="severity" value="ignore" />
     </module>
 </module>
