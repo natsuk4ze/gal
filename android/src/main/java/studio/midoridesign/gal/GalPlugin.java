@@ -69,7 +69,6 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                     try {
                         putMedia(call.argument("path"), call.argument("album"),
                                 call.method.contains("Image"));
-
                         new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                     } catch (Exception e) {
                         handleError(e, result);
@@ -81,7 +80,6 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                 new Thread(() -> {
                     try {
                         putMediaBytes(call.argument("bytes"), call.argument("album"));
-
                         new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                     } catch (Exception e) {
                         handleError(e, result);
