@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
-import java.util.UUID;
 
 import org.apache.commons.imaging.ImageFormat;
 import org.apache.commons.imaging.Imaging;
@@ -141,6 +140,20 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private void writeData(InputStream in, boolean isImage, String name, String extension,
             String album) throws IOException, SecurityException, FileNotFoundException {
         ContentResolver resolver = pluginBinding.getApplicationContext().getContentResolver();
+        ContentValues values = createContentValues(isImage, name, extension, album);
+
+        Uri uri = resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
+        try (OutputStream out = resolver.openOutputStream(uri)) {
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
+            }
+        }
+    }
+
+    private ContentValues createContentValues(boolean isImage, String name, String extension,
+            String album) {
         ContentValues values = new ContentValues();
         String dirPath = isImage || album != null ? Environment.DIRECTORY_PICTURES
                 : Environment.DIRECTORY_MOVIES;
@@ -160,14 +173,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                     : MediaStore.Video.Media.RELATIVE_PATH, path);
         }
         values.put(MediaStore.MediaColumns.DISPLAY_NAME, name + extension);
-        Uri uri = resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
-        try (OutputStream out = resolver.openOutputStream(uri)) {
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            while ((bytesRead = in.read(buffer)) != -1) {
-                out.write(buffer, 0, bytesRead);
-            }
-        }
+        return values;
     }
 
     private void open() {
