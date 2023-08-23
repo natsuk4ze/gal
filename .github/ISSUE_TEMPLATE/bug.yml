@@ -42,12 +42,15 @@ body:
   - type: textarea
     attributes:
       label: Environment
-      description: Please tell us your environment.
-      placeholder: |
-        - Device: [e.g. iPhone14 emulator]
-        - OS: [e.g. iOS16]
-        - gal Version: [e.g. 1.8.0]
-        - File: [Please upload here if you can]
+      description: Please show us your `flutter doctor -v` result.
+      value: |
+        <details><summary>Logs</summary>
+
+        ```console
+        [Paste flutter doctor logs here]
+        ```
+
+        </details>
     validations:
       required: true
 
