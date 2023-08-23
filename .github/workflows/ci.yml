@@ -127,7 +127,7 @@ jobs:
       - name: Run integration tests
         id: Run-integration-tests
         continue-on-error: true
-        timeout-minutes: 15
+        timeout-minutes: 10
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
@@ -144,7 +144,7 @@ jobs:
       - name: Retry integration tests
         id: Retry-integration-tests
         continue-on-error: true
-        timeout-minutes: 15
+        timeout-minutes: 10
         if: steps.Run-integration-tests.outcome == 'failure'
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -165,7 +165,7 @@ jobs:
  
       - name: Re:Retry integration tests
         if: steps.Retry-integration-tests.outcome == 'failure'
-        timeout-minutes: 15
+        timeout-minutes: 10
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
