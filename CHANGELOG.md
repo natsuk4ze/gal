@@ -1,3 +1,7 @@
+## 1.9.0
+
+* ADD: Support for AGP 8 #118
+
 ## 1.8.6
 
 * UPDATE: Keep file name when saving #115
