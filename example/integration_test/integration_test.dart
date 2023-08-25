@@ -4,10 +4,8 @@ import 'package:integration_test/integration_test.dart';
 
 import 'test_app.dart' as app;
 
-Future<void> main() async {
+void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
-  await Future.delayed(const Duration(seconds: 5));
 
   bool toAlbum = false;
   for (var i = 0; i < 2; i++) {
@@ -15,16 +13,16 @@ Future<void> main() async {
       execute('Toggle toAlbum');
       toAlbum = true;
     }
-    await execute('hasAccess(toAlbum: $toAlbum)');
-    await execute('requestAccess(toAlbum: $toAlbum)');
-    await execute('putImage(toAlbum: $toAlbum)');
-    await execute('putImageBytes(toAlbum: $toAlbum)');
-    await execute('putVideo(toAlbum: $toAlbum)');
+    execute('hasAccess(toAlbum: $toAlbum)');
+    execute('requestAccess(toAlbum: $toAlbum)');
+    execute('putImage(toAlbum: $toAlbum)');
+    execute('putImageBytes(toAlbum: $toAlbum)');
+    execute('putVideo(toAlbum: $toAlbum)');
   }
-  await execute('open()');
+  execute('open()');
 }
 
-Future<void> execute(String key) async => testWidgets(key, (tester) async {
+void execute(String key) => testWidgets(key, (tester) async {
       await tester.pumpWidget(const app.App());
 
       final button = find.byKey(Key(key));
