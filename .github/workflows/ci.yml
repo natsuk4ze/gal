@@ -113,11 +113,11 @@ jobs:
  
       - name: Create AVD and generate snapshot for caching
         if: steps.cache-avd.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main'
-        timeout-minutes: 10
+        timeout-minutes: 20
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
-          avd-name: avd-${{ matrix.api-level }}
+          avd-name: macOS-avd-arm64-v8a-${{ matrix.api-level }}
           arch: x86_64
           emulator-boot-timeout: 300
           force-avd-creation: false
@@ -128,11 +128,11 @@ jobs:
       - name: Run integration tests
         id: Run-integration-tests
         continue-on-error: true
-        timeout-minutes: 10
+        timeout-minutes: 20
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
-          avd-name: avd-${{ matrix.api-level }}
+          avd-name: macOS-avd-arm64-v8a-${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
           emulator-boot-timeout: 180
@@ -146,12 +146,12 @@ jobs:
       - name: Retry integration tests
         id: Retry-integration-tests
         continue-on-error: true
-        timeout-minutes: 10
+        timeout-minutes: 20
         if: steps.Run-integration-tests.outcome == 'failure'
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
-          avd-name: avd-${{ matrix.api-level }}
+          avd-name: macOS-avd-arm64-v8a-${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
           emulator-boot-timeout: 180
@@ -168,11 +168,11 @@ jobs:
  
       - name: Re:Retry integration tests
         if: steps.Retry-integration-tests.outcome == 'failure'
-        timeout-minutes: 10
+        timeout-minutes: 20
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
-          avd-name: avd-${{ matrix.api-level }}
+          avd-name: macOS-avd-arm64-v8a-${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
           emulator-boot-timeout: 180
