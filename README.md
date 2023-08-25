@@ -155,8 +155,7 @@ enum GalExceptionType {
 
 ## 🎯 Example
 
-Here is a minimal example. A [best practice](https://github.com/natsuk4ze/gal/wiki/Best-Practice) and more detailed one 
-can be found in [example](https://pub.dev/packages/gal/example).
+Here is a minimal example. More detailed one can be found in [example](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart).
 
 ``` dart
 import 'package:flutter/material.dart';
