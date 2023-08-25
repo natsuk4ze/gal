@@ -117,6 +117,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          avd-name: avd-${{ matrix.api-level }}
           arch: x86_64
           emulator-boot-timeout: 300
           force-avd-creation: false
@@ -131,6 +132,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          avd-name: avd-${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
           emulator-boot-timeout: 180
@@ -149,6 +151,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          avd-name: avd-${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
           emulator-boot-timeout: 180
@@ -169,6 +172,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          avd-name: avd-${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
           emulator-boot-timeout: 180
