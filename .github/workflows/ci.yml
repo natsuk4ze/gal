@@ -52,8 +52,7 @@ jobs:
         timeout-minutes: 15
         run: |
           cd example
-          flutter build ios --debug --no-codesign
-          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/ios/iphoneos/Runner.app --no-pub
+          flutter test integration_test/integration_test.dart
 
       - name: Retry integration tests
         id: Retry-integration-tests
@@ -64,9 +63,7 @@ jobs:
           flutter clean && flutter pub get
           cd example
           flutter clean && flutter pub get
-          flutter build ios --debug --no-codesign
-          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/ios/iphoneos/Runner.app --no-pub
-
+          flutter test integration_test/integration_test.dart
 
       - name: Re:Retry integration tests
         timeout-minutes: 15
@@ -75,8 +72,7 @@ jobs:
           flutter clean && flutter pub get
           cd example
           flutter clean && flutter pub get
-          flutter build ios --debug --no-codesign
-          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/ios/iphoneos/Runner.app --no-pub
+          flutter test integration_test/integration_test.dart
 
   android:
     needs: set-up
@@ -84,7 +80,7 @@ jobs:
     runs-on: macos-13
     strategy:
       matrix:
-        api-level: [31,30,29,28,27,26,25,24,23,22,21]
+        api-level: [34,33,32,31,30,29,28,27,26,25,24,23,22,21]
       fail-fast: false
     steps:
       - name: Check out
