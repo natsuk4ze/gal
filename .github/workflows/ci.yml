@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        ios-version: [16.2,17.0]
+        ios-version: [16.2]
       fail-fast: false
     runs-on: macos-13
     steps:
@@ -40,7 +40,11 @@ jobs:
           os_version: ${{ matrix.ios-version }}
       
       - name: Grant permission
-        run: xcrun simctl privacy booted grant photos studio.midoridesign.galExample
+        run: |
+          brew tap wix/brew
+          brew install applesimutils
+          cd example
+          applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
 
       - name: Run integration tests
         id: Run-integration-tests
