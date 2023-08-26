@@ -48,6 +48,7 @@ jobs:
         timeout-minutes: 15
         run: |
           cd example
+          flutter build ios --debug --no-codesign
           flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/ios/iphoneos/Runner.app
 
       - name: Retry integration tests
@@ -59,6 +60,7 @@ jobs:
           flutter clean && flutter pub get
           cd example
           flutter clean && flutter pub get
+          flutter build ios --debug --no-codesign
           flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/ios/iphoneos/Runner.app
 
 
@@ -69,6 +71,7 @@ jobs:
           flutter clean && flutter pub get
           cd example
           flutter clean && flutter pub get
+          flutter build ios --debug --no-codesign
           flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/ios/iphoneos/Runner.app
 
   android:
