@@ -41,7 +41,6 @@ jobs:
       
       - name: Grant permission
         run: |
-          brew update
           brew tap wix/brew
           brew install applesimutils
           cd example
@@ -81,7 +80,7 @@ jobs:
     runs-on: macos-13
     strategy:
       matrix:
-        api-level: [34,33,32]
+        api-level: [31,30,29,28,27,26,25,24,23,22,21]
       fail-fast: false
     steps:
       - name: Check out
@@ -122,8 +121,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
-          arch: arm64-v8a
-          channel: canary
+          arch: x86_64
           emulator-boot-timeout: 300
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -138,8 +136,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
-          arch: arm64-v8a
-          channel: canary
+          arch: x86_64
           emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -157,7 +154,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
-          arch: arm64-v8a
+          arch: x86_64
           emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -177,7 +174,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
-          arch: arm64-v8a
+          arch: x86_64
           emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
