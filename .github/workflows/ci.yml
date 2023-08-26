@@ -105,19 +105,6 @@ jobs:
             ~/.android/adb*
           key: avd-${{ matrix.api-level }}
  
-      - name: Create AVD and generate snapshot for caching
-        if: steps.cache-avd.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main'
-        timeout-minutes: 20
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          arch: x86_64
-          emulator-boot-timeout: 300
-          force-avd-creation: false
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
-          script: echo "Generated AVD snapshot for caching."
- 
       - name: Run integration tests
         id: Run-integration-tests
         continue-on-error: true
