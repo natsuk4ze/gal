@@ -123,6 +123,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           arch: arm64-v8a
+          channel: canary
           emulator-boot-timeout: 300
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -138,6 +139,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: arm64-v8a
+          channel: canary
           emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
