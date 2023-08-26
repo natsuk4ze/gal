@@ -144,8 +144,8 @@ jobs:
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
-            flutter build apk --debug --target integration_test/test_app.dart; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE;
-            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/app/outputs/flutter-apk/app-debug.apk
+            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
+            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart
  
       - name: Retry integration tests
         id: Retry-integration-tests
@@ -167,8 +167,8 @@ jobs:
             adb start-server
           script: |
             flutter clean && flutter pub get
-            flutter build apk --debug --target integration_test/test_app.dart; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE;
-            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/app/outputs/flutter-apk/app-debug.apk
+            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
+            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart
  
       - name: Re:Retry integration tests
         if: steps.Retry-integration-tests.outcome == 'failure'
@@ -188,5 +188,5 @@ jobs:
             adb start-server
           script: |
             flutter clean && flutter pub get
-            flutter build apk --debug --target integration_test/test_app.dart; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE;
-            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/app/outputs/flutter-apk/app-debug.apk
+            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
+            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart
