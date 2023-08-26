@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       fail-fast: true
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
       - name: Check out
         uses: actions/checkout@v3
@@ -78,7 +78,7 @@ jobs:
   android:
     needs: set-up
     timeout-minutes: 60
-    runs-on: macos-latest
+    runs-on: macos-13
     strategy:
       matrix:
         api-level: [31,30,29,28,27,26,25,24,23,22,21]
@@ -137,7 +137,6 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
-          avd-name: macOS-avd-x86_64-${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
           emulator-boot-timeout: 180
@@ -156,7 +155,6 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
-          avd-name: macOS-avd-x86_64-${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
           emulator-boot-timeout: 180
@@ -177,7 +175,6 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
-          avd-name: macOS-avd-x86_64-${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
           emulator-boot-timeout: 180
