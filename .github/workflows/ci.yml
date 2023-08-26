@@ -49,7 +49,7 @@ jobs:
         run: |
           cd example
           flutter build ios --debug --no-codesign
-          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/ios/iphoneos/Runner.app
+          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/ios/iphoneos/Runner.app --no-pub
 
       - name: Retry integration tests
         id: Retry-integration-tests
@@ -61,7 +61,7 @@ jobs:
           cd example
           flutter clean && flutter pub get
           flutter build ios --debug --no-codesign
-          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/ios/iphoneos/Runner.app
+          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/ios/iphoneos/Runner.app --no-pub
 
 
       - name: Re:Retry integration tests
@@ -72,7 +72,7 @@ jobs:
           cd example
           flutter clean && flutter pub get
           flutter build ios --debug --no-codesign
-          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/ios/iphoneos/Runner.app
+          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/ios/iphoneos/Runner.app --no-pub
 
   android:
     needs: set-up
@@ -121,8 +121,8 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
-          avd-name: macOS-avd-arm64-v8a-${{ matrix.api-level }}
-          arch: arm64-v8a
+          avd-name: macOS-avd-x86_64-${{ matrix.api-level }}
+          arch: x86_64
           emulator-boot-timeout: 300
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -136,9 +136,9 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
-          avd-name: macOS-avd-arm64-v8a-${{ matrix.api-level }}
+          avd-name: macOS-avd-x86_64-${{ matrix.api-level }}
           working-directory: ./example
-          arch: arm64-v8a
+          arch: x86_64
           emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -155,9 +155,9 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
-          avd-name: macOS-avd-arm64-v8a-${{ matrix.api-level }}
+          avd-name: macOS-avd-x86_64-${{ matrix.api-level }}
           working-directory: ./example
-          arch: arm64-v8a
+          arch: x86_64
           emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -176,9 +176,9 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
-          avd-name: macOS-avd-arm64-v8a-${{ matrix.api-level }}
+          avd-name: macOS-avd-x86_64-${{ matrix.api-level }}
           working-directory: ./example
-          arch: arm64-v8a
+          arch: x86_64
           emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
