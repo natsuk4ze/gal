@@ -48,7 +48,7 @@ jobs:
         timeout-minutes: 15
         run: |
           cd example
-          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart
+          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/ios/iphoneos/Runner.app
 
       - name: Retry integration tests
         id: Retry-integration-tests
@@ -59,7 +59,8 @@ jobs:
           flutter clean && flutter pub get
           cd example
           flutter clean && flutter pub get
-          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart
+          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/ios/iphoneos/Runner.app
+
 
       - name: Re:Retry integration tests
         timeout-minutes: 15
@@ -68,7 +69,7 @@ jobs:
           flutter clean && flutter pub get
           cd example
           flutter clean && flutter pub get
-          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart
+          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/ios/iphoneos/Runner.app
 
   android:
     needs: set-up
@@ -118,7 +119,7 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           avd-name: macOS-avd-arm64-v8a-${{ matrix.api-level }}
-          arch: x86_64
+          arch: arm64-v8a
           emulator-boot-timeout: 300
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -134,14 +135,14 @@ jobs:
           api-level: ${{ matrix.api-level }}
           avd-name: macOS-avd-arm64-v8a-${{ matrix.api-level }}
           working-directory: ./example
-          arch: x86_64
+          arch: arm64-v8a
           emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
-            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
-            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart
+            flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE;
+            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/app/outputs/flutter-apk/app-debug.apk
  
       - name: Retry integration tests
         id: Retry-integration-tests
@@ -153,7 +154,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           avd-name: macOS-avd-arm64-v8a-${{ matrix.api-level }}
           working-directory: ./example
-          arch: x86_64
+          arch: arm64-v8a
           emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -163,8 +164,8 @@ jobs:
             adb start-server
           script: |
             flutter clean && flutter pub get
-            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
-            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart
+            flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE;
+            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/app/outputs/flutter-apk/app-debug.apk
  
       - name: Re:Retry integration tests
         if: steps.Retry-integration-tests.outcome == 'failure'
@@ -174,7 +175,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           avd-name: macOS-avd-arm64-v8a-${{ matrix.api-level }}
           working-directory: ./example
-          arch: x86_64
+          arch: arm64-v8a
           emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -184,5 +185,5 @@ jobs:
             adb start-server
           script: |
             flutter clean && flutter pub get
-            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
-            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart
+            flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE;
+            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --use-application-binary=build/app/outputs/flutter-apk/app-debug.apk
