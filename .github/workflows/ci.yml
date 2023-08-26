@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         ios-version: [16.2,17.0]
-      fail-fast: true
+      fail-fast: false
     runs-on: macos-13
     steps:
       - name: Check out
