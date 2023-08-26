@@ -23,7 +23,8 @@ void main() {
 }
 
 void execute(String key) => testWidgets(key, (tester) async {
-      await tester.pumpWidget(const app.App());
+      app.main();
+      await tester.pumpAndSettle();
 
       final button = find.byKey(Key(key));
 
