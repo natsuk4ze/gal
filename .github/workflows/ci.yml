@@ -67,7 +67,7 @@ jobs:
   android:
     needs: set-up
     timeout-minutes: 60
-    runs-on: macos-latest
+    runs-on: windows-latest
     strategy:
       matrix:
         api-level: [31,30,29,28,27,26,25,24,23,22,21]
@@ -92,20 +92,20 @@ jobs:
           
       - name: Cache Gradle
         uses: actions/cache@v3
-        continue-on-error: true
         with:
           path: ~/.gradle/caches
           key: gradle
+          enableCrossOsArchive: true
         
       - name: Cache AVD
         uses: actions/cache@v3
         id: cache-avd
-        continue-on-error: true
         with:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
           key: avd-${{ matrix.api-level }}
+          enableCrossOsArchive: true
  
       - name: Create AVD and generate snapshot for caching
         if: steps.cache-avd.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main'
