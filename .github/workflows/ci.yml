@@ -92,20 +92,22 @@ jobs:
           
       - name: Cache Gradle
         uses: actions/cache@v3
+        continue-on-error: true
         with:
           path: ~/.gradle/caches
           key: gradle
-          restore-keys: gradle
+          fail-on-cache-miss: ${{ github.ref != 'refs/heads/main' }}
         
       - name: Cache AVD
         uses: actions/cache@v3
         id: cache-avd
+        continue-on-error: true
         with:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
           key: avd-${{ matrix.api-level }}
-          restore-keys: avd-${{ matrix.api-level }}
+          fail-on-cache-miss: ${{ github.ref != 'refs/heads/main' }}
  
       - name: Create AVD and generate snapshot for caching
         if: steps.cache-avd.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main'
