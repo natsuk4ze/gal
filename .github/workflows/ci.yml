@@ -67,7 +67,7 @@ jobs:
   android:
     needs: set-up
     timeout-minutes: 60
-    runs-on: macos-13
+    runs-on: macos-latest
     strategy:
       matrix:
         api-level: [31,30,29,28,27,26,25,24,23,22,21]
@@ -96,7 +96,6 @@ jobs:
         with:
           path: ~/.gradle/caches
           key: gradle
-          fail-on-cache-miss: ${{ github.ref != 'refs/heads/main' }}
         
       - name: Cache AVD
         uses: actions/cache@v3
@@ -107,7 +106,6 @@ jobs:
             ~/.android/avd/*
             ~/.android/adb*
           key: avd-${{ matrix.api-level }}
-          fail-on-cache-miss: ${{ github.ref != 'refs/heads/main' }}
  
       - name: Create AVD and generate snapshot for caching
         if: steps.cache-avd.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main'
@@ -148,7 +146,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 300
+          emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -168,7 +166,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 300
+          emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
