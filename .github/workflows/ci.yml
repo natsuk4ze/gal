@@ -67,7 +67,7 @@ jobs:
   android:
     needs: set-up
     timeout-minutes: 60
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         api-level: [31,30,29,28,27,26,25,24,23,22,21]
