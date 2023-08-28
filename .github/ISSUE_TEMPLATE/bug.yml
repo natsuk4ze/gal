@@ -1,5 +1,5 @@
 name: Report a bug
-description: Create a report to help us improve
+description: Create a report to help us improve.
 labels: "\U0001F41D bug, \U0001F440 in triage"
 assignees: natsuk4ze
 body:
