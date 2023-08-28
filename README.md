@@ -153,56 +153,9 @@ enum GalExceptionType {
 ```
 
 
-## 🎯 Example
-
-Here is a minimal example. More detailed one can be found in [example](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart).
-
-``` dart
-import 'package:flutter/material.dart';
-import 'package:gal/gal.dart';
-
-void main() => runApp(const App());
-
-class App extends StatelessWidget {
-  const App({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Column(
-          children: [
-            TextButton(
-              onPressed: () async => Gal.open(),
-              child: const Text('Open Gallery'),
-            ),
-            TextButton(
-              onPressed: () async => Gal.putVideo('VIDEO_PATH'),
-              child: const Text('Save Video'),
-            ),
-            TextButton(
-              onPressed: () async => Gal.putImage('IMAGE_PATH'),
-              child: const Text('Save Image'),
-            ),
-            TextButton(
-              onPressed: () async => Gal.hasAccess(),
-              child: const Text('Chack Permission'),
-            ),
-            TextButton(
-              onPressed: () async => Gal.requestAccess(),
-              child: const Text('Request Permission'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-```
-
-
 ## 📝 Ducuments
 
+- ### [🎯 Example](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart)
 - ### [👌 Best Practice](https://github.com/natsuk4ze/gal/wiki/Best-Practice)
 - ### [🏠 Wiki](https://github.com/natsuk4ze/gal/wiki)
 - ### [💬 Q&A](https://github.com/natsuk4ze/gal/discussions/categories/q-a)
