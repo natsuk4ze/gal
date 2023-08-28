@@ -1,0 +1,20 @@
+name: Blank issue
+description: Use when no matching template was found.
+labels: "\U0001F440 in triage"
+assignees: natsuk4ze
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for using gal!
+        If you are looking for support, please check out our documentation.
+
+          - https://github.com/natsuk4ze/gal/wiki
+          - https://github.com/natsuk4ze/gal/discussions
+  - type: textarea
+    attributes:
+      label: Descrpition
+      description: |
+        Please tell us about the problem in as much detail as possible.
+    validations:
+      required: true
