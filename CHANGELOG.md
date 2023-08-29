@@ -1,7 +1,7 @@
 ## 1.9.1
 
 * FIX: `album` option is not working on Android API 29 #130
-* UPDATE: Permission behavior Android API 29 with `album` option #133
+* UPDATE: Permission behavior in Android API 29 with `album` option #133
 
 ## 1.9.0
 
