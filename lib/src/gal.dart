@@ -43,9 +43,8 @@ final class Gal {
 
   /// Check if the app has access permissions.
   ///
-  /// On iOS, use the [toAlbum] option, which requires additional permissions
-  /// to save to an album. on android, it is ignored. If you want to save to
-  /// an album other than the one created by your app
+  /// Use the [toAlbum] for additional permissions to save to an album.
+  /// If you want to save to an album other than the one created by your app
   /// See: [Permissions](https://github.com/natsuk4ze/gal/wiki/Permissions)
   static Future<bool> hasAccess({bool toAlbum = false}) async =>
       GalPlatform.hasAccess(toAlbum: toAlbum);
@@ -54,8 +53,8 @@ final class Gal {
   ///
   /// Returns [true] if access is granted, [false] if denied.
   /// If access was already granted, the dialog is not displayed and returns true.
-  /// On iOS, use the [toAlbum] option, which requires additional permissions
-  /// to save to an album.
+  /// Use the [toAlbum] for additional permissions to save to an album.
+  /// If you want to save to an album other than the one created by your app
   /// See: [Permissions](https://github.com/natsuk4ze/gal/wiki/Permissions)
   static Future<bool> requestAccess({bool toAlbum = false}) async =>
       GalPlatform.requestAccess(toAlbum: toAlbum);

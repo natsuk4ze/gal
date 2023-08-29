@@ -3,7 +3,7 @@
         android:label="gal_example"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:requestLegacyExternalStorage="true">
+        android:requestLegacyExternalStorage="true"> <!-- Gal: If supports Saving to album in API 29 :Gal-->
         <activity
             android:name=".MainActivity"
             android:exported="true"

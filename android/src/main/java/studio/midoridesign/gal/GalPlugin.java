@@ -45,8 +45,6 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private static final Uri VIDEO_URI = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
     private static final int PERMISSION_REQUEST_CODE = 1317298; // Anything unique in the app.
     private static final boolean USE_EXTERNAL_STORAGE = Build.VERSION.SDK_INT <= 29;
-    private static final boolean HAS_ACCESS_BY_DEFAULT =
-            Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT > 29;
 
     private MethodChannel channel;
     private FlutterPluginBinding pluginBinding;
@@ -93,18 +91,18 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                 break;
             }
             case "hasAccess": {
-                result.success(hasAccess());
+                result.success(hasAccess(call.argument("toAlbum")));
                 break;
             }
             case "requestAccess": {
-                if (hasAccess()) {
+                if (hasAccess(call.argument("toAlbum"))) {
                     result.success(true);
                     return;
                 }
                 requestAccessCallback = new Runnable() {
                     @Override
                     public void run() {
-                        result.success(hasAccess());
+                        result.success(hasAccess(call.argument("toAlbum")));
                     }
                 };
                 requestAccess();
@@ -188,8 +186,9 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         pluginBinding.getApplicationContext().startActivity(intent);
     }
 
-    private boolean hasAccess() {
-        if (HAS_ACCESS_BY_DEFAULT) return true;
+    private boolean hasAccess(boolean toAlbum) {
+        if (Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT > 29) return true;
+        if (Build.VERSION.SDK_INT == 29 && !toAlbum) return true;
         Context context = pluginBinding.getApplicationContext();
         int status = ContextCompat.checkSelfPermission(context, PERMISSION);
         return status == PackageManager.PERMISSION_GRANTED;

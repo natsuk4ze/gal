@@ -53,6 +53,7 @@ Add the following key to your _AndroidManifest_ file, located in
 
 * `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
                  android:maxSdkVersion="29" />`
+* `android:requestLegacyExternalStorage="true"` Requried If you want to save media to album in Android 10.
 
 you can copy from [AndroidManifest.xml in example](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
 
