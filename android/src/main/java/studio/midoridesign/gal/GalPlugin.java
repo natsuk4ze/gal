@@ -46,7 +46,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private static final int PERMISSION_REQUEST_CODE = 1317298; // Anything unique in the app.
     private static final boolean USE_EXTERNAL_STORAGE = Build.VERSION.SDK_INT <= 29;
     private static final boolean HAS_ACCESS_BY_DEFAULT =
-            Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT >= 29;
+            Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT > 29;
 
     private MethodChannel channel;
     private FlutterPluginBinding pluginBinding;
