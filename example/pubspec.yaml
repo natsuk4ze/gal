@@ -1,6 +1,6 @@
 name: gal_example
 description: Demonstrates how to use the gal plugin.
-version: 1.9.0
+version: 1.9.1
 publish_to: none
 
 environment:
