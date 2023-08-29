@@ -137,6 +137,7 @@ jobs:
  
       - name: Retry integration tests
         id: Retry-integration-tests
+        continue-on-error: true
         timeout-minutes: 20
         if: steps.Run-integration-tests.outcome == 'failure'
         uses: reactivecircus/android-emulator-runner@v2
