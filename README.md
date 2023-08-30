@@ -41,8 +41,8 @@ $ flutter pub add gal
 Add the following key to your _Info.plist_ file, located in
 `<project root>/ios/Runner/Info.plist`:
 
-* `<key>NSPhotoLibraryAddUsageDescription</key>`
-* `<key>NSPhotoLibraryUsageDescription</key>` Requried If you want to save media to album.
+* `<key>NSPhotoLibraryAddUsageDescription</key>` Required
+* `<key>NSPhotoLibraryUsageDescription</key>` Required for saving to album
 
 you can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
 
@@ -52,8 +52,8 @@ Add the following key to your _AndroidManifest_ file, located in
 `<project root>/android/app/src/main/AndroidManifest.xml`:
 
 * `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-                 android:maxSdkVersion="29" />`
-* `android:requestLegacyExternalStorage="true"` Requried If you want to save media to album in Android 10.
+                 android:maxSdkVersion="29" />` Required for supporting API <= 29
+* `android:requestLegacyExternalStorage="true"` Required for saving to album in API 29
 
 you can copy from [AndroidManifest.xml in example](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
 
