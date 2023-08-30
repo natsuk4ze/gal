@@ -3,7 +3,7 @@
         android:label="gal_example"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:requestLegacyExternalStorage="true"> <!-- Gal: If supports Saving to album in API 29 :Gal-->
+        android:requestLegacyExternalStorage="true"> <!-- Gal: For saving to album in API 29 :Gal-->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -29,9 +29,9 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
                  android:maxSdkVersion="29" />
 
-    <!-- Gal: If supports API <29 add this key :Gal-->
+    <!-- Gal: For supporting API <= 29 :Gal-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
                  android:maxSdkVersion="29" />
-    <!-- Gal: If supports API <29 add this key :Gal-->
+    <!-- Gal: For supporting API <= 29 :Gal-->
     
 </manifest>
