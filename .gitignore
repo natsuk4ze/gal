@@ -8,7 +8,6 @@
 .buildlog/
 .history
 .svn/
-migrate_working_dir/
 
 # IntelliJ related
 *.iml
@@ -23,42 +22,29 @@ pubspec.lock
 .dart_tool/
 .packages
 build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/android/app/release
+/android/app/src/debug/
+/android/app/src/profile/
 
 # Private settings related
 .vscode/
 
 # Android related
-*.iml
 .gradle
-local.properties
-/.idea/workspace.xml
-/.idea/libraries
-.cxx
-/android/app/release
 gradle-wrapper.jar
-/.gradle
 **/gradlew
 **/gradlew.bat
+local.properties
 key.properties
-**/*.keystore
-**/*.jks
 
 # iOS related
-.sconsign.dblite
-profile
-*.pbxuser
-*.mode1v3
-*.mode2v3
-*.perspectivev3
-!default.pbxuser
-!default.mode1v3
-!default.mode2v3
-!default.perspectivev3
 xcuserdata
 *sync/
-Icon?
 ios/Flutter/ephemeral/
-.tags*
 **/.vagrant/
 **/DerivedData/
 **/Pods/
@@ -69,19 +55,4 @@ Flutter.framework
 Flutter.podspec
 Generated.xcconfig
 flutter_export_environment.sh
-ServiceDefinitions.json
 GeneratedPluginRegistrant.*
-
-# Example related
-.flutter-plugins
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-example/android/app/src/debug/
-example/android/app/src/profile/
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
