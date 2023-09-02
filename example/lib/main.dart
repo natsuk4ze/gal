@@ -42,7 +42,7 @@ class _AppState extends State<App> {
                     onPressed: () async {
                       final path = await getFilePath('assets/done.mp4');
                       await Gal.putVideo(path, album: album);
-                      await showSnackbar();
+                      showSnackbar();
                     },
                     child: const Text('Save Video from file path'),
                   ),
@@ -50,7 +50,7 @@ class _AppState extends State<App> {
                     onPressed: () async {
                       final path = await getFilePath('assets/done.jpg');
                       await Gal.putImage(path, album: album);
-                      await showSnackbar();
+                      showSnackbar();
                     },
                     child: const Text('Save Image from file path'),
                   ),
@@ -58,7 +58,7 @@ class _AppState extends State<App> {
                     onPressed: () async {
                       final bytes = await getBytesData('assets/done.jpg');
                       await Gal.putImageBytes(bytes, album: album);
-                      await showSnackbar();
+                      showSnackbar();
                     },
                     child: const Text('Save Image from bytes'),
                   ),
@@ -70,7 +70,7 @@ class _AppState extends State<App> {
                         path,
                       );
                       await Gal.putImage(path);
-                      await showSnackbar();
+                      showSnackbar();
                     },
                     child: const Text('Download Image'),
                   ),
@@ -82,7 +82,7 @@ class _AppState extends State<App> {
                         path,
                       );
                       await Gal.putVideo(path);
-                      await showSnackbar();
+                      showSnackbar();
                     },
                     child: const Text('Download Video'),
                   ),
@@ -112,7 +112,7 @@ class _AppState extends State<App> {
 
   String? get album => toAlbum ? 'Album' : null;
 
-  Future<void> showSnackbar() async {
+  void showSnackbar() {
     final context = navigatorKey.currentContext;
     if (context == null || !context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
