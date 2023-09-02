@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 
 import 'package:gal/gal.dart';
 
+final navigatorKey = GlobalKey<NavigatorState>();
+
 void main() => runApp(const App());
 
 class App extends StatefulWidget {
@@ -21,10 +23,7 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: Colors.green,
-      ),
+      navigatorKey: navigatorKey,
       home: Scaffold(
         body: Builder(builder: (context) {
           return Center(
@@ -43,8 +42,7 @@ class _AppState extends State<App> {
                     onPressed: () async {
                       final path = await getFilePath('assets/done.mp4');
                       await Gal.putVideo(path, album: album);
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      await showSnackbar();
                     },
                     child: const Text('Save Video from file path'),
                   ),
@@ -52,8 +50,7 @@ class _AppState extends State<App> {
                     onPressed: () async {
                       final path = await getFilePath('assets/done.jpg');
                       await Gal.putImage(path, album: album);
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      await showSnackbar();
                     },
                     child: const Text('Save Image from file path'),
                   ),
@@ -61,8 +58,7 @@ class _AppState extends State<App> {
                     onPressed: () async {
                       final bytes = await getBytesData('assets/done.jpg');
                       await Gal.putImageBytes(bytes, album: album);
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      await showSnackbar();
                     },
                     child: const Text('Save Image from bytes'),
                   ),
@@ -74,8 +70,7 @@ class _AppState extends State<App> {
                         path,
                       );
                       await Gal.putImage(path);
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      await showSnackbar();
                     },
                     child: const Text('Download Image'),
                   ),
@@ -87,8 +82,7 @@ class _AppState extends State<App> {
                         path,
                       );
                       await Gal.putVideo(path);
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      await showSnackbar();
                     },
                     child: const Text('Download Video'),
                   ),
@@ -116,15 +110,19 @@ class _AppState extends State<App> {
     );
   }
 
-  String? get album => toAlbum ? 'Album' : null;
+  Future<void> showSnackbar() async {
+    final context = navigatorKey.currentContext;
+    if (context == null || !context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: const Text('Saved! ✅'),
+      action: SnackBarAction(
+        label: 'Gallery ->',
+        onPressed: () async => Gal.open(),
+      ),
+    ));
+  }
 
-  SnackBar get snackBar => SnackBar(
-        content: const Text('Saved! ✅'),
-        action: SnackBarAction(
-          label: 'Gallery ->',
-          onPressed: () async => Gal.open(),
-        ),
-      );
+  String? get album => toAlbum ? 'Album' : null;
 
   Future<String> getFilePath(String path) async {
     final byteData = await rootBundle.load(path);
