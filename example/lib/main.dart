@@ -110,6 +110,8 @@ class _AppState extends State<App> {
     );
   }
 
+  String? get album => toAlbum ? 'Album' : null;
+
   Future<void> showSnackbar() async {
     final context = navigatorKey.currentContext;
     if (context == null || !context.mounted) return;
@@ -121,8 +123,6 @@ class _AppState extends State<App> {
       ),
     ));
   }
-
-  String? get album => toAlbum ? 'Album' : null;
 
   Future<String> getFilePath(String path) async {
     final byteData = await rootBundle.load(path);
