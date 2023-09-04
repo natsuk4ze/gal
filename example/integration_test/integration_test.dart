@@ -7,7 +7,7 @@ import 'package:gal/gal.dart';
 
 void main() {
   for (var i = 0; i < 2; i++) {
-    final toAlbum = i == 1 ? true : false;
+    final toAlbum = i == 0 ? false : true;
     final album = toAlbum ? 'Album' : null;
 
     run('hasAccess(toAlbum: $toAlbum)',
