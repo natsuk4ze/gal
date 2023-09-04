@@ -22,7 +22,7 @@ jobs:
       matrix:
         ios-version: [16.2]
       fail-fast: false
-    runs-on: macos-13
+    runs-on: macos-latest
     steps:
       - name: Check out
         uses: actions/checkout@v3
