@@ -28,10 +28,10 @@ class GalException implements Exception {
 }
 
 enum GalExceptionType {
-  /// When Has no permission to access gallery app.
+  /// When has no permission to access gallery app.
   accessDenied,
 
-  /// When Insufficient device storage.
+  /// When insufficient device storage.
   notEnoughSpace,
 
   /// When trying to save a file in an unsupported format.
