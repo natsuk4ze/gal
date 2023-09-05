@@ -34,34 +34,20 @@ void main() {
   run('open', () async => Gal.open());
 }
 
-void run(String title, Future<dynamic> Function() function) =>
-    test(title, () async {
-      var logger = Logger();
-      try {
-        logger.value = await function();
-      } catch (e, st) {
-        logger.error = e;
-        logger.stackTrace = e is GalException ? e.stackTrace : st;
-        if (e is GalException) {
-          logger.platformException = e.error as PlatformException;
+void run(String title, Future<dynamic> Function() function) => test(
+      title,
+      () async {
+        try {
+          final value = await function();
+          if (value != null) debugPrint('returned: $value');
+        } catch (e, st) {
+          fail("""
+${e.runtimeType}: $e\n
+StackTrace: $st
+PlatformException: ${(e is GalException) ? e.error : null}""");
         }
-      }
-      final value = logger.value;
-      if (value != null) debugPrint('returned: $value');
-
-      if (logger.error == null) return;
-      fail("""
-${logger.error.runtimeType}: ${logger.error}\n
-StackTrace: ${logger.stackTrace}
-PlatformException: ${logger.platformException}""");
-    });
-
-class Logger {
-  dynamic value;
-  Object? error;
-  StackTrace? stackTrace;
-  PlatformException? platformException;
-}
+      },
+    );
 
 Future<String> getFilePath(String path) async {
   final byteData = await rootBundle.load(path);
