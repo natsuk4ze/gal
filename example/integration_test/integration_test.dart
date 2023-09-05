@@ -1,42 +1,68 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
+import 'package:gal/gal.dart';
 
-import 'test_app.dart' as app;
-
-void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
-  bool toAlbum = false;
+Future<void> main() async {
   for (var i = 0; i < 2; i++) {
-    if (i == 1) {
-      execute('Toggle toAlbum');
-      toAlbum = true;
-    }
-    execute('hasAccess(toAlbum: $toAlbum)');
-    execute('requestAccess(toAlbum: $toAlbum)');
-    execute('putImage(toAlbum: $toAlbum)');
-    execute('putImageBytes(toAlbum: $toAlbum)');
-    execute('putVideo(toAlbum: $toAlbum)');
+    final toAlbum = i == 0 ? false : true;
+    final album = toAlbum ? 'Album' : null;
+
+    await run('hasAccess(toAlbum: $toAlbum)',
+        () async => Gal.hasAccess(toAlbum: toAlbum));
+
+    await run('requestAccess(toAlbum: $toAlbum)',
+        () async => Gal.requestAccess(toAlbum: toAlbum));
+
+    await run('putImage(album: $album)', () async {
+      final path = await getFilePath('assets/done.jpg');
+      await Gal.putImage(path, album: album);
+    });
+
+    await run('putImageBytes(album: $album)', () async {
+      final bytes = await getBytesData('assets/done.jpg');
+      await Gal.putImageBytes(bytes, album: album);
+    });
+
+    await run('putVideo(album: $album)', () async {
+      final path = await getFilePath('assets/done.mp4');
+      await Gal.putVideo(path, album: album);
+    });
   }
-  execute('open()');
+  await run('open', () async => Gal.open());
 }
 
-void execute(String key) => testWidgets(key, (tester) async {
-      app.main();
-      await tester.pumpAndSettle();
+Future<void> run(String title, Future<dynamic> Function() function) async =>
+    test(
+      title,
+      () async {
+        try {
+          final value = await function();
+          if (value != null) debugPrint('returned: $value');
+        } catch (e, st) {
+          fail("""
+${e.runtimeType}: $e\n
+StackTrace: $st
+PlatformException: ${(e is GalException) ? e.error : null}""");
+        }
+      },
+    );
 
-      final button = find.byKey(Key(key));
+Future<String> getFilePath(String path) async {
+  final byteData = await rootBundle.load(path);
+  final file =
+      await File('${Directory.systemTemp.path}${path.replaceAll('assets', '')}')
+          .create();
+  await file.writeAsBytes(byteData.buffer
+      .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+  return file.path;
+}
 
-      await tester.tap(button);
-      await tester.pumpAndSettle();
-
-      final value = app.logger.value;
-      if (value != null) debugPrint('returned: $value');
-
-      if (app.logger.error == null) return;
-      fail("""
-${app.logger.error.runtimeType}: ${app.logger.error}\n
-StackTrace: ${app.logger.stackTrace}
-PlatformException: ${app.logger.platformException}""");
-    });
+Future<Uint8List> getBytesData(String path) async {
+  final byteData = await rootBundle.load(path);
+  final uint8List = byteData.buffer
+      .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
+  return Uint8List.fromList(uint8List);
+}

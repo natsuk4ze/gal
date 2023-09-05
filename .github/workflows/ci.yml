@@ -20,12 +20,12 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        ios-version: [16.2]
+        ios-version: [16]
       fail-fast: false
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
       - name: Check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Flutter SDK
         timeout-minutes: 10
@@ -37,7 +37,7 @@ jobs:
         uses: futureware-tech/simulator-action@v2
         with:
           model: iPhone 14 Pro Max
-          os_version: ${{ matrix.ios-version }}
+          os_version: ^${{ matrix.ios-version }}
       
       - name: Grant permission
         run: |
@@ -74,7 +74,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Check out
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
  
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
