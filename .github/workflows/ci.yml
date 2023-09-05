@@ -20,9 +20,9 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        ios-version: [16.2]
+        ios-version: [16]
       fail-fast: false
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -37,7 +37,7 @@ jobs:
         uses: futureware-tech/simulator-action@v2
         with:
           model: iPhone 14 Pro Max
-          os_version: ${{ matrix.ios-version }}
+          os_version: ^${{ matrix.ios-version }}
       
       - name: Grant permission
         run: |
