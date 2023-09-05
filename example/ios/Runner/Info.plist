@@ -7,10 +7,10 @@
 	<string>We need add only access to save medias</string>
 	<!-- gal: Required -->
 
-	<!-- gal: Required for saving to album -->
+	<!-- gal: Required for ios < 14 or saving to album -->
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to save medias</string>
-	<!-- gal: Required for saving to album -->
+	<!-- gal: Required for ios < 14 or saving to album -->
 
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
