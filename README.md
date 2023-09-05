@@ -42,7 +42,7 @@ Add the following key to your _Info.plist_ file, located in
 `<project root>/ios/Runner/Info.plist`:
 
 * `<key>NSPhotoLibraryAddUsageDescription</key>` Required
-* `<key>NSPhotoLibraryUsageDescription</key>` Required for saving to album
+* `<key>NSPhotoLibraryUsageDescription</key>` Required for ios < 14 or saving to album
 
 you can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
 
@@ -52,7 +52,7 @@ Add the following key to your _AndroidManifest_ file, located in
 `<project root>/android/app/src/main/AndroidManifest.xml`:
 
 * `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-                 android:maxSdkVersion="29" />` Required for supporting API <= 29
+                 android:maxSdkVersion="29" />` Required for API <= 29
 * `android:requestLegacyExternalStorage="true"` Required for saving to album in API 29
 
 you can copy from [AndroidManifest.xml in example](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
