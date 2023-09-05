@@ -3,41 +3,39 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:gal/gal.dart';
 
-void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
+Future<void> main() async {
   for (var i = 0; i < 2; i++) {
     final toAlbum = i == 0 ? false : true;
     final album = toAlbum ? 'Album' : null;
 
-    run('hasAccess(toAlbum: $toAlbum)',
+    await run('hasAccess(toAlbum: $toAlbum)',
         () async => Gal.hasAccess(toAlbum: toAlbum));
 
-    run('requestAccess(toAlbum: $toAlbum)',
+    await run('requestAccess(toAlbum: $toAlbum)',
         () async => Gal.requestAccess(toAlbum: toAlbum));
 
-    run('putImage(album: $album)', () async {
+    await run('putImage(album: $album)', () async {
       final path = await getFilePath('assets/done.jpg');
       await Gal.putImage(path, album: album);
     });
 
-    run('putImageBytes(album: $album)', () async {
+    await run('putImageBytes(album: $album)', () async {
       final bytes = await getBytesData('assets/done.jpg');
       await Gal.putImageBytes(bytes, album: album);
     });
 
-    run('putVideo(album: $album)', () async {
+    await run('putVideo(album: $album)', () async {
       final path = await getFilePath('assets/done.mp4');
       await Gal.putVideo(path, album: album);
     });
   }
-  run('open', () async => Gal.open());
+  await run('open', () async => Gal.open());
 }
 
-void run(String title, Future<dynamic> Function() function) => test(
+Future<void> run(String title, Future<dynamic> Function() function) async =>
+    test(
       title,
       () async {
         try {
