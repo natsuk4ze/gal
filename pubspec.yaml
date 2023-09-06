@@ -36,3 +36,5 @@ flutter:
         pluginClass: GalPlugin
       ios:
         pluginClass: GalPlugin
+      macos:
+        pluginClass: GalPlugin
