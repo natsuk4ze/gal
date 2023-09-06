@@ -44,7 +44,7 @@ key.properties
 # iOS related
 xcuserdata
 *sync/
-ios/Flutter/ephemeral/
+**/Flutter/ephemeral/
 **/.vagrant/
 **/DerivedData/
 **/Pods/
