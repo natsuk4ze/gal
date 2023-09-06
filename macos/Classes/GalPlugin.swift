@@ -89,7 +89,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
         PHPhotoLibrary.shared().performChanges({
           let albumChangeRequest = PHAssetCollectionChangeRequest(for: collection!)
           albumChangeRequest!.addAssets(
-            [assetChangeRequest().placeholderForCreatedAsset] as NSArray)
+            [assetChangeRequest().placeholderForCreatedAsset!] as NSArray)
         }, completionHandler: completion)
       }
       return
