@@ -1,10 +1,21 @@
-import Flutter
 import Photos
-import UIKit
+
+#if os(iOS)
+  import Flutter
+  import UIKit
+#else
+  import Cocoa
+  import FlutterMacOS
+#endif
 
 public class GalPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "gal", binaryMessenger: registrar.messenger())
+    #if os(iOS)
+      let messenger = registrar.messenger()
+    #else
+      let messenger = registrar.messenger
+    #endif
+    let channel = FlutterMethodChannel(name: "gal", binaryMessenger: messenger)
     let instance = GalPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
@@ -89,7 +100,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
         PHPhotoLibrary.shared().performChanges({
           let albumChangeRequest = PHAssetCollectionChangeRequest(for: collection!)
           albumChangeRequest!.addAssets(
-            [assetChangeRequest().placeholderForCreatedAsset] as NSArray)
+            [assetChangeRequest().placeholderForCreatedAsset!] as NSArray)
         }, completionHandler: completion)
       }
       return
@@ -117,12 +128,21 @@ public class GalPlugin: NSObject, FlutterPlugin {
   }
 
   private func open(completion: @escaping () -> Void) {
-    guard let url = URL(string: "photos-redirect://") else { return }
-    UIApplication.shared.open(url, options: [:]) { _ in completion() }
+    #if os(iOS)
+      guard let url = URL(string: "photos-redirect://") else { return }
+      UIApplication.shared.open(url, options: [:]) { _ in completion() }
+    #else
+      guard let url = URL(string: "photos://") else { return }
+      NSWorkspace.shared.open(url)
+      completion()
+    #endif
   }
 
   private func hasAccess(toAlbum: Bool) -> Bool {
-    if #available(iOS 14, *) {
+    if #available(iOS 14, macOS 11, *) {
+        print(PHPhotoLibrary.authorizationStatus(for: .addOnly) == .authorized)
+        print(PHPhotoLibrary.authorizationStatus(for: .readWrite) == .authorized)
+        print(PHPhotoLibrary.authorizationStatus(for: .readWrite) == .limited)
       return toAlbum
         ? PHPhotoLibrary.authorizationStatus(for: .readWrite) == .authorized
         || PHPhotoLibrary.authorizationStatus(for: .readWrite) == .limited
@@ -135,7 +155,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
   /// returns the result immediately, without displaying a dialog.
   /// See: https://qiita.com/fuziki/items/87a3a1a8e481a1546b38
   private func requestAccess(toAlbum: Bool, completion: @escaping (Bool) -> Void) {
-    if #available(iOS 14, *) {
+    if #available(iOS 14, macOS 11, *) {
       PHPhotoLibrary.requestAuthorization(for: toAlbum ? .readWrite : .addOnly) { _ in
         completion(self.hasAccess(toAlbum: toAlbum))
       }
