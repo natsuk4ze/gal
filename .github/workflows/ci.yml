@@ -39,7 +39,7 @@ jobs:
         timeout-minutes: 15
         run: |
           cd example
-          flutter test integration_test/integration_test.dart
+          flutter test integration_test/integration_test.dart -d macos
 
       - name: Retry integration tests
         id: Retry-integration-tests
@@ -49,7 +49,7 @@ jobs:
           flutter clean && flutter pub get
           cd example
           flutter clean && flutter pub get
-          flutter test integration_test/integration_test.dart
+          flutter test integration_test/integration_test.dart -d macos
 
   ios:
     needs: set-up
