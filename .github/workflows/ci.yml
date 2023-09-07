@@ -15,6 +15,49 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
+  macos:
+    needs: set-up
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        ios-version: [13]
+      fail-fast: false
+    runs-on: macos-13
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter SDK
+        timeout-minutes: 10
+        uses: subosito/flutter-action@v2
+        with:
+          channel: beta
+      
+      - name: Grant permission
+        run: |
+          brew tap wix/brew
+          brew install applesimutils
+          cd example
+          applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
+
+      - name: Run integration tests
+        id: Run-integration-tests
+        continue-on-error: true
+        timeout-minutes: 15
+        run: |
+          cd example
+          flutter test integration_test/integration_test.dart
+
+      - name: Retry integration tests
+        id: Retry-integration-tests
+        timeout-minutes: 15
+        if: steps.Run-integration-tests.outcome == 'failure'
+        run: |
+          flutter clean && flutter pub get
+          cd example
+          flutter clean && flutter pub get
+          flutter test integration_test/integration_test.dart
+
   ios:
     needs: set-up
     timeout-minutes: 60
