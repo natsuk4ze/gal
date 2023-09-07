@@ -41,11 +41,11 @@ Future<void> run(String title, Future<dynamic> Function() function) async =>
         try {
           final value = await function();
           if (value != null) debugPrint('returned: $value');
-        } catch (e, st) {
+        } on GalException catch (e, st) {
           fail("""
 ${e.runtimeType}: $e\n
 StackTrace: $st
-PlatformException: ${(e is GalException) ? e.error : null}""");
+PlatformException: ${e.platformException}""");
         }
       },
     );

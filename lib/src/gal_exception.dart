@@ -1,27 +1,31 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 /// Every [Exception] that [Gal] throws should be this.
 @immutable
 class GalException implements Exception {
   const GalException({
     required this.type,
-    required this.error,
+    required this.platformException,
     required this.stackTrace,
   });
   final GalExceptionType type;
-  final Object? error;
+  final PlatformException platformException;
   final StackTrace stackTrace;
 
   factory GalException.fromCode({
     required String code,
-    required Object? error,
+    required PlatformException platformException,
     required StackTrace stackTrace,
   }) {
     final type = GalExceptionType.values.firstWhere(
       (type) => type.code == code,
       orElse: () => GalExceptionType.unexpected,
     );
-    return GalException(type: type, error: error, stackTrace: stackTrace);
+    return GalException(
+        type: type,
+        platformException: platformException,
+        stackTrace: stackTrace);
   }
   @override
   String toString() => "[GalException/${type.code}]: ${type.message}";
