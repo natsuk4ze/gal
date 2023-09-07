@@ -1,3 +1,10 @@
+## 2.0.0
+
+* **ADD: macOS support** #142
+* **BREAKING CHANGE**: `flutter: '>=3.3.0'` to `flutter: '>=3.7.0'` #142
+* **BREAKING CHANGE**: `GalException.error` to `GalException.platformException` #143
+* **BREAKING CHANGE**:  Remove `GalExceptionType.notHandle` (had marked deprecated) #144 
+
 ## 1.9.1
 
 * FIX: `album` option is not working on Android API 29 #130
