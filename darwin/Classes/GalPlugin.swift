@@ -140,9 +140,6 @@ public class GalPlugin: NSObject, FlutterPlugin {
 
   private func hasAccess(toAlbum: Bool) -> Bool {
     if #available(iOS 14, macOS 11, *) {
-        print(PHPhotoLibrary.authorizationStatus(for: .addOnly) == .authorized)
-        print(PHPhotoLibrary.authorizationStatus(for: .readWrite) == .authorized)
-        print(PHPhotoLibrary.authorizationStatus(for: .readWrite) == .limited)
       return toAlbum
         ? PHPhotoLibrary.authorizationStatus(for: .readWrite) == .authorized
         || PHPhotoLibrary.authorizationStatus(for: .readWrite) == .limited
