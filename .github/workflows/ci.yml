@@ -20,9 +20,9 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        ios-version: [13]
+        macos-version: [13]
       fail-fast: false
-    runs-on: macos-13
+    runs-on: macos-${{ matrix.macos-version }}
     steps:
       - name: Check out
         uses: actions/checkout@v4
