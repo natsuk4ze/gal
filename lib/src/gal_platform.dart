@@ -15,7 +15,7 @@ final class GalPlatform {
       return await _channel.invokeMethod<T>(method, args);
     } on PlatformException catch (error, stackTrace) {
       throw GalException.fromCode(
-          code: error.code, error: error, stackTrace: stackTrace);
+          code: error.code, platformException: error, stackTrace: stackTrace);
     }
   }
 
