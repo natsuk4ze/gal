@@ -10,8 +10,12 @@
 
 ### Dart3 plugin for saving image/video to gallery <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/fe/3a/7e/fe3a7e0e-7f52-b750-0ed2-523998c59d48/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/246x0w.webp" alt="ios photo" width="20" height="20"/> <img src="https://play-lh.googleusercontent.com/ZyWNGIfzUyoajtFcD7NhMksHEZh37f-MkHVGr5Yfefa-IX7yj9SMfI82Z7a2wpdKCA=w240-h480-rw" alt="amdroid photo" width="20" height="20"/> 
 **Please [like👍](https://pub.dev/packages/gal) and [star⭐️](https://github.com/natsuk4ze/gal) for more features.**
-| **Support** |    iOS 11.0+   | Android SDK 21+ |
-|-------------|----------------|-----------------|
+|             | Android | iOS     | macOS |
+|-------------|---------|---------|-------|
+| **Support** | SDK 21+ | iOS 11+ |  11+  |
+
+|             | iOS | Android |
+|-------------|-----|---------|
 | **Example** | <img src="https://github.com/natsuk4ze/gal/raw/main/readme_assets/ios.gif" alt="ios" width="270"/> | <img src="https://github.com/natsuk4ze/gal/raw/main/readme_assets/android.gif" alt="android" width="270"/> |
 
 
@@ -36,10 +40,10 @@ You can use the command to add gal as a dependency with the latest stable versio
 $ flutter pub add gal
 ```
 
-### iOS
+### iOS & macOS
 
 Add the following key to your _Info.plist_ file, located in
-`<project root>/ios/Runner/Info.plist`:
+`<project root>/<ios or macos>/Runner/Info.plist`:
 
 * `<key>NSPhotoLibraryAddUsageDescription</key>` Required
 * `<key>NSPhotoLibraryUsageDescription</key>` Required for ios < 14 or saving to album
