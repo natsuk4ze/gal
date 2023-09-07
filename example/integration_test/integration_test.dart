@@ -35,22 +35,20 @@ Future<void> main() async {
   await run('open', () async => Gal.open());
 }
 
-Future<void> run(
-  String title,
-  Future<dynamic> Function() function, {
-  bool skip = false,
-}) async =>
-    test(title, () async {
-      try {
-        final value = await function();
-        if (value != null) debugPrint('returned: $value');
-      } catch (e, st) {
-        fail("""
+Future<void> run(String title, Future<dynamic> Function() function) async =>
+    test(
+      title,
+      () async {
+        try {
+          final value = await function();
+          if (value != null) debugPrint('returned: $value');
+        } on GalException catch (e, st) {
+          fail("""
 ${e.runtimeType}: $e\n
 StackTrace: $st
-PlatformException: ${(e is GalException) ? e.error : null}""");
-      }
-    }, skip: skip);
+PlatformException: ${e.platformException}""");
+        }
+      }, skip: skip);
 
 Future<String> getFilePath(String path) async {
   final byteData = await rootBundle.load(path);
