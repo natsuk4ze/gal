@@ -39,18 +39,13 @@ enum GalExceptionType {
   notSupportedFormat,
 
   /// When an error occurs with unexpected.
-  unexpected,
-
-  @Deprecated(
-      'Use [unexpected] instead. https://github.com/natsuk4ze/gal/pull/25')
-  notHandle;
+  unexpected;
 
   String get code => switch (this) {
         accessDenied => 'ACCESS_DENIED',
         notEnoughSpace => 'NOT_ENOUGH_SPACE',
         notSupportedFormat => 'NOT_SUPPORTED_FORMAT',
         unexpected => 'UNEXPECTED',
-        _ => 'NOT_HANDLE',
       };
 
   String get message => switch (this) {
@@ -58,6 +53,5 @@ enum GalExceptionType {
         notEnoughSpace => 'Not enough space for storage.',
         notSupportedFormat => 'Unsupported file formats.',
         unexpected => 'An unexpected error has occurred.',
-        _ => 'An unexpected error has occurred.',
       };
 }
