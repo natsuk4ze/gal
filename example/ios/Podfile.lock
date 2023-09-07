@@ -2,27 +2,28 @@ PODS:
   - Flutter (1.0.0)
   - gal (1.0.0):
     - Flutter
+    - FlutterMacOS
   - integration_test (0.0.1):
     - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
-  - gal (from `.symlinks/plugins/gal/ios`)
+  - gal (from `.symlinks/plugins/gal/darwin`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
   gal:
-    :path: ".symlinks/plugins/gal/ios"
+    :path: ".symlinks/plugins/gal/darwin"
   integration_test:
     :path: ".symlinks/plugins/integration_test/ios"
 
 SPEC CHECKSUMS:
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
-  gal: a7198871e0d63bdffb906fbbcc9e16b58031a357
+  gal: 61e868295d28fe67ffa297fae6dacebf56fd53e1
   integration_test: 13825b8a9334a850581300559b8839134b124670
 
-PODFILE CHECKSUM: 1a86e7654bb8611f38728384d250276ef708ee5f
+PODFILE CHECKSUM: 333cb2cbe8cc8767aab4e2b5a40cd6eb7dff3e71
 
 COCOAPODS: 1.12.1

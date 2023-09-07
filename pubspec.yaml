@@ -19,7 +19,7 @@ screenshots:
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
-  flutter: '>=3.3.0'
+  flutter: '>=3.7.0'
 
 dependencies:
   flutter:
@@ -36,3 +36,7 @@ flutter:
         pluginClass: GalPlugin
       ios:
         pluginClass: GalPlugin
+        sharedDarwinSource: true
+      macos:
+        pluginClass: GalPlugin
+        sharedDarwinSource: true
