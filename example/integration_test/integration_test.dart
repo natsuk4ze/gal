@@ -14,7 +14,8 @@ Future<void> main() async {
         () async => Gal.hasAccess(toAlbum: toAlbum));
 
     await run('requestAccess(toAlbum: $toAlbum)',
-        () async => Gal.requestAccess(toAlbum: toAlbum));
+        () async => Gal.requestAccess(toAlbum: toAlbum),
+        skip: Platform.isMacOS);
 
     await run('putImage(album: $album)', () async {
       final path = await getFilePath('assets/done.jpg');
