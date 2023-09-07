@@ -3,9 +3,14 @@
 <plist version="1.0">
 <dict>
 	<!-- gal: Required -->
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need add only access to save medias</string>
+	<!-- gal: Required -->
+
+	<!-- gal: Required for saving to album -->
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to save medias</string>
-	<!-- gal: Required -->
+	<!-- gal: Required for saving to album -->
 	
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
