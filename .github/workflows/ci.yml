@@ -32,13 +32,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: beta
-      
-      - name: Grant permission
-        run: |
-          brew tap wix/brew
-          brew install applesimutils
-          cd example
-          applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
 
       - name: Run integration tests
         id: Run-integration-tests

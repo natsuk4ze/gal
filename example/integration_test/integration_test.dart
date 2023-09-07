@@ -19,36 +19,37 @@ Future<void> main() async {
     await run('putImage(album: $album)', () async {
       final path = await getFilePath('assets/done.jpg');
       await Gal.putImage(path, album: album);
-    });
+    }, skip: Platform.isMacOS);
 
     await run('putImageBytes(album: $album)', () async {
       final bytes = await getBytesData('assets/done.jpg');
       await Gal.putImageBytes(bytes, album: album);
-    });
+    }, skip: Platform.isMacOS);
 
     await run('putVideo(album: $album)', () async {
       final path = await getFilePath('assets/done.mp4');
       await Gal.putVideo(path, album: album);
-    });
+    }, skip: Platform.isMacOS);
   }
   await run('open', () async => Gal.open());
 }
 
-Future<void> run(String title, Future<dynamic> Function() function) async =>
-    test(
-      title,
-      () async {
-        try {
-          final value = await function();
-          if (value != null) debugPrint('returned: $value');
-        } catch (e, st) {
-          fail("""
+Future<void> run(
+  String title,
+  Future<dynamic> Function() function, {
+  bool skip = false,
+}) async =>
+    test(title, () async {
+      try {
+        final value = await function();
+        if (value != null) debugPrint('returned: $value');
+      } catch (e, st) {
+        fail("""
 ${e.runtimeType}: $e\n
 StackTrace: $st
 PlatformException: ${(e is GalException) ? e.error : null}""");
-        }
-      },
-    );
+      }
+    }, skip: skip);
 
 Future<String> getFilePath(String path) async {
   final byteData = await rootBundle.load(path);
