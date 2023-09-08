@@ -51,7 +51,7 @@ Add the following key to your _Info.plist_ file, located in
 you can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
 
 > **🔴 Warning:**
-Flutter has [fatal crash issee on macos for loading info.plist](https://github.com/flutter/flutter/issues/134191) now.
+Flutter has [fatal crash issee on macOS for loading info.plist](https://github.com/flutter/flutter/issues/134191) now.
 
 ### Android (API <29)
 
