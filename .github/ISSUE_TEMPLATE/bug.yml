@@ -16,9 +16,8 @@ body:
   - type: textarea
     attributes:
       label: Overview
-      description: |
-        Please clarify what kind of bug it is and Paste the file where the error occurred here if necessary.
-      placeholder: Description of the bug
+      description: Please clarify what kind of bug it is.
+      placeholder: Description of the bug and paste the file where the error occurred here if necessary.
     validations:
       required: true
   - type: textarea
