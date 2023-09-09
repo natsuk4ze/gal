@@ -27,5 +27,5 @@ jobs:
 
             If you find this problem please file a new issue with the same description,
             Thanks for your contribution.
-          daysUntilClose: 14
+          daysUntilClose: 7
           responseRequiredLabel: "💬 waiting for response"
