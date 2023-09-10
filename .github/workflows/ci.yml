@@ -19,7 +19,6 @@ jobs:
     needs: set-up
     timeout-minutes: 60
     strategy:
-      max-parallel: 1
       matrix:
         macos-version: [12]
       fail-fast: false
@@ -37,19 +36,8 @@ jobs:
       - name: Run integration tests
         id: Run-integration-tests
         continue-on-error: true
-        timeout-minutes: 15
+        timeout-minutes: 8
         run: |
           cd example
           flutter test integration_test/integration_test.dart -d macos
-
-      - name: Retry integration tests
-        id: Retry-integration-tests
-        timeout-minutes: 15
-        if: steps.Run-integration-tests.outcome == 'failure'
-        run: |
-          flutter clean && flutter pub get
-          cd example
-          flutter clean && flutter pub get
-          flutter test integration_test/integration_test.dart -d macos
-
  
