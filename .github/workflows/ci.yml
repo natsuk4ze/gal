@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        macos-version: [13]
+        macos-version: [13,12,11]
       fail-fast: false
     runs-on: macos-${{ matrix.macos-version }}
     steps:
