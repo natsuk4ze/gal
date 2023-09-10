@@ -35,7 +35,6 @@ jobs:
 
       - name: Run integration tests
         id: Run-integration-tests
-        continue-on-error: true
         timeout-minutes: 8
         run: |
           cd example
