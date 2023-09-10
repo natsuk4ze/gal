@@ -19,6 +19,7 @@ jobs:
     needs: set-up
     timeout-minutes: 60
     strategy:
+      max-parallel: 1
       matrix:
         macos-version: [12]
       fail-fast: false
