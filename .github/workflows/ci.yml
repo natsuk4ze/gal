@@ -23,7 +23,7 @@ jobs:
       matrix:
         macos-version: [12]
       fail-fast: false
-    runs-on: macos-${{ matrix.macos-version }}
+    runs-on: macos-latest
     steps:
       - name: Check out
         uses: actions/checkout@v4
