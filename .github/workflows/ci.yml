@@ -31,7 +31,7 @@ jobs:
         timeout-minutes: 10
         uses: subosito/flutter-action@v2
         with:
-          channel: master
+          channel: beta
 
       - name: Run integration tests
         id: Run-integration-tests
