@@ -38,5 +38,5 @@ jobs:
         timeout-minutes: 8
         run: |
           cd example
-          flutter test integration_test/integration_test.dart -d macos
+          flutter test integration_test/integration_test.dart -d macos -v
  
