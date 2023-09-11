@@ -15,6 +15,31 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
+  windows:
+    needs: set-up
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        windows-version: [2022,2019]
+      fail-fast: false
+    runs-on: windows-${{ matrix.windows-version }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter SDK
+        timeout-minutes: 10
+        uses: subosito/flutter-action@v2
+        with:
+          channel: beta
+
+      - name: Run integration tests
+        id: Run-integration-tests
+        timeout-minutes: 15
+        run: |
+          cd example
+          flutter test integration_test/integration_test.dart -d windows
+
   macos:
     needs: set-up
     timeout-minutes: 60
@@ -35,20 +60,9 @@ jobs:
 
       - name: Run integration tests
         id: Run-integration-tests
-        continue-on-error: true
         timeout-minutes: 15
         run: |
           cd example
-          flutter test integration_test/integration_test.dart -d macos
-
-      - name: Retry integration tests
-        id: Retry-integration-tests
-        timeout-minutes: 15
-        if: steps.Run-integration-tests.outcome == 'failure'
-        run: |
-          flutter clean && flutter pub get
-          cd example
-          flutter clean && flutter pub get
           flutter test integration_test/integration_test.dart -d macos
 
   ios:
