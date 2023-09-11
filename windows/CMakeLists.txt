@@ -7,6 +7,7 @@ cmake_minimum_required(VERSION 3.14)
 # Project-level configuration.
 set(PROJECT_NAME "gal")
 project(${PROJECT_NAME} LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 20)
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
