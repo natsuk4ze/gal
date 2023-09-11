@@ -41,4 +41,4 @@ flutter:
         pluginClass: GalPlugin
         sharedDarwinSource: true
       windows:
-        pluginClass: GalPlugin
+        pluginClass: GalPluginCApi
