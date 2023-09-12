@@ -76,7 +76,7 @@ Flutter has [fatal crash issee on macOS for loading info.plist](https://github.c
 
 ### Windows
 
-Needs `C++ 20`. We recommend that you update [Visual Studio](https://visualstudio.microsoft.com) to the latest version.
+We recommend that you update [Visual Studio](https://visualstudio.microsoft.com) to the latest version for using `C++ 20`.
 
 
 ## ✅ Usage
