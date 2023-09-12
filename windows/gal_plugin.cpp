@@ -17,10 +17,6 @@
 
 #define E_UNSUPPORTED_FORMAT ((HRESULT)0x80001000L)
 
-const std::wstring UnsupportedFormatMessage =
-    L"Image file format must be supported by Windows "
-    L"(.jpg, .png, .gif, .bmp, .tiff, .emf).";
-
 using namespace winrt;
 using namespace Windows::Storage;
 using namespace Windows::Foundation;
@@ -30,7 +26,9 @@ using namespace Windows::Storage::Streams;
 namespace gal {
 
 [[noreturn]] void ThrowUnsupportedFormat() {
-  throw winrt::hresult_error(E_UNSUPPORTED_FORMAT, UnsupportedFormatMessage);
+  throw winrt::hresult_error(E_UNSUPPORTED_FORMAT,
+                             L"Image file format must be supported by Windows "
+                             L"(.jpg, .png, .gif, .bmp, .tiff, .emf).");
 }
 
 void HandleError(
