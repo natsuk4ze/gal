@@ -36,7 +36,7 @@ add_library(${PLUGIN_NAME} SHARED
 # Apply a standard set of build settings that are configured in the
 # application-level CMakeLists.txt. This can be removed for plugins that want
 # full control over build settings.
-# apply_standard_settings(${PLUGIN_NAME})
+apply_standard_settings(${PLUGIN_NAME})
 
 # Symbols are hidden by default to reduce the chance of accidental conflicts
 # between plugins. This should not be removed; any symbols that should be
