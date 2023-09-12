@@ -35,7 +35,7 @@ jobs:
 
       - name: Run integration tests
         id: Run-integration-tests
-        timeout-minutes: 8
+        timeout-minutes: 5
         run: |
           cd example
           flutter test integration_test/integration_test.dart windows -v
