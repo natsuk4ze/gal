@@ -33,6 +33,14 @@ jobs:
         with:
           channel: beta
 
+      - name: Uninstall Visual Studio
+        run: |
+          & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" uninstall --installPath="C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+            
+      - name: Install Visual Studio
+        run: |
+          & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" install --path install="C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+
       - name: Run integration tests
         id: Run-integration-tests
         timeout-minutes: 5
