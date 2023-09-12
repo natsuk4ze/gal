@@ -40,17 +40,14 @@ You can use the command to add gal as a dependency with the latest stable versio
 $ flutter pub add gal
 ```
 
-### iOS & macOS
+### iOS
 
-Add the following keys to the `<ios or macos>/Runner/Info.plist`:
+Add the following keys to the `ios/Runner/Info.plist`:
 
 * `<key>NSPhotoLibraryAddUsageDescription</key>` Required
 * `<key>NSPhotoLibraryUsageDescription</key>` Required for ios < 14 or saving to album
 
 You can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
-
-> **🔴 Warning:**
-Flutter has [fatal crash issee on macOS for loading info.plist](https://github.com/flutter/flutter/issues/134191) now.
 
 ### Android (API <29)
 
@@ -65,9 +62,22 @@ You can copy from [AndroidManifest.xml in example](https://github.com/natsuk4ze/
 > **🔴 Warning:**
 Android emulators with API < 29 require SD card setup. Real devices don't.
 
+### MacOS
+
+Add the following keys to the `macos/Runner/Info.plist`:
+
+* `<key>NSPhotoLibraryAddUsageDescription</key>` Required
+* `<key>NSPhotoLibraryUsageDescription</key>` Required for saving to album
+
+You can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/macos/Runner/Info.plist).
+
+> **🔴 Warning:**
+Flutter has [fatal crash issee on macOS for loading info.plist](https://github.com/flutter/flutter/issues/134191) now.
+
 ### Windows
 
 Needs `C++ 20`. We recommend that you update [Visual Studio](https://visualstudio.microsoft.com) to the latest version.
+
 
 ## ✅ Usage
 
