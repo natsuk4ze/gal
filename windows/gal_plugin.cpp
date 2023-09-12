@@ -1,20 +1,25 @@
 #include "gal_plugin.h"
 
 // This must be included before many other Windows headers.
-#include <windows.h>
-
 #include <flutter/event_channel.h>
 #include <flutter/event_sink.h>
 #include <flutter/event_stream_handler_functions.h>
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
+#include <windows.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.Storage.h>
 #include <winrt/Windows.System.h>
 
 #include <optional>
+
+#define E_UNSUPPORTED_FORMAT ((HRESULT)0x80001000L)
+
+const std::wstring UnsupportedFormatMessage =
+    L"Image file format must be supported by Windows "
+    L"(.jpg, .png, .gif, .bmp, .tiff, .emf).";
 
 using namespace winrt;
 using namespace Windows::Storage;
@@ -24,8 +29,13 @@ using namespace Windows::Storage::Streams;
 
 namespace gal {
 
+[[noreturn]] void ThrowUnsupportedFormat() {
+  throw winrt::hresult_error(E_UNSUPPORTED_FORMAT, UnsupportedFormatMessage);
+}
+
+// https://support.microsoft.com/en-au/topic/graphic-file-types-c0374c44-71f8-45dc-a4d5-708064b5c99b
 std::wstring GetExtension(const std::vector<uint8_t>& data) {
-  if (data.size() < 4) return L"unknown";
+  if (data.size() < 4) ThrowUnsupportedFormat();
   if (data[0] == 0xFF && data[1] == 0xD8) return L"jpg";
   if (data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47)
     return L"png";
@@ -36,18 +46,15 @@ std::wstring GetExtension(const std::vector<uint8_t>& data) {
       data[0] == 0x4D && data[1] == 0x4D && data[2] == 0x00 && data[3] == 0x2A)
     return L"tiff";
 
-  if (data.size() < 41) return L"unknown";
+  if (data.size() < 41) ThrowUnsupportedFormat();
   if (data[40] == 0x20 && data[41] == 0x45 && data[42] == 0x4D &&
       data[43] == 0x46)
     return L"emf";
 
-  return L"unknown";
+  ThrowUnsupportedFormat();
 }
 
-IAsyncAction Open() {
-  co_await Launcher::LaunchUriAsync(
-      winrt::Windows::Foundation::Uri(L"ms-photos:"));
-}
+IAsyncAction Open() { co_await Launcher::LaunchUriAsync(Uri(L"ms-photos:")); }
 
 static IAsyncAction PutMedia(const std::string& path,
                              std::optional<std::string> album) {
@@ -107,43 +114,69 @@ GalPlugin::~GalPlugin() {}
 void GalPlugin::HandleMethodCall(
     const flutter::MethodCall<flutter::EncodableValue>& method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-  const auto* args = std::get_if<flutter::EncodableMap>(method_call.arguments());
+  const auto* args =
+      std::get_if<flutter::EncodableMap>(method_call.arguments());
   const std::string method = method_call.method_name();
-  try {
-    if (method == "putImage" || method == "putVideo") {
-      std::optional<std::string> album;
-      auto encodable_value = args->at(flutter::EncodableValue("album"));
-      if (auto string_ptr = std::get_if<std::string>(&encodable_value)) {
-        album = *string_ptr;
-      }
-      auto path =
-          std::get<std::string>(args->at(flutter::EncodableValue("path")));
-      std::replace(path.begin(), path.end(), '/', '\\');
-      std::thread([path, album] { PutMedia(path, album); }).detach();
-      result->Success();
-    } else if (method == "putImageBytes") {
-      auto bytes = std::get<std::vector<uint8_t>>(
-          args->at(flutter::EncodableValue("bytes")));
-      std::optional<std::string> album;
-      auto encodable_value = args->at(flutter::EncodableValue("album"));
-      if (auto string_ptr = std::get_if<std::string>(&encodable_value)) {
-        album = *string_ptr;
-      }
-      std::thread([bytes, album] { PutMediaBytes(bytes, album); }).detach();
-      result->Success();
-    } else if (method == "open") {
-      std::thread([] { Open(); }).detach();
-      result->Success();
-    } else if (method == "hasAccess" || method == "requestAccess") {
-      result->Success(true);
-    } else {
-      result->NotImplemented();
+  if (method == "putImage" || method == "putVideo") {
+    std::optional<std::string> album;
+    auto encodable_value = args->at(flutter::EncodableValue("album"));
+    if (auto string_ptr = std::get_if<std::string>(&encodable_value)) {
+      album = *string_ptr;
     }
-  } catch (const winrt::hresult_error& e) {
-    if (e.code() == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND)) {
+    auto path =
+        std::get<std::string>(args->at(flutter::EncodableValue("path")));
+    std::replace(path.begin(), path.end(), '/', '\\');
+    std::thread([path, album, result = std::move(result)]() mutable {
+      try {
+        PutMedia(path, album).get();
+        result->Success();
+      } catch (const winrt::hresult_error& e) {
+        auto message = winrt::to_string(e.message());
+        switch (e.code()) {
+          case HRESULT_FROM_WIN32(ERROR_DISK_FULL):
+            result->Error("NOT_ENOUGH_SPACE", message);
+            break;
+
+          default:
+            result->Error("UNEXPECTED", message);
+            break;
+        }
+      }
+    }).detach();
+  } else if (method == "putImageBytes") {
+    auto bytes = std::get<std::vector<uint8_t>>(
+        args->at(flutter::EncodableValue("bytes")));
+    std::optional<std::string> album;
+    auto encodable_value = args->at(flutter::EncodableValue("album"));
+    if (auto string_ptr = std::get_if<std::string>(&encodable_value)) {
+      album = *string_ptr;
     }
-  } catch (const std::exception& e) {
-    std::cerr << e.what() << '\n';
+    std::thread([bytes, album, result = std::move(result)]() mutable {
+      try {
+        PutMediaBytes(bytes, album).get();
+        result->Success();
+      } catch (const winrt::hresult_error& e) {
+        auto message = winrt::to_string(e.message());
+        switch (e.code()) {
+          case HRESULT_FROM_WIN32(ERROR_DISK_FULL):
+            result->Error("NOT_ENOUGH_SPACE", message);
+            break;
+          case E_UNSUPPORTED_FORMAT:
+            result->Error("NOT_SUPPORTED_FORMAT", message);
+            break;
+          default:
+            result->Error("UNEXPECTED", message);
+            break;
+        }
+      }
+    }).detach();
+  } else if (method == "open") {
+    std::thread([] { Open(); }).detach();
+    result->Success();
+  } else if (method == "hasAccess" || method == "requestAccess") {
+    result->Success(true);
+  } else {
+    result->NotImplemented();
   }
 }
 
