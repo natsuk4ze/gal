@@ -33,19 +33,36 @@ namespace gal {
   throw winrt::hresult_error(E_UNSUPPORTED_FORMAT, UnsupportedFormatMessage);
 }
 
+void HandleError(
+    const winrt::hresult_error& e,
+    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
+  auto message = winrt::to_string(e.message());
+  switch (e.code()) {
+    case HRESULT_FROM_WIN32(ERROR_DISK_FULL):
+      result->Error("NOT_ENOUGH_SPACE", message);
+      break;
+    case E_UNSUPPORTED_FORMAT:
+      result->Error("NOT_SUPPORTED_FORMAT", message);
+      break;
+    default:
+      result->Error("UNEXPECTED", message);
+      break;
+  }
+}
+
 // https://support.microsoft.com/en-au/topic/graphic-file-types-c0374c44-71f8-45dc-a4d5-708064b5c99b
 std::wstring GetExtension(const std::vector<uint8_t>& data) {
   if (data.size() < 4) ThrowUnsupportedFormat();
+
   if (data[0] == 0xFF && data[1] == 0xD8) return L"jpg";
-  if (data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47)
-    return L"png";
   if (data[0] == 0x47 && data[1] == 0x49 && data[2] == 0x46) return L"gif";
   if (data[0] == 0x42 && data[1] == 0x4D) return L"bmp";
+  if (data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47)
+    return L"png";
   if (data[0] == 0x49 && data[1] == 0x49 && data[2] == 0x2A &&
           data[3] == 0x00 ||
       data[0] == 0x4D && data[1] == 0x4D && data[2] == 0x00 && data[3] == 0x2A)
     return L"tiff";
-
   if (data.size() < 41) ThrowUnsupportedFormat();
   if (data[40] == 0x20 && data[41] == 0x45 && data[42] == 0x4D &&
       data[43] == 0x46)
@@ -131,16 +148,7 @@ void GalPlugin::HandleMethodCall(
         PutMedia(path, album).get();
         result->Success();
       } catch (const winrt::hresult_error& e) {
-        auto message = winrt::to_string(e.message());
-        switch (e.code()) {
-          case HRESULT_FROM_WIN32(ERROR_DISK_FULL):
-            result->Error("NOT_ENOUGH_SPACE", message);
-            break;
-
-          default:
-            result->Error("UNEXPECTED", message);
-            break;
-        }
+        HandleError(e, std::move(result));
       }
     }).detach();
   } else if (method == "putImageBytes") {
@@ -156,18 +164,7 @@ void GalPlugin::HandleMethodCall(
         PutMediaBytes(bytes, album).get();
         result->Success();
       } catch (const winrt::hresult_error& e) {
-        auto message = winrt::to_string(e.message());
-        switch (e.code()) {
-          case HRESULT_FROM_WIN32(ERROR_DISK_FULL):
-            result->Error("NOT_ENOUGH_SPACE", message);
-            break;
-          case E_UNSUPPORTED_FORMAT:
-            result->Error("NOT_SUPPORTED_FORMAT", message);
-            break;
-          default:
-            result->Error("UNEXPECTED", message);
-            break;
-        }
+        HandleError(e, std::move(result));
       }
     }).detach();
   } else if (method == "open") {
