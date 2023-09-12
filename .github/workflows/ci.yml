@@ -37,7 +37,7 @@ jobs:
         id: Run-integration-tests
         timeout-minutes: 5
         run: |
-          "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" update --installPath="C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+          & "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" update --installPath="C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
           cd example
           flutter test integration_test/integration_test.dart windows -v
 
