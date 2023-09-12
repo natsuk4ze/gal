@@ -7,6 +7,8 @@ cmake_minimum_required(VERSION 3.14)
 # Project-level configuration.
 set(PROJECT_NAME "gal")
 project(${PROJECT_NAME} LANGUAGES CXX)
+
+# Added by natsuk4ze for c++ 20
 set(CMAKE_CXX_STANDARD 20)
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
@@ -31,6 +33,7 @@ add_library(${PLUGIN_NAME} SHARED
   ${PLUGIN_SOURCES}
 )
 
+# Added by natsuk4ze for c++ 20
 if(MSVC)
   target_compile_options(${PLUGIN_NAME} PRIVATE /await)
 endif()
