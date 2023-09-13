@@ -148,7 +148,6 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         }
     }
 
-    @SuppressWarnings("EmptyStatementCheck")
     private ContentValues createContentValues(boolean isImage, String name, String extension,
             String album) {
         ContentValues values = new ContentValues();
