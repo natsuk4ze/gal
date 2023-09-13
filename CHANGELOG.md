@@ -1,3 +1,7 @@
+## 2.1.0
+
+* **ADD: windows support** #148
+
 ## 2.0.0
 
 * **ADD: macOS support** #142
