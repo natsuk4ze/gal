@@ -17,7 +17,7 @@ jobs:
 
   windows:
     needs: set-up
-    timeout-minutes: 60
+    timeout-minutes: 30
     strategy:
       matrix:
         windows-version: [10]
@@ -42,7 +42,7 @@ jobs:
 
   macos:
     needs: set-up
-    timeout-minutes: 60
+    timeout-minutes: 30
     strategy:
       matrix:
         macos-version: [13]
@@ -63,7 +63,7 @@ jobs:
         timeout-minutes: 15
         run: |
           cd example
-          flutter test integration_test/integration_test.dart -d macos
+          flutter test integration_test/integration_test.dart macos
 
   ios:
     needs: set-up
