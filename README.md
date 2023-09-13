@@ -8,11 +8,11 @@
 ![CI](https://github.com/natsuk4ze/gal/actions/workflows/ci.yml/badge.svg?branch=main)
 [![pub package](https://img.shields.io/pub/v/gal.svg)](https://pub.dev/packages/gal)
 
-## Dart3 plugin for saving image/video to gallery <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/fe/3a/7e/fe3a7e0e-7f52-b750-0ed2-523998c59d48/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/246x0w.webp" alt="ios photo" width="20" height="20"/> <img src="https://play-lh.googleusercontent.com/ZyWNGIfzUyoajtFcD7NhMksHEZh37f-MkHVGr5Yfefa-IX7yj9SMfI82Z7a2wpdKCA=w240-h480-rw" alt="amdroid photo" width="20" height="20"/> 
+## Dart3 plugin for saving image/video to gallery <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/fe/3a/7e/fe3a7e0e-7f52-b750-0ed2-523998c59d48/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/246x0w.webp" alt="ios photos" width="20" height="20"/> <img src="https://play-lh.googleusercontent.com/ZyWNGIfzUyoajtFcD7NhMksHEZh37f-MkHVGr5Yfefa-IX7yj9SMfI82Z7a2wpdKCA=w240-h480-rw" alt="google photos" width="20" height="20"/> <img src="https://upload.wikimedia.org/wikipedia/en/9/94/Microsoft_Photos_logo.png" alt="microsoft photos" width="22" height="22"/> 
 ### Please [LIKE👍](https://pub.dev/packages/gal) and [STAR⭐️](https://github.com/natsuk4ze/gal) to support our volunteer efforts.
-|             | Android | iOS     | macOS |
-|-------------|---------|---------|-------|
-| **Support** | SDK 21+ | iOS 11+ |  11+  |
+|             | Android | iOS     | MacOS | Windows |
+|-------------|---------|---------|-------|---------|
+| **Support** | SDK 21+ | iOS 11+ |  11+  |   10+   |
 
 |             | iOS | Android |
 |-------------|-----|---------|
@@ -40,32 +40,44 @@ You can use the command to add gal as a dependency with the latest stable versio
 $ flutter pub add gal
 ```
 
-### iOS & macOS
+### iOS
 
-Add the following key to your _Info.plist_ file, located in
-`<project root>/<ios or macos>/Runner/Info.plist`:
+Add the following keys to the `ios/Runner/Info.plist`:
 
 * `<key>NSPhotoLibraryAddUsageDescription</key>` Required
 * `<key>NSPhotoLibraryUsageDescription</key>` Required for ios < 14 or saving to album
 
-you can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
-
-> **🔴 Warning:**
-Flutter has [fatal crash issee on macOS for loading info.plist](https://github.com/flutter/flutter/issues/134191) now.
+You can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
 
 ### Android (API <29)
 
-Add the following key to your _AndroidManifest_ file, located in
-`<project root>/android/app/src/main/AndroidManifest.xml`:
+Add the following keys to the `android/app/src/main/AndroidManifest.xml`:
 
 * `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
                  android:maxSdkVersion="29" />` Required for API <= 29
 * `android:requestLegacyExternalStorage="true"` Required for saving to album in API 29
 
-you can copy from [AndroidManifest.xml in example](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
+You can copy from [AndroidManifest.xml in example](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
 
 > **🔴 Warning:**
 Android emulators with API < 29 require SD card setup. Real devices don't.
+
+### MacOS
+
+Add the following keys to the `macos/Runner/Info.plist`:
+
+* `<key>NSPhotoLibraryAddUsageDescription</key>` Required
+* `<key>NSPhotoLibraryUsageDescription</key>` Required for saving to album
+
+You can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/macos/Runner/Info.plist).
+
+> **🔴 Warning:**
+Flutter has [fatal crash issee on macOS for loading info.plist](https://github.com/flutter/flutter/issues/134191) now.
+
+### Windows
+
+We recommend that you update [Visual Studio](https://visualstudio.microsoft.com) to the latest version for using `C++ 20`.
+
 
 ## ✅ Usage
 

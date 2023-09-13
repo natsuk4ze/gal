@@ -41,7 +41,7 @@ gradle-wrapper.jar
 local.properties
 key.properties
 
-# iOS related
+# Darwin related
 xcuserdata
 *sync/
 **/Flutter/ephemeral/
@@ -56,3 +56,13 @@ Flutter.podspec
 Generated.xcconfig
 flutter_export_environment.sh
 GeneratedPluginRegistrant.*
+
+# Windows related
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.[Cc]ache
+!*.[Cc]ache/
+**/x64/
+**/x86/
