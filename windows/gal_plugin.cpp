@@ -1,13 +1,12 @@
 #include "gal_plugin.h"
 
-// This must be included before many other Windows headers.
 #include <flutter/event_channel.h>
 #include <flutter/event_sink.h>
 #include <flutter/event_stream_handler_functions.h>
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
-#include <windows.h>
+#include <windows.h>  // This must be included before many other Windows headers.
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.Storage.h>
