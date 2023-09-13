@@ -24,7 +24,29 @@ using namespace winrt::Windows::Storage::Streams;
 
 namespace gal {
 
-[[noreturn]] void ThrowUnsupportedFormat() {
+struct BytePattern {
+  std::vector<uint8_t> pattern;
+  int offset;
+};
+
+// https://support.microsoft.com/en-au/topic/graphic-file-types-c0374c44-71f8-45dc-a4d5-708064b5c99b
+std::map<std::wstring, BytePattern> extension_map = {
+    {L"jpg", {{0xFF, 0xD8}, 0}},
+    {L"gif", {{0x47, 0x49, 0x46}, 0}},
+    {L"bmp", {{0x42, 0x4D}, 0}},
+    {L"png", {{0x89, 0x50, 0x4E, 0x47}, 0}},
+    {L"tiff", {{0x49, 0x49, 0x2A, 0x00}, 0}},
+    {L"tiff", {{0x4D, 0x4D, 0x00, 0x2A}, 0}},
+    {L"emf", {{0x20, 0x45, 0x4D, 0x46}, 40}}};
+
+std::wstring GetExtension(const std::vector<uint8_t>& data) {
+  for (const auto& [ext, pattern] : extension_map) {
+    if (data.size() < pattern.pattern.size() + pattern.offset) continue;
+    if (std::equal(pattern.pattern.begin(), pattern.pattern.end(),
+                   data.begin() + pattern.offset)) {
+      return ext;
+    }
+  }
   throw winrt::hresult_error(E_UNSUPPORTED_FORMAT,
                              L"Image file format must be supported by Windows "
                              L"(.jpg, .png, .gif, .bmp, .tiff, .emf).");
@@ -45,27 +67,6 @@ void HandleError(
       result->Error("UNEXPECTED", message);
       break;
   }
-}
-
-// https://support.microsoft.com/en-au/topic/graphic-file-types-c0374c44-71f8-45dc-a4d5-708064b5c99b
-std::wstring GetExtension(const std::vector<uint8_t>& data) {
-  if (data.size() < 4) ThrowUnsupportedFormat();
-
-  if (data[0] == 0xFF && data[1] == 0xD8) return L"jpg";
-  if (data[0] == 0x47 && data[1] == 0x49 && data[2] == 0x46) return L"gif";
-  if (data[0] == 0x42 && data[1] == 0x4D) return L"bmp";
-  if (data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47)
-    return L"png";
-  if (data[0] == 0x49 && data[1] == 0x49 && data[2] == 0x2A &&
-          data[3] == 0x00 ||
-      data[0] == 0x4D && data[1] == 0x4D && data[2] == 0x00 && data[3] == 0x2A)
-    return L"tiff";
-  if (data.size() < 41) ThrowUnsupportedFormat();
-  if (data[40] == 0x20 && data[41] == 0x45 && data[42] == 0x4D &&
-      data[43] == 0x46)
-    return L"emf";
-
-  ThrowUnsupportedFormat();
 }
 
 IAsyncAction Open() { co_await Launcher::LaunchUriAsync(Uri(L"ms-photos:")); }
