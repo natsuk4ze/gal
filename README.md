@@ -72,7 +72,7 @@ Add the following keys to the `macos/Runner/Info.plist`:
 You can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/macos/Runner/Info.plist).
 
 > **🔴 Warning:**
-Flutter has [fatal crash issee on macOS for loading info.plist](https://github.com/flutter/flutter/issues/134191) now.
+Flutter has [fatal crash issee for loading info.plist on macOS](https://github.com/flutter/flutter/issues/134191) now.
 
 ### Windows
 
