@@ -1,4 +1,4 @@
-example/ios/* linguist-documentation=true
-example/android/* linguist-documentation=true
-example/macos/* linguist-documentation=true
-example/windows/* linguist-documentation=true
+example/ios/* linguist-documentation
+example/android/* linguist-documentation
+example/macos/* linguist-documentation
+example/windows/* linguist-documentation
