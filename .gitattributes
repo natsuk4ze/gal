@@ -1,4 +1,4 @@
-example/ios/* linguist-generated=true
-example/android/* linguist-generated=true
-example/macos/* linguist-generated=true
-example/windows/* linguist-generated=true
+example/ios/* linguist-documentation=true
+example/android/* linguist-documentation=true
+example/macos/* linguist-documentation=true
+example/windows/* linguist-documentation=true
