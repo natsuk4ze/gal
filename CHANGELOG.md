@@ -1,3 +1,8 @@
+## 2.1.1
+
+* UPDATE: `putImageBytes` for Improving performance on windows #155
+* FIX: `putImageBytes` for saving .tiff on windows #154
+
 ## 2.1.0
 
 * **ADD: windows support** #148
