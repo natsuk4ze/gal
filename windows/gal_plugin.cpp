@@ -154,7 +154,7 @@ void GalPlugin::HandleMethodCall(
       }
     }).detach();
   } else if (method == "putImageBytes") {
-    const auto bytes =
+    const auto& bytes =
         std::get<vector<uint8_t>>(args->at(EncodableValue("bytes")));
     optional<string> album;
     if (auto p = std::get_if<string>(&args->at(EncodableValue("album")))) {
