@@ -12,24 +12,33 @@
 #include <winrt/Windows.Storage.h>
 #include <winrt/Windows.System.h>
 
-#include <optional>
-
-#define E_UNSUPPORTED_FORMAT ((HRESULT)0x80001000L)
-
-using namespace winrt::Windows::Storage;
-using namespace winrt::Windows::Foundation;
-using namespace winrt::Windows::System;
-using namespace winrt::Windows::Storage::Streams;
-
 namespace gal {
 
-struct BytePattern {
-  std::vector<uint8_t> pattern;
-  int offset;
+using flutter::EncodableValue;
+using std::optional;
+using std::string;
+using std::vector;
+using std::wstring;
+using winrt::Windows::Foundation::IAsyncAction;
+using winrt::Windows::Foundation::Uri;
+using winrt::Windows::Storage::CreationCollisionOption;
+using winrt::Windows::Storage::FileAccessMode;
+using winrt::Windows::Storage::KnownFolders;
+using winrt::Windows::Storage::NameCollisionOption;
+using winrt::Windows::Storage::StorageFile;
+using winrt::Windows::Storage::StorageFolder;
+using winrt::Windows::Storage::Streams::DataWriter;
+using winrt::Windows::System::Launcher;
+
+constexpr HRESULT E_UNSUPPORTED_FORMAT = 0x80001000L;
+
+struct Bytes {
+  const vector<uint8_t> pattern;
+  const int offset;
 };
 
 // https://support.microsoft.com/en-au/topic/graphic-file-types-c0374c44-71f8-45dc-a4d5-708064b5c99b
-std::map<std::wstring, BytePattern> extension_map = {
+std::unordered_multimap<wstring, Bytes> extension_map = {
     {L"jpg", {{0xFF, 0xD8}, 0}},
     {L"gif", {{0x47, 0x49, 0x46}, 0}},
     {L"bmp", {{0x42, 0x4D}, 0}},
@@ -38,11 +47,11 @@ std::map<std::wstring, BytePattern> extension_map = {
     {L"tiff", {{0x4D, 0x4D, 0x00, 0x2A}, 0}},
     {L"emf", {{0x20, 0x45, 0x4D, 0x46}, 40}}};
 
-std::wstring GetExtension(const std::vector<uint8_t>& data) {
-  for (const auto& [ext, pattern] : extension_map) {
-    if (data.size() < pattern.pattern.size() + pattern.offset) continue;
-    if (std::equal(pattern.pattern.begin(), pattern.pattern.end(),
-                   data.begin() + pattern.offset)) {
+wstring GetExtension(const vector<uint8_t>& data) {
+  for (const auto& [ext, bytes] : extension_map) {
+    if (data.size() < bytes.pattern.size() + bytes.offset) continue;
+    if (std::equal(bytes.pattern.begin(), bytes.pattern.end(),
+                   data.begin() + bytes.offset)) {
       return ext;
     }
   }
@@ -52,9 +61,9 @@ std::wstring GetExtension(const std::vector<uint8_t>& data) {
 }
 
 void HandleError(
-    const winrt::hresult_error& e,
-    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-  auto message = winrt::to_string(e.message());
+    const winrt::hresult_error e,
+    const std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+  const auto message = winrt::to_string(e.message());
   switch (e.code()) {
     case HRESULT_FROM_WIN32(ERROR_DISK_FULL):
       result->Error("NOT_ENOUGH_SPACE", message);
@@ -70,11 +79,11 @@ void HandleError(
 
 IAsyncAction Open() { co_await Launcher::LaunchUriAsync(Uri(L"ms-photos:")); }
 
-static IAsyncAction PutMedia(const std::string& path,
-                             std::optional<std::string> album) {
-  StorageFile file =
+static IAsyncAction PutMedia(string path, const optional<string> album) {
+  std::replace(path.begin(), path.end(), '/', '\\');
+  const auto file =
       co_await StorageFile::GetFileFromPathAsync(winrt::to_hstring(path));
-  StorageFolder folder = KnownFolders::PicturesLibrary();
+  auto folder = KnownFolders::PicturesLibrary();
   if (album) {
     folder = co_await folder.CreateFolderAsync(
         winrt::to_hstring(album.value()),
@@ -84,15 +93,15 @@ static IAsyncAction PutMedia(const std::string& path,
                           NameCollisionOption::GenerateUniqueName);
 }
 
-static IAsyncAction PutMediaBytes(const std::vector<uint8_t>& bytes,
-                                  std::optional<std::string> album) {
-  StorageFolder folder = KnownFolders::PicturesLibrary();
+static IAsyncAction PutMediaBytes(const vector<uint8_t>& bytes,
+                                  const optional<string> album) {
+  auto folder = KnownFolders::PicturesLibrary();
   if (album) {
     folder = co_await folder.CreateFolderAsync(
         winrt::to_hstring(album.value()),
         CreationCollisionOption::OpenIfExists);
   }
-  StorageFile file = co_await folder.CreateFileAsync(
+  auto file = co_await folder.CreateFileAsync(
       L"image." + GetExtension(bytes),
       CreationCollisionOption::GenerateUniqueName);
 
@@ -106,10 +115,9 @@ static IAsyncAction PutMediaBytes(const std::vector<uint8_t>& bytes,
 
 void GalPlugin::RegisterWithRegistrar(
     flutter::PluginRegistrarWindows* registrar) {
-  auto channel =
-      std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
-          registrar->messenger(), "gal",
-          &flutter::StandardMethodCodec::GetInstance());
+  auto channel = std::make_unique<flutter::MethodChannel<EncodableValue>>(
+      registrar->messenger(), "gal",
+      &flutter::StandardMethodCodec::GetInstance());
 
   auto plugin = std::make_unique<GalPlugin>();
 
@@ -126,20 +134,17 @@ GalPlugin::GalPlugin() {}
 GalPlugin::~GalPlugin() {}
 
 void GalPlugin::HandleMethodCall(
-    const flutter::MethodCall<flutter::EncodableValue>& method_call,
-    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
-  const auto* args =
-      std::get_if<flutter::EncodableMap>(method_call.arguments());
-  const std::string method = method_call.method_name();
+    const flutter::MethodCall<EncodableValue>& method_call,
+    std::unique_ptr<flutter::MethodResult<EncodableValue>> result) {
+  const auto args = std::get_if<flutter::EncodableMap>(method_call.arguments());
+  const auto method = method_call.method_name();
+
   if (method == "putImage" || method == "putVideo") {
-    std::optional<std::string> album;
-    auto encodable_value = args->at(flutter::EncodableValue("album"));
-    if (auto string_ptr = std::get_if<std::string>(&encodable_value)) {
-      album = *string_ptr;
+    optional<string> album;
+    if (auto p = std::get_if<string>(&args->at(EncodableValue("album")))) {
+      album.emplace(*p);
     }
-    auto path =
-        std::get<std::string>(args->at(flutter::EncodableValue("path")));
-    std::replace(path.begin(), path.end(), '/', '\\');
+    const auto path = std::get<string>(args->at(EncodableValue("path")));
     std::thread([path, album, result = std::move(result)]() mutable {
       try {
         PutMedia(path, album).get();
@@ -149,12 +154,11 @@ void GalPlugin::HandleMethodCall(
       }
     }).detach();
   } else if (method == "putImageBytes") {
-    auto bytes = std::get<std::vector<uint8_t>>(
-        args->at(flutter::EncodableValue("bytes")));
-    std::optional<std::string> album;
-    auto encodable_value = args->at(flutter::EncodableValue("album"));
-    if (auto string_ptr = std::get_if<std::string>(&encodable_value)) {
-      album = *string_ptr;
+    const auto bytes =
+        std::get<vector<uint8_t>>(args->at(EncodableValue("bytes")));
+    optional<string> album;
+    if (auto p = std::get_if<string>(&args->at(EncodableValue("album")))) {
+      album.emplace(*p);
     }
     std::thread([bytes, album, result = std::move(result)]() mutable {
       try {
