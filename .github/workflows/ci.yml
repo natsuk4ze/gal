@@ -70,7 +70,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        ios-version: [16]
+        ios-version: [16,17]
       fail-fast: false
     runs-on: macos-13
     steps:
