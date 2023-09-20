@@ -82,18 +82,21 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: beta
-
-      - name: Boot ios simulator
-        uses: futureware-tech/simulator-action@v2
-        with:
-          model: iPhone 14 Pro Max
-          os_version: ^${{ matrix.ios-version }}
+      
+      - name: Check Xcode version
+        run: xcodebuild -version
       
       - name: Set Xcode version
         run: sudo xcode-select -s '/Applications/Xcode_15.0.app/Contents/Developer'
 
       - name: Check Xcode version
         run: xcodebuild -version
+
+      - name: Boot ios simulator
+        uses: futureware-tech/simulator-action@v2
+        with:
+          model: iPhone 14 Pro Max
+          os_version: ^${{ matrix.ios-version }}
       
       - name: Grant permission
         run: |
