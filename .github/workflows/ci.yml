@@ -90,11 +90,7 @@ jobs:
           os_version: ^${{ matrix.ios-version }}
       
       - name: Grant permission
-        run: |
-          brew tap wix/brew
-          brew install applesimutils
-          cd example
-          applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
+        run: xcrun simctl privacy booted grant photos studio.midoridesign.galExample 
 
       - name: Run integration tests
         id: Run-integration-tests
