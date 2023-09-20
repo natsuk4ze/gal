@@ -89,8 +89,18 @@ jobs:
           model: iPhone 14 Pro Max
           os_version: ^${{ matrix.ios-version }}
       
+      - name: Set Xcode version
+        run: sudo xcode-select -s '/Applications/Xcode_15.0.app/Contents/Developer'
+
+      - name: Check Xcode version
+        run: xcodebuild -version
+      
       - name: Grant permission
-        run: xcrun simctl privacy booted grant photos studio.midoridesign.galExample 
+        run: |
+          brew tap wix/brew
+          brew install applesimutils
+          cd example
+          applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
 
       - name: Run integration tests
         id: Run-integration-tests
