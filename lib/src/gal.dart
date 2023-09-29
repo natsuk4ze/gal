@@ -12,6 +12,7 @@ final class Gal {
   /// Save a video to the gallery from file [path].
   ///
   /// Specify the album with [album]. If it does not exist, it will be created.
+  /// [path] must include the file extension.
   /// Throws an [GalException] If you do not have access premission or
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
@@ -21,6 +22,7 @@ final class Gal {
   /// Save a image to the gallery from file [path].
   ///
   /// Specify the album with [album]. If it does not exist, it will be created.
+  /// [path] must include the file extension.
   /// Throws an [GalException] If you do not have access premission or
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
