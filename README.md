@@ -174,6 +174,7 @@ enum GalExceptionType {
 
 
 ## 📝 Ducuments
+If you write an article about gal, let us know on dissucussion and we will post the URL of the article in the wiki or readme 🤝
 
 - ### [🎯 Example](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart)
 - ### [👌 Best Practice](https://github.com/natsuk4ze/gal/wiki/Best-Practice)
