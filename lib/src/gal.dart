@@ -13,6 +13,9 @@ final class Gal {
   ///
   /// Specify the album with [album]. If it does not exist, it will be created.
   /// [path] must include the file extension.
+  /// ```dart
+  /// await Gal.putVideo('${Directory.systemTemp.path}/video.mp4');
+  /// ```
   /// Throws an [GalException] If you do not have access premission or
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
@@ -23,6 +26,9 @@ final class Gal {
   ///
   /// Specify the album with [album]. If it does not exist, it will be created.
   /// [path] must include the file extension.
+  /// ```dart
+  /// await Gal.putImage('${Directory.systemTemp.path}/image.jpg');
+  /// ```
   /// Throws an [GalException] If you do not have access premission or
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
