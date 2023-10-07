@@ -1,3 +1,8 @@
+## 2.1.2
+
+* UPDATE: document comments #158
+* UPDATE: metadata for pub.dev #158 
+
 ## 2.1.1
 
 * UPDATE: `putImageBytes` for Improving performance on windows #155
