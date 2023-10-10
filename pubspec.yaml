@@ -35,10 +35,10 @@ flutter:
         package: studio.midoridesign.gal
         pluginClass: GalPlugin
       ios:
-        pluginClass: GalPlugin
+        pluginClass: Gal
         sharedDarwinSource: true
       macos:
-        pluginClass: GalPlugin
+        pluginClass: Gal
         sharedDarwinSource: true
       windows:
         pluginClass: GalPluginCApi
