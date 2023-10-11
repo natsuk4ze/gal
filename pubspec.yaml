@@ -1,6 +1,6 @@
 name: gal
-description: Gal is a Flutter plugin for saving image or video to gallary/photos. You can also easily handle permissions.
-version: 2.1.1
+description: How to Save Image/Video to the Photo Gallery in Flutter | How to Save Media to Photo Gallery in Flutter | Image & Video Gallery Saver Plugin | Flutter Media Saver
+version: 2.1.2
 homepage: https://pub.dev/packages/gal
 repository: https://github.com/natsuk4ze/gal
 
