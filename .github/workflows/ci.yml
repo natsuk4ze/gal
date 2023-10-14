@@ -104,6 +104,7 @@ jobs:
           cd example
           flutter test integration_test/integration_test.dart
 
+      # Retry: Integration testing with GitHub Actions is unstable.
       - name: Retry integration tests
         id: Retry-integration-tests
         timeout-minutes: 15
@@ -168,6 +169,7 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: echo "Generated AVD snapshot for caching."
  
+      # Retry: Integration testing with GitHub Actions is unstable.
       - name: Run integration tests
         id: Run-integration-tests
         continue-on-error: true
@@ -180,11 +182,13 @@ jobs:
           emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
+          disk-size: 2048M
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart
  
+      # Retry: Integration testing with GitHub Actions is unstable.
       - name: Retry integration tests
         id: Retry-integration-tests
         continue-on-error: true
@@ -198,6 +202,7 @@ jobs:
           emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
+          disk-size: 2048M
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
             adb kill-server
@@ -207,6 +212,7 @@ jobs:
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart
 
+      # Retry: Integration testing with GitHub Actions is unstable.
       - name: Re:Retry integration tests
         if: steps.Retry-integration-tests.outcome == 'failure'
         timeout-minutes: 20
@@ -218,6 +224,7 @@ jobs:
           emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
+          disk-size: 2048M
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
             adb kill-server
