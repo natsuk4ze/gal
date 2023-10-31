@@ -1,3 +1,6 @@
+## 2.1.3
+* Base support for `Linux`
+
 ## 2.1.2
 
 * UPDATE: document comments #158
