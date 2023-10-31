@@ -78,6 +78,13 @@ Flutter has [fatal crash issee for loading info.plist on macOS](https://github.c
 
 We recommend that you update [Visual Studio](https://visualstudio.microsoft.com) to the latest version for using `C++ 20`.
 
+### Linux
+The following command executables are required to use this plugin:
+1. `mkdir`
+2. `cp`
+3. `rm`
+4. `wget`
+
 
 ## ✅ Usage
 

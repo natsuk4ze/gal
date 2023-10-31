@@ -1,10 +1,26 @@
-import 'dart:io' show Platform;
+import 'dart:io' show Directory, File, Platform, ProcessException;
 
 import 'package:flutter/foundation.dart' show Uint8List, immutable, kIsWeb;
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:gal/src/gal_exception.dart';
+import 'package:gal/src/utils/command_line.dart';
+import 'package:gal/src/utils/extensions/uri.dart';
+import 'package:meta/meta.dart' show experimental;
+import 'package:path/path.dart' show basename;
 
-/// Implmenetation for Linux platform
+enum _FileType {
+  image,
+  video,
+}
+
+/// Impl for Linux platform
+///
+/// currently the support for Linux is limitied
+/// we will always use [GalExceptionType.unexpected]
+///
+/// it's 100% spesefic to Linux, it could work for Unix based OS
 @immutable
+@experimental
 final class GalLinuxImpl {
   const GalLinuxImpl._();
 
@@ -12,7 +28,7 @@ final class GalLinuxImpl {
     if (kIsWeb) {
       return false;
     }
-    return Platform.isLinux;
+    return Platform.isMacOS;
   }
 
   /// Save a video to the gallery from file [path].
@@ -25,10 +41,13 @@ final class GalLinuxImpl {
   /// Throws an [GalException] If you do not have access premission or
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
-  static Future<void> putVideo(String path, {String? album}) async =>
-      throw UnsupportedError(
-        'Linux is not supported yet.',
-      );
+  static Future<void> putVideo(String path, {String? album}) async {
+    await _downloadFileToAlbum(
+      path,
+      fileType: _FileType.video,
+      album: album,
+    );
+  }
 
   /// Save a image to the gallery from file [path].
   ///
@@ -40,10 +59,135 @@ final class GalLinuxImpl {
   /// Throws an [GalException] If you do not have access premission or
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
-  static Future<void> putImage(String path, {String? album}) async =>
-      throw UnsupportedError(
-        'Linux is not supported yet.',
+  static Future<void> putImage(String path, {String? album}) async {
+    await _downloadFileToAlbum(
+      path,
+      fileType: _FileType.image,
+      album: album,
+    );
+  }
+
+  static Future<void> _downloadFileToAlbum(
+    String path, {
+    required _FileType fileType,
+    String? album,
+  }) async {
+    try {
+      final file = File(path);
+      final fileExists = await file.exists();
+      var filePath = path;
+
+      String? downloadedFilePath;
+      if (!fileExists) {
+        final fileName = basename(path);
+        final uri = Uri.parse(path);
+        if (!uri.isHttpBasedUrl()) {
+          throw UnsupportedError(
+            'You are trying to put file with path `$path` that does not exists '
+            'locally, Also it does not start with `http` or `https`',
+          );
+        }
+        await executeCommand(
+          executalbe: 'wget',
+          args: [
+            '-O',
+            fileName,
+            path,
+          ],
+        );
+        final workingDir = Directory.current.path;
+        downloadedFilePath = '$workingDir/$fileName';
+        filePath = downloadedFilePath;
+      }
+      final fileName = basename(filePath);
+      if (album != null) {
+        final newFileLocation = _getNewFileLocationWithAlbum(
+          fileType: fileType,
+          album: album,
+          fileName: fileName,
+        );
+        await executeCommand(
+          executalbe: 'mkdir',
+          args: [
+            '-p',
+            newFileLocation,
+          ],
+        );
+        await executeCommand(
+          executalbe: 'cp',
+          args: [
+            filePath,
+            newFileLocation,
+          ],
+        );
+      } else {
+        final newLocation = _getNewFileLocation(fileName: fileName);
+        await executeCommand(
+          executalbe: 'mkdir',
+          args: [
+            '-p',
+            newLocation,
+          ],
+        );
+        await executeCommand(
+          executalbe: 'cp',
+          args: [
+            filePath,
+            newLocation,
+          ],
+        );
+      }
+      // Remove the downloaded file from the network if it exists
+      if (downloadedFilePath != null) {
+        await executeCommand(
+          executalbe: 'rm',
+          args: [
+            downloadedFilePath,
+          ],
+        );
+      }
+    } on ProcessException catch (e) {
+      throw GalException(
+        type: GalExceptionType.unexpected,
+        platformException: PlatformException(
+          code: e.errorCode.toString(),
+          message: e.toString(),
+          details: e.message.toString(),
+          stacktrace: StackTrace.current.toString(),
+        ),
+        stackTrace: StackTrace.current,
       );
+    } catch (e) {
+      throw GalException(
+        type: GalExceptionType.unexpected,
+        platformException: PlatformException(
+          code: e.toString(),
+          message: e.toString(),
+          details: e.toString(),
+          stacktrace: StackTrace.current.toString(),
+        ),
+        stackTrace: StackTrace.current,
+      );
+    }
+  }
+
+  static String _getNewFileLocationWithAlbum({
+    required _FileType fileType,
+    required String album,
+    required String fileName,
+  }) {
+    final newFileLocation = switch (fileType) {
+      _FileType.image => '~/Pictures/$album/$fileName',
+      _FileType.video => '~/Videos/$album/$fileName',
+    };
+    return newFileLocation;
+  }
+
+  static String _getNewFileLocation({
+    required String fileName,
+  }) {
+    return '${Directory.systemTemp.path}/$fileName';
+  }
 
   /// Save a image to the gallery from [Uint8List].
   ///
@@ -51,10 +195,18 @@ final class GalLinuxImpl {
   /// Throws an [GalException] If you do not have access premission or
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
-  static Future<void> putImageBytes(Uint8List bytes, {String? album}) async =>
-      throw UnsupportedError(
-        'Linux is not supported yet.',
-      );
+  static Future<void> putImageBytes(Uint8List bytes, {String? album}) async {
+    final fileName = '${DateTime.now().toIso8601String()}.png';
+    final newFileLocation = album == null
+        ? _getNewFileLocation(fileName: DateTime.now().toIso8601String())
+        : _getNewFileLocationWithAlbum(
+            fileType: _FileType.image,
+            album: album,
+            fileName: fileName,
+          );
+    final file = File(newFileLocation);
+    await file.writeAsBytes(bytes);
+  }
 
   /// Open gallery app.
   ///

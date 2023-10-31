@@ -27,7 +27,10 @@ final class GalPlatform {
   static Future<void> putVideo(String path, {String? album}) async {
     await requestAccess(toAlbum: album != null);
     if (GalLinuxImpl.isLinux) {
-      await GalLinuxImpl.putVideo(path);
+      await GalLinuxImpl.putVideo(
+        path,
+        album: album,
+      );
       return;
     }
     await _invokeMethod<void>('putVideo', {'path': path, 'album': album});
@@ -36,7 +39,10 @@ final class GalPlatform {
   static Future<void> putImage(String path, {String? album}) async {
     await requestAccess(toAlbum: album != null);
     if (GalLinuxImpl.isLinux) {
-      await GalLinuxImpl.putImage(path);
+      await GalLinuxImpl.putImage(
+        path,
+        album: album,
+      );
       return;
     }
     await _invokeMethod<void>('putImage', {'path': path, 'album': album});
