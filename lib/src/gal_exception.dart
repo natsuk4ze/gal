@@ -23,9 +23,10 @@ class GalException implements Exception {
       orElse: () => GalExceptionType.unexpected,
     );
     return GalException(
-        type: type,
-        platformException: platformException,
-        stackTrace: stackTrace);
+      type: type,
+      platformException: platformException,
+      stackTrace: stackTrace,
+    );
   }
   @override
   String toString() => "[GalException/${type.code}]: ${type.message}";
