@@ -31,7 +31,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  meta: ^1.9.1
   path: ^1.8.3
 
 dev_dependencies:

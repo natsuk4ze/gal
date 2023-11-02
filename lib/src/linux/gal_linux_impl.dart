@@ -5,8 +5,6 @@ import 'package:flutter/services.dart' show PlatformException;
 import 'package:gal/src/gal_exception.dart';
 import 'package:gal/src/utils/command_line.dart';
 import 'package:gal/src/utils/extensions/uri.dart';
-import 'package:meta/meta.dart' show experimental;
-import 'package:path/path.dart' show basename;
 
 enum _FileType {
   image,
@@ -20,7 +18,6 @@ enum _FileType {
 ///
 /// it's 100% spesefic to Linux, it could work for Unix based OS
 @immutable
-@experimental
 final class GalLinuxImpl {
   const GalLinuxImpl._();
 
@@ -28,7 +25,11 @@ final class GalLinuxImpl {
     if (kIsWeb) {
       return false;
     }
-    return Platform.isMacOS;
+    return Platform.isLinux;
+  }
+
+  static String _baseName(String path) {
+    return File(path).uri.pathSegments.last;
   }
 
   /// Save a video to the gallery from file [path].
@@ -79,7 +80,7 @@ final class GalLinuxImpl {
 
       String? downloadedFilePath;
       if (!fileExists) {
-        final fileName = basename(path);
+        final fileName = _baseName(path);
         final uri = Uri.parse(path);
         if (!uri.isHttpBasedUrl()) {
           throw UnsupportedError(
@@ -99,7 +100,7 @@ final class GalLinuxImpl {
         downloadedFilePath = '$workingDir/$fileName';
         filePath = downloadedFilePath;
       }
-      final fileName = basename(filePath);
+      final fileName = _baseName(filePath);
       if (album != null) {
         final newFileLocation = _getNewFileLocationWithAlbum(
           fileType: fileType,
