@@ -19,9 +19,13 @@ Future<String> executeCommand({
   }
   final command = await Process.run(executalbe, args);
   if (command.exitCode != 0) {
-    print(
-      'Process exception, ${command.stderr}',
-    );
+    if (kDebugMode) {
+      if (printResult) {
+        print(
+          'Process exception, ${command.stderr}',
+        );
+      }
+    }
     throw ProcessException(
       executalbe,
       args,

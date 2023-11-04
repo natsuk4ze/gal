@@ -16,7 +16,7 @@ enum _FileType {
 /// currently the support for Linux is limitied
 /// we will always use [GalExceptionType.unexpected]
 ///
-/// it's 100% spesefic to Linux, it could work for Unix based OS
+/// it's not 100% spesefic to Linux, it could work for Unix based OS
 @immutable
 final class GalLinuxImpl {
   const GalLinuxImpl._();
