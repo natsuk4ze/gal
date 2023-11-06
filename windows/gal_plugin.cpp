@@ -11,6 +11,7 @@
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.Storage.h>
 #include <winrt/Windows.System.h>
+#include <thread>
 
 namespace gal {
 
