@@ -76,7 +76,7 @@ Flutter has [fatal crash issee for loading info.plist on macOS](https://github.c
 
 ### Windows
 
-We recommend that you update [Visual Studio](https://visualstudio.microsoft.com) to the latest version for using `C++ 20`.
+Update [Visual Studio](https://visualstudio.microsoft.com) to the latest version for using `C++ 20`.
 
 
 ## ✅ Usage
@@ -185,6 +185,6 @@ If you write an article about gal, let us know on dissucussion and we will post 
 ## 💚 Trusted by huge projects
 Although gal has only been released for a short time, it is already trusted by huge projects.
 
-- ### [localsend - 15k⭐️](https://github.com/localsend/localsend)
+- ### [localsend - 20k⭐️](https://github.com/localsend/localsend)
 - ### [flutter-quill - 2.1k⭐️](https://github.com/singerdmx/flutter-quill)
 and more...
