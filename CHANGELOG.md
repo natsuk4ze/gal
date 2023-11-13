@@ -1,3 +1,7 @@
+## 2.1.3
+
+* FIX: Compilation error on Windows in some environments #166
+
 ## 2.1.2
 
 * UPDATE: document comments #158
