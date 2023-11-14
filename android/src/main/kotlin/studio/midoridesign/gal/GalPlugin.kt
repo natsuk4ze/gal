@@ -67,7 +67,7 @@ class GalPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
                             path, call.argument("album"),
                             call.method.contains("Image")
                         )
-                        Handler(Looper.getMainLooper()).post(Runnable { result.success(null) })
+                        Handler(Looper.getMainLooper()).post { result.success(null) }
                     } catch (e: Exception) {
                         handleError(e, result)
                     }
@@ -87,7 +87,7 @@ class GalPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
                             return@Thread
                         }
                         putMediaBytes(bytes, call.argument<String?>("album"))
-                        Handler(Looper.getMainLooper()).post(Runnable { result.success(null) })
+                        Handler(Looper.getMainLooper()).post { result.success(null) }
                     } catch (e: Exception) {
                         handleError(e, result)
                     }
@@ -96,7 +96,7 @@ class GalPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
 
             "open" -> {
                 open()
-                Handler(Looper.getMainLooper()).post(Runnable { result.success(null) })
+                Handler(Looper.getMainLooper()).post { result.success(null) }
             }
 
             "hasAccess" -> {
@@ -144,7 +144,9 @@ class GalPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     private fun putMediaBytes(bytes: ByteArray, album: String?) {
         val imageFormat: ImageFormat = Imaging.guessFormat(bytes)
         val extension = "." + imageFormat.defaultExtension.lowercase(Locale.getDefault())
-        ByteArrayInputStream(bytes).use { `in` -> writeData(`in`, true, "image", extension, album) }
+        ByteArrayInputStream(bytes).use { byteArrayInputStream ->
+            writeData(byteArrayInputStream, true, "image", extension, album)
+        }
     }
 
     @Throws(IOException::class, SecurityException::class, FileNotFoundException::class)
