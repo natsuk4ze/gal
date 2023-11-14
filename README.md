@@ -55,9 +55,9 @@ Add the following keys to the `android/app/src/main/AndroidManifest.xml`:
 
 * `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
                  android:maxSdkVersion="29" />` Required for API <= 29
-* `android:requestLegacyExternalStorage="true"` Required for saving to album in API 29
+* `android:requestLegacyExternalStorage="true"` Required for saving to the album in API 29
 
-You can copy from [AndroidManifest.xml in example](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
+You can copy from [AndroidManifest.xml from example](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
 
 > **🔴 Warning:**
 Android emulators with API < 29 require SD card setup. Real devices don't.
@@ -72,7 +72,7 @@ Add the following keys to the `macos/Runner/Info.plist`:
 You can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/macos/Runner/Info.plist).
 
 > **🔴 Warning:**
-Flutter has [fatal crash issee for loading info.plist on macOS](https://github.com/flutter/flutter/issues/134191) now.
+Flutter has [fatal crash issue for loading info.plist on macOS](https://github.com/flutter/flutter/issues/134191) now.
 
 ### Windows
 
@@ -96,7 +96,7 @@ await Gal.putImage('$filePath', album: '$album')
 ...
 ```
 
-### Download from Internet
+### Download from the Internet
 
 ```console
 $ flutter pub add dio
@@ -174,7 +174,7 @@ enum GalExceptionType {
 
 
 ## 📝 Ducuments
-If you write an article about gal, let us know on dissucussion and we will post the URL of the article in the wiki or readme 🤝
+If you write an article about Gal, let us know in discussion and we will post the URL of the article in the wiki or readme 🤝
 
 - ### [🎯 Example](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart)
 - ### [👌 Best Practice](https://github.com/natsuk4ze/gal/wiki/Best-Practice)
@@ -183,8 +183,8 @@ If you write an article about gal, let us know on dissucussion and we will post 
 - ### [💚 Contributing](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md)
 
 ## 💚 Trusted by huge projects
-Although gal has only been released for a short time, it is already trusted by huge projects.
+Although Gal has only been released for a short time, it is already trusted by huge projects.
 
-- ### [localsend - 20k⭐️](https://github.com/localsend/localsend)
-- ### [flutter-quill - 2.1k⭐️](https://github.com/singerdmx/flutter-quill)
+- ### [localsend - 23k⭐️](https://github.com/localsend/localsend)
+- ### [flutter-quill-extensions - 2.2k⭐️](https://github.com/singerdmx/flutter-quill/tree/master/flutter_quill_extensions)
 and more...
