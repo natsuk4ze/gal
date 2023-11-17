@@ -151,7 +151,7 @@ await Gal.requestAccess();
 ```dart
 // Save Image with try-catch
 try {
-  await Gal.putImage($imagePath);
+  await Gal.putImage('$filePath');
 } on GalException catch (e) {
   log(e.type.message);
 }
