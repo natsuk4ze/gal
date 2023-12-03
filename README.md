@@ -1,23 +1,42 @@
-# Gal 🖼️
+<p align="center">
+  <p align="center">
+   <img width="200" height="200" src="assets/logo.png" alt="Logo">
+  </p>
+	<h1 align="center"><b>Gal</b></h1>
+	<p align="center">
+		Dart3 plugin for saving image or video to photos gallery
+    <br />
+    <a href="https://pub.dev/packages/gal"><strong>pub.dev »</strong></a>
+    <br />
+    <br />
+    <img src="https://img.shields.io/badge/since-2023.06-purple" alt="Since">
+    <a href="https://pub.dev/packages/gal/score">
+    <img src="https://img.shields.io/pub/points/gal?color=2E8B57&label=pub%20points" alt="pub points">
+    </a>
+    <a href="https://codeclimate.com/github/natsuk4ze/gal/maintainability">
+    <img src="https://api.codeclimate.com/v1/badges/4472a09f02bff9d6e0b9/maintainability" alt="Maintainability">
+    <a href="https://www.codefactor.io/repository/github/natsuk4ze/gal">
+    <img src="https://www.codefactor.io/repository/github/natsuk4ze/gal/badge" alt="CodeFactor">
+    <a href="https://app.codacy.com/gh/natsuk4ze/gal/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade">
+    <img src="https://app.codacy.com/project/badge/Grade/3a20a89327ba43c789c0dc8465e16168" alt="Codacy Badge">
+    <img src="https://github.com/natsuk4ze/gal/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI">
+    <a href="https://pub.dev/packages/gal">
+    <img src="https://img.shields.io/pub/v/gal.svg" alt="pub package">
+    </a>  
+  </p>
+</p>
 
-![Since](https://img.shields.io/badge/since-2023.06-purple)
-[![pub points](https://img.shields.io/pub/points/gal?color=2E8B57&label=pub%20points)](https://pub.dev/packages/gal/score)
-[![Maintainability](https://api.codeclimate.com/v1/badges/4472a09f02bff9d6e0b9/maintainability)](https://codeclimate.com/github/natsuk4ze/gal/maintainability)
-[![CodeFactor](https://www.codefactor.io/repository/github/natsuk4ze/gal/badge)](https://www.codefactor.io/repository/github/natsuk4ze/gal)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/3a20a89327ba43c789c0dc8465e16168)](https://app.codacy.com/gh/natsuk4ze/gal/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-![CI](https://github.com/natsuk4ze/gal/actions/workflows/ci.yml/badge.svg?branch=main)
-[![pub package](https://img.shields.io/pub/v/gal.svg)](https://pub.dev/packages/gal)
+## Dart3 plugin for saving image or video to photos gallery <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/fe/3a/7e/fe3a7e0e-7f52-b750-0ed2-523998c59d48/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/246x0w.webp" alt="ios photos" width="20" height="20"/> <img src="https://play-lh.googleusercontent.com/ZyWNGIfzUyoajtFcD7NhMksHEZh37f-MkHVGr5Yfefa-IX7yj9SMfI82Z7a2wpdKCA=w240-h480-rw" alt="google photos" width="20" height="20"/> <img src="https://upload.wikimedia.org/wikipedia/en/9/94/Microsoft_Photos_logo.png" alt="microsoft photos" width="22" height="22"/> 
 
-## Dart3 plugin for saving image or video to gallery/photos <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/fe/3a/7e/fe3a7e0e-7f52-b750-0ed2-523998c59d48/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/246x0w.webp" alt="ios photos" width="20" height="20"/> <img src="https://play-lh.googleusercontent.com/ZyWNGIfzUyoajtFcD7NhMksHEZh37f-MkHVGr5Yfefa-IX7yj9SMfI82Z7a2wpdKCA=w240-h480-rw" alt="google photos" width="20" height="20"/> <img src="https://upload.wikimedia.org/wikipedia/en/9/94/Microsoft_Photos_logo.png" alt="microsoft photos" width="22" height="22"/> 
 ### Please [LIKE👍](https://pub.dev/packages/gal) and [STAR⭐️](https://github.com/natsuk4ze/gal) to support our volunteer efforts.
-|             | Android | iOS | macOS | Windows |
+
+|             | Android | iOS  | macOS | Windows |
 |-------------|---------|-----|-------|---------|
 | **Support** | SDK 21+ | 11+ |  11+  |   10+   |
 
 |             | iOS | Android |
 |-------------|-----|---------|
 | **Example** | <img src="https://github.com/natsuk4ze/gal/raw/main/readme_assets/ios.gif" alt="ios" width="270"/> | <img src="https://github.com/natsuk4ze/gal/raw/main/readme_assets/android.gif" alt="android" width="270"/> |
-
 
 ## ✨ Features
 

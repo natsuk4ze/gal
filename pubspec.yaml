@@ -14,10 +14,8 @@ topics:
  - util
 
 screenshots:
- - description: 'Screenshot of example app in Android.'
-   path: example/assets/android_example.gif
- - description: 'Screenshot of example app in iOS.'
-   path: example/assets/ios_example.gif
+ - description: 'Logo of gal package.'
+   path: assets/logo.png
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
