@@ -1,6 +1,6 @@
 <p align="center">
   <p align="center">
-   <img width="200" height="200" src="assets/logo.png" alt="Logo">
+   <img width="200" height="200" src="https://github.com/natsuk4ze/gal/raw/main/assets/logo.png" alt="Logo">
   </p>
 	<h1 align="center"><b>Gal</b></h1>
 	<p align="center">
