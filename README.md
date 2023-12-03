@@ -36,7 +36,7 @@
 
 |             | iOS | Android |
 |-------------|-----|---------|
-| **Example** | <img src="https://github.com/natsuk4ze/gal/raw/main/readme_assets/ios.gif" alt="ios" width="270"/> | <img src="https://github.com/natsuk4ze/gal/raw/main/readme_assets/android.gif" alt="android" width="270"/> |
+| **Example** | <img src="https://github.com/natsuk4ze/gal/raw/main/assets/ios.gif" alt="ios" width="270"/> | <img src="https://github.com/natsuk4ze/gal/raw/main/assets/android.gif" alt="android" width="270"/> |
 
 ## ✨ Features
 
