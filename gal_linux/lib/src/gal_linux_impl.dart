@@ -73,13 +73,10 @@ final class GalLinuxImpl {
   }) async {
     try {
       final file = File(path);
-      final fileExists = await file.exists();
-      var filePath = path;
-
       bool downloadedFromNetwork = false;
+
       // Download from network
-      if (!fileExists) {
-        final fileName = _baseName(path);
+      if (!await file.exists()) {
         final uri = Uri.parse(path);
 
         // If it not exists and it also doesn't starts with https
@@ -91,55 +88,35 @@ final class GalLinuxImpl {
         }
 
         // Save it to a temp directory for now
-        final tempFileLocation = _getNewTempFileLocation(fileName: fileName);
-        await executeCommand(
-          executalbe: 'wget',
-          args: [
-            '-O',
-            tempFileLocation,
-            path,
-          ],
-        );
+        final tempFileLocation =
+            _getNewTempFileLocation(fileName: _baseName(path));
+        await executeCommand('wget -O $tempFileLocation $path');
         downloadedFromNetwork = true;
-        filePath = tempFileLocation;
+        path = tempFileLocation;
       }
-
-      final fileName = _baseName(filePath);
 
       // Save it to the album
       if (album != null) {
         final newFileLocation = _getNewFileLocationWithAlbum(
           fileType: fileType,
           album: album,
-          fileName: fileName,
+          fileName: _baseName(path),
         );
         await _makeSureParentFolderExists(path: newFileLocation);
         await executeCommand(
-          executalbe: 'mv',
-          args: [
-            filePath,
-            newFileLocation,
-          ],
+          'mv $path $newFileLocation',
         );
       } else {
         // Save it in temp directory
-        final newFileLocation = _getNewTempFileLocation(fileName: fileName);
+        final newFileLocation =
+            _getNewTempFileLocation(fileName: _baseName(path));
         await _makeSureParentFolderExists(path: newFileLocation);
-        await executeCommand(
-          executalbe: 'mv',
-          args: [
-            filePath,
-            newFileLocation,
-          ],
-        );
+        await executeCommand('mv $path $newFileLocation');
       }
       // Remove the downloaded file from the network if it exists
       if (downloadedFromNetwork) {
         await executeCommand(
-          executalbe: 'rm',
-          args: [
-            filePath,
-          ],
+          'rm $path',
         );
       }
     } on ProcessException catch (e) {
@@ -167,14 +144,22 @@ final class GalLinuxImpl {
     }
   }
 
+  static String _getHomeDirectory() =>
+      Platform.environment['HOME'] ??
+      (throw UnsupportedError(
+          'The HOME environment variable is null and it is required'));
+
   static String _getNewFileLocationWithAlbum({
     required _FileType fileType,
     required String album,
     required String fileName,
   }) {
+    final currentDate = DateTime.now().toIso8601String();
     final newFileLocation = switch (fileType) {
-      _FileType.image => '~/Pictures/$album/$fileName',
-      _FileType.video => '~/Videos/$album/$fileName',
+      _FileType.image =>
+        '${_getHomeDirectory()}/Pictures/$album/$currentDate-$fileName',
+      _FileType.video =>
+        '${_getHomeDirectory()}/Videos/$album/$currentDate-$fileName',
     };
     return newFileLocation;
   }
@@ -182,18 +167,13 @@ final class GalLinuxImpl {
   static String _getNewTempFileLocation({
     required String fileName,
   }) {
-    return '${Directory.systemTemp.path}/gal/${DateTime.now().toIso8601String()}-$fileName';
+    final currentDate = DateTime.now().toIso8601String();
+    return '${Directory.systemTemp.path}/gal/$currentDate-$fileName';
   }
 
   static Future<void> _makeSureParentFolderExists(
       {required String path}) async {
-    await executeCommand(
-      executalbe: 'mkdir',
-      args: [
-        '-p',
-        File(path).parent.path,
-      ],
-    );
+    await executeCommand('mkdir -p ${File(path).parent.path}');
   }
 
   /// Save a image to the gallery from [Uint8List].
@@ -218,9 +198,8 @@ final class GalLinuxImpl {
   /// Open gallery app.
   ///
   /// If there are multiple gallery apps, App selection sheet may be displayed.
-  static Future<void> open() async => throw UnsupportedError(
-        'Linux is not supported yet.',
-      );
+  static Future<void> open() async =>
+      executeCommand('xdg-open ${_getHomeDirectory()}/Pictures');
 
   /// Check if the app has access permissions.
   ///
