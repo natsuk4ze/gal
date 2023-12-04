@@ -11,7 +11,7 @@ funding:
 platforms:
   android:
   ios:
-  linux:
+#  linux:
   macos:
   windows:
 
@@ -52,5 +52,5 @@ flutter:
         sharedDarwinSource: true
       windows:
         pluginClass: GalPluginCApi
-      linux:
-        default_package: gal_linux
+#      linux:
+#        default_package: gal_linux
