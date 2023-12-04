@@ -20,7 +20,7 @@ final class Gal {
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
   static Future<void> putVideo(String path, {String? album}) async =>
-      GalPlatform.putVideo(path, album: album);
+      GalPluginPlatform.instance.putVideo(path, album: album);
 
   /// Save a image to the gallery from file [path].
   ///
@@ -33,7 +33,7 @@ final class Gal {
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
   static Future<void> putImage(String path, {String? album}) async =>
-      GalPlatform.putImage(path, album: album);
+      GalPluginPlatform.instance.putImage(path, album: album);
 
   /// Save a image to the gallery from [Uint8List].
   ///
@@ -42,12 +42,12 @@ final class Gal {
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
   static Future<void> putImageBytes(Uint8List bytes, {String? album}) async =>
-      GalPlatform.putImageBytes(bytes, album: album);
+      GalPluginPlatform.instance.putImageBytes(bytes, album: album);
 
   /// Open gallery app.
   ///
   /// If there are multiple gallery apps, App selection sheet may be displayed.
-  static Future<void> open() async => GalPlatform.open();
+  static Future<void> open() async => GalPluginPlatform.instance.open();
 
   /// Check if the app has access permissions.
   ///
@@ -55,7 +55,7 @@ final class Gal {
   /// If you want to save to an album other than the one created by your app
   /// See: [Permissions](https://github.com/natsuk4ze/gal/wiki/Permissions)
   static Future<bool> hasAccess({bool toAlbum = false}) async =>
-      GalPlatform.hasAccess(toAlbum: toAlbum);
+      GalPluginPlatform.instance.hasAccess(toAlbum: toAlbum);
 
   /// Request access permissions.
   ///
@@ -65,5 +65,5 @@ final class Gal {
   /// If you want to save to an album other than the one created by your app
   /// See: [Permissions](https://github.com/natsuk4ze/gal/wiki/Permissions)
   static Future<bool> requestAccess({bool toAlbum = false}) async =>
-      GalPlatform.requestAccess(toAlbum: toAlbum);
+      GalPluginPlatform.instance.requestAccess(toAlbum: toAlbum);
 }

@@ -3,6 +3,7 @@ description: Flutter Plugin for Saving Image/Video to the Photo Gallery | How to
 version: 2.1.4
 homepage: https://pub.dev/packages/gal
 repository: https://github.com/natsuk4ze/gal
+issue_tracker: https://github.com/natsuk4ze/gal/issues
 documentation: https://github.com/natsuk4ze/gal/wiki
 funding: 
  - https://github.com/sponsors/natsuk4ze
@@ -25,6 +26,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  plugin_platform_interface: ^2.1.7
+  gal_linux:
+    path: ./gal_linux
 
 dev_dependencies:
   flutter_lints: ^3.0.1
@@ -44,4 +48,4 @@ flutter:
       windows:
         pluginClass: GalPluginCApi
       linux:
-        pluginClass: GalPlugin
+        default_package: gal_linux
