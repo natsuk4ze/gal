@@ -5,7 +5,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'gal_method_channel.dart';
 
 /// Plugin Platform Interface
-abstract class GalPlatform extends PlatformInterface {
+base class GalPlatform extends PlatformInterface {
   GalPlatform() : super(token: _token);
   static final Object _token = Object();
   static GalPlatform _instance = MethodChannelGal();
