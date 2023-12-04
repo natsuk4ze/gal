@@ -1,6 +1,6 @@
 import 'dart:io' show Directory, File, Platform, ProcessException;
 
-import 'package:flutter/foundation.dart' show Uint8List, immutable, kIsWeb;
+import 'package:flutter/foundation.dart' show Uint8List, immutable;
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:gal/gal.dart';
 import 'package:gal_linux/src/utils/command_line.dart';
@@ -14,20 +14,12 @@ enum _FileType {
 
 /// Impl for Linux platform
 ///
-/// currently the support for Linux is limitied
-/// we will always use [GalExceptionType.unexpected]
+/// The support for Linux is limitied
 ///
 /// it's not 100% spesefic to Linux, it could work for Unix based OS
 @immutable
 final class GalLinuxImpl {
   const GalLinuxImpl._();
-
-  static bool get isLinux {
-    if (kIsWeb) {
-      return false;
-    }
-    return Platform.isLinux;
-  }
 
   static String _baseName(String path) {
     return path_package.basename(path);
@@ -59,10 +51,10 @@ final class GalLinuxImpl {
       bool downloadedFromNetwork = false;
 
       // Download from network
-      if (!await file.exists()) {
+      if (!(await file.exists())) {
         final uri = Uri.parse(path);
 
-        // If it not exists and it also doesn't starts with https
+        // If it doesn't exists and it also doesn't starts with https
         if (!uri.isHttpBasedUrl()) {
           throw GalException(
               type: GalExceptionType.unexpected,
@@ -77,11 +69,11 @@ final class GalLinuxImpl {
         }
 
         // Save it to a temp directory for now
-        final tempFileLocation =
+        final templLocation =
             _getNewTempFileLocation(fileName: _baseName(path));
-        await executeCommand('wget -O $tempFileLocation $path');
+        await executeCommand('wget -O $templLocation $path');
+        path = templLocation;
         downloadedFromNetwork = true;
-        path = tempFileLocation;
       }
 
       // Save it to the album
@@ -102,7 +94,7 @@ final class GalLinuxImpl {
         await _makeSureParentFolderExists(path: newFileLocation);
         await executeCommand('mv $path $newFileLocation');
       }
-      // Remove the downloaded file from the network if it exists
+      // Remove the downloaded temp file from the network if it exists
       if (downloadedFromNetwork) {
         await executeCommand(
           'rm $path',
@@ -135,8 +127,14 @@ final class GalLinuxImpl {
 
   static String _getHomeDirectory() =>
       Platform.environment['HOME'] ??
-      (throw UnsupportedError(
-          'The HOME environment variable is null and it is required'));
+      (throw GalException(
+        type: GalExceptionType.unexpected,
+        platformException: PlatformException(
+          code: GalExceptionType.unexpected.code,
+          message: 'The HOME environment variable is null and it is required',
+        ),
+        stackTrace: StackTrace.current,
+      ));
 
   static String _getNewFileLocationWithAlbum({
     required _FileType fileType,
