@@ -33,16 +33,6 @@ final class GalLinuxImpl {
     return path_package.basename(path);
   }
 
-  /// Save a video to the gallery from file [path].
-  ///
-  /// Specify the album with [album]. If it does not exist, it will be created.
-  /// [path] must include the file extension.
-  /// ```dart
-  /// await Gal.putVideo('${Directory.systemTemp.path}/video.mp4');
-  /// ```
-  /// Throws an [GalException] If you do not have access premission or
-  /// if an error occurs during saving.
-  /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
   static Future<void> putVideo(String path, {String? album}) async {
     await _downloadFileToAlbum(
       path,
@@ -51,13 +41,6 @@ final class GalLinuxImpl {
     );
   }
 
-  /// Save a image to the gallery from file [path].
-  ///
-  /// Specify the album with [album]. If it does not exist, it will be created.
-  /// [path] must include the file extension.
-  /// ```dart
-  /// await Gal.putImagbasenames during saving.
-  /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
   static Future<void> putImage(String path, {String? album}) async {
     await _downloadFileToAlbum(
       path,
@@ -81,10 +64,16 @@ final class GalLinuxImpl {
 
         // If it not exists and it also doesn't starts with https
         if (!uri.isHttpBasedUrl()) {
-          throw UnsupportedError(
-            'You are trying to put file with path `$path` that does not exists '
-            'locally, Also it does not start with `http` nor `https`',
-          );
+          throw GalException(
+              type: GalExceptionType.unexpected,
+              platformException: PlatformException(
+                code: GalExceptionType.unexpected.code,
+                message:
+                    'You are trying to put file with path `$path` that does not exists '
+                    'locally, Also it does not start with `http` nor `https`',
+                stacktrace: StackTrace.current.toString(),
+              ),
+              stackTrace: StackTrace.current);
         }
 
         // Save it to a temp directory for now
@@ -176,44 +165,41 @@ final class GalLinuxImpl {
     await executeCommand('mkdir -p ${File(path).parent.path}');
   }
 
-  /// Save a image to the gallery from [Uint8List].
-  ///
-  /// Specify the album with [album]. If it does not exist, it will be created.
-  /// Throws an [GalException] If you do not have access premission or
-  /// if an error occurs during saving.
-  /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
   static Future<void> putImageBytes(Uint8List bytes, {String? album}) async {
-    final fileName = '${DateTime.now().toIso8601String()}.png';
-    final newFileLocation = album == null
-        ? _getNewTempFileLocation(fileName: DateTime.now().toIso8601String())
-        : _getNewFileLocationWithAlbum(
-            fileType: _FileType.image,
-            album: album,
-            fileName: fileName,
-          );
-    final file = File(newFileLocation);
-    await file.writeAsBytes(bytes);
+    try {
+      final fileName = '${DateTime.now().toIso8601String()}.png';
+      final newFileLocation = album == null
+          ? _getNewTempFileLocation(fileName: DateTime.now().toIso8601String())
+          : _getNewFileLocationWithAlbum(
+              fileType: _FileType.image,
+              album: album,
+              fileName: fileName,
+            );
+      final file = File(newFileLocation);
+      await file.writeAsBytes(bytes);
+    } catch (e) {
+      throw GalException(
+        type: GalExceptionType.unexpected,
+        platformException: PlatformException(
+          code: e.toString(),
+          details: e.toString(),
+          message: e.toString(),
+          stacktrace: StackTrace.current.toString(),
+        ),
+        stackTrace: StackTrace.current,
+      );
+    }
   }
 
-  /// Open gallery app.
-  ///
-  /// If there are multiple gallery apps, App selection sheet may be displayed.
   static Future<void> open() async =>
       executeCommand('xdg-open ${_getHomeDirectory()}/Pictures');
 
-  /// Check if the app has access permissions.
-  ///
-  /// Use the [toAlbum] for additional permissions to save to an album.
-  /// If you want to save to an album other than the one created by your app
-  /// See: [Permissions](https://github.com/natsuk4ze/gal/wiki/Permissions)
+  /// Requesting an access usually automated if there is a sandbox
+  /// but we don't have much info and usually we have an access
   static Future<bool> hasAccess({bool toAlbum = false}) async => true;
 
-  /// Request access permissions.
-  ///
-  /// Returns [true] if access is granted, [false] if denied.
-  /// If access was already granted, the dialog is not displayed and returns true.
-  /// Use the [toAlbum] for additional permissions to save to an album.
-  /// If you want to save to an album other than the one created by your app
-  /// See: [Permissions](https://github.com/natsuk4ze/gal/wiki/Permissions)
+  /// Requesting an access usually automated once we try
+  /// to save an image if there was a sandbox
+  /// but we don't have much info and usually we have an access
   static Future<bool> requestAccess({bool toAlbum = false}) async => true;
 }
