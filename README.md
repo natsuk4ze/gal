@@ -97,6 +97,20 @@ Flutter has [fatal crash issue for loading info.plist on macOS](https://github.c
 
 Update [Visual Studio](https://visualstudio.microsoft.com) to the latest version for using `C++ 20`.
 
+### Linux
+The following command executables are required to use this plugin:
+1. `mkdir`
+2. `mv`
+3. `rm`
+4. `xdg-open`
+5. `wget`
+
+All of them should be already there in most Linux distros, wget might not in some cases so you need
+to manually install it using your package manager, example in Debian based distros:
+
+```
+sudo apt install wget
+```
 
 ## ✅ Usage
 
