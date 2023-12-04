@@ -56,10 +56,7 @@ final class GalLinuxImpl {
   /// Specify the album with [album]. If it does not exist, it will be created.
   /// [path] must include the file extension.
   /// ```dart
-  /// await Gal.putImage('${Directory.systemTemp.path}/image.jpg');
-  /// ```
-  /// Throws an [GalException] If you do not have access premission or
-  /// if an error occurs during saving.
+  /// await Gal.putImagbasenames during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
   static Future<void> putImage(String path, {String? album}) async {
     await _downloadFileToAlbum(
@@ -79,72 +76,69 @@ final class GalLinuxImpl {
       final fileExists = await file.exists();
       var filePath = path;
 
-      String? downloadedFilePath;
+      bool downloadedFromNetwork = false;
+      // Download from network
       if (!fileExists) {
         final fileName = _baseName(path);
         final uri = Uri.parse(path);
+
+        // If it not exists and it also doesn't starts with https
         if (!uri.isHttpBasedUrl()) {
           throw UnsupportedError(
             'You are trying to put file with path `$path` that does not exists '
-            'locally, Also it does not start with `http` or `https`',
+            'locally, Also it does not start with `http` nor `https`',
           );
         }
+
+        // Save it to a temp directory for now
+        final tempFileLocation = _getNewTempFileLocation(fileName: fileName);
         await executeCommand(
           executalbe: 'wget',
           args: [
             '-O',
-            fileName,
+            tempFileLocation,
             path,
           ],
         );
-        final workingDir = Directory.current.path;
-        downloadedFilePath = '$workingDir/$fileName';
-        filePath = downloadedFilePath;
+        downloadedFromNetwork = true;
+        filePath = tempFileLocation;
       }
+
       final fileName = _baseName(filePath);
+
+      // Save it to the album
       if (album != null) {
         final newFileLocation = _getNewFileLocationWithAlbum(
           fileType: fileType,
           album: album,
           fileName: fileName,
         );
+        await _makeSureParentFolderExists(path: newFileLocation);
         await executeCommand(
-          executalbe: 'mkdir',
-          args: [
-            '-p',
-            newFileLocation,
-          ],
-        );
-        await executeCommand(
-          executalbe: 'cp',
+          executalbe: 'mv',
           args: [
             filePath,
             newFileLocation,
           ],
         );
       } else {
-        final newLocation = _getNewFileLocation(fileName: fileName);
+        // Save it in temp directory
+        final newFileLocation = _getNewTempFileLocation(fileName: fileName);
+        await _makeSureParentFolderExists(path: newFileLocation);
         await executeCommand(
-          executalbe: 'mkdir',
-          args: [
-            '-p',
-            newLocation,
-          ],
-        );
-        await executeCommand(
-          executalbe: 'cp',
+          executalbe: 'mv',
           args: [
             filePath,
-            newLocation,
+            newFileLocation,
           ],
         );
       }
       // Remove the downloaded file from the network if it exists
-      if (downloadedFilePath != null) {
+      if (downloadedFromNetwork) {
         await executeCommand(
           executalbe: 'rm',
           args: [
-            downloadedFilePath,
+            filePath,
           ],
         );
       }
@@ -185,10 +179,21 @@ final class GalLinuxImpl {
     return newFileLocation;
   }
 
-  static String _getNewFileLocation({
+  static String _getNewTempFileLocation({
     required String fileName,
   }) {
-    return '${Directory.systemTemp.path}/$fileName';
+    return '${Directory.systemTemp.path}/gal/${DateTime.now().toIso8601String()}-$fileName';
+  }
+
+  static Future<void> _makeSureParentFolderExists(
+      {required String path}) async {
+    await executeCommand(
+      executalbe: 'mkdir',
+      args: [
+        '-p',
+        File(path).parent.path,
+      ],
+    );
   }
 
   /// Save a image to the gallery from [Uint8List].
@@ -200,7 +205,7 @@ final class GalLinuxImpl {
   static Future<void> putImageBytes(Uint8List bytes, {String? album}) async {
     final fileName = '${DateTime.now().toIso8601String()}.png';
     final newFileLocation = album == null
-        ? _getNewFileLocation(fileName: DateTime.now().toIso8601String())
+        ? _getNewTempFileLocation(fileName: DateTime.now().toIso8601String())
         : _getNewFileLocationWithAlbum(
             fileType: _FileType.image,
             album: album,

@@ -34,8 +34,6 @@ dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.1.7
-  gal_linux:
-    path: ./gal_linux
 
 dev_dependencies:
   flutter_lints: ^3.0.1
