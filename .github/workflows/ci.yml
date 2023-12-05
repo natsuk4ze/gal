@@ -1,3 +1,5 @@
+# Runner details on https://github.com/actions/runner-images/tree/main/images
+
 name: CI
 
 on:
@@ -121,7 +123,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        api-level: [31,30,29,28,27,26,25,24,23,22,21]
+        api-level: [34,33,32,31,30,29,28,27,26,25,24,23,22,21]
       fail-fast: false
     steps:
       - name: Check out
@@ -182,7 +184,6 @@ jobs:
           emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          disk-size: 2048M
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
@@ -202,7 +203,6 @@ jobs:
           emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          disk-size: 2048M
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
             adb kill-server
@@ -224,7 +224,6 @@ jobs:
           emulator-boot-timeout: 180
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          disk-size: 2048M
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
             adb kill-server
