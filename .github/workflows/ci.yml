@@ -166,6 +166,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
           emulator-boot-timeout: 300
+          disk-size: 2048M
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -182,6 +183,7 @@ jobs:
           working-directory: ./example
           arch: x86_64
           emulator-boot-timeout: 180
+          disk-size: 2048M
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -202,6 +204,7 @@ jobs:
           arch: x86_64
           emulator-boot-timeout: 180
           force-avd-creation: false
+          disk-size: 2048M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
@@ -223,6 +226,7 @@ jobs:
           arch: x86_64
           emulator-boot-timeout: 180
           force-avd-creation: false
+          disk-size: 2048M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
