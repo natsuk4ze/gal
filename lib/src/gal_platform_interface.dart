@@ -2,7 +2,8 @@ import 'dart:typed_data';
 
 import 'gal_method_channel.dart';
 
-/// Plugin Platform Interface
+/// Plugin Platform Interface to to allow Non-endorsed federated plugin
+/// See: [PR](https://github.com/natsuk4ze/gal/pull/180)
 base class GalPlatform {
   const GalPlatform();
   static GalPlatform instance = MethodChannelGal();
