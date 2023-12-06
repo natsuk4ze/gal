@@ -120,7 +120,7 @@ jobs:
   android:
     needs: set-up
     timeout-minutes: 60
-    runs-on: macos-latest
+    runs-on: macos-13
     strategy:
       matrix:
         api-level: [34,33,32,31,30,29,28,27,26,25,24,23,22,21]
@@ -166,6 +166,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
           emulator-boot-timeout: 300
+          disable-spellchecker: true
           disk-size: 2048M
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -183,6 +184,7 @@ jobs:
           working-directory: ./example
           arch: x86_64
           emulator-boot-timeout: 180
+          disable-spellchecker: true
           disk-size: 2048M
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -203,6 +205,7 @@ jobs:
           working-directory: ./example
           arch: x86_64
           emulator-boot-timeout: 180
+          disable-spellchecker: true
           force-avd-creation: false
           disk-size: 2048M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -225,6 +228,7 @@ jobs:
           working-directory: ./example
           arch: x86_64
           emulator-boot-timeout: 180
+          disable-spellchecker: true
           force-avd-creation: false
           disk-size: 2048M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
