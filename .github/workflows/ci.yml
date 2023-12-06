@@ -166,6 +166,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
           emulator-boot-timeout: 300
+          disable-spellchecker: true
           disk-size: 2048M
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -183,6 +184,7 @@ jobs:
           working-directory: ./example
           arch: x86_64
           emulator-boot-timeout: 180
+          disable-spellchecker: true
           disk-size: 2048M
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -203,6 +205,7 @@ jobs:
           working-directory: ./example
           arch: x86_64
           emulator-boot-timeout: 180
+          disable-spellchecker: true
           force-avd-creation: false
           disk-size: 2048M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -225,6 +228,7 @@ jobs:
           working-directory: ./example
           arch: x86_64
           emulator-boot-timeout: 180
+          disable-spellchecker: true
           force-avd-creation: false
           disk-size: 2048M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
