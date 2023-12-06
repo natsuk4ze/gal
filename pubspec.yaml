@@ -1,8 +1,11 @@
 name: gal
-description: How to Save Image/Video to the Photo Gallery in Flutter | How to Save Media to Photo Gallery in Flutter | Image & Video Gallery Saver Plugin | Flutter Media Saver
-version: 2.1.3
+description: Flutter Plugin for Saving Image/Video to the Photo Gallery | How to Save Image/Video to the Photo Gallery in Flutter
+version: 2.2.0
 homepage: https://pub.dev/packages/gal
 repository: https://github.com/natsuk4ze/gal
+documentation: https://github.com/natsuk4ze/gal/wiki
+funding: 
+ - https://github.com/sponsors/natsuk4ze
 
 topics:
  - gallery
@@ -12,10 +15,8 @@ topics:
  - util
 
 screenshots:
- - description: 'Screenshot of example app in Android.'
-   path: example/assets/android_example.gif
- - description: 'Screenshot of example app in iOS.'
-   path: example/assets/ios_example.gif
+ - description: 'Logo of gal package.'
+   path: assets/logo.png
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

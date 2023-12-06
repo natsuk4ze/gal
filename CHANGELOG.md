@@ -1,3 +1,12 @@
+## 2.2.0
+
+* ADD: PlatformInterface #180
+* FIX: package download size 1MB to 0.5MB #181
+
+## 2.1.4
+
+* FIX: package download size 6MB to 1MB #175
+
 ## 2.1.3
 
 * FIX: Compilation error on Windows in some environments #166

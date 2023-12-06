@@ -68,7 +68,7 @@ class _AppState extends State<App> {
                       'https://github.com/natsuk4ze/gal/raw/main/example/assets/done.jpg',
                       path,
                     );
-                    await Gal.putImage(path);
+                    await Gal.putImage(path, album: album);
                     showSnackbar();
                   },
                   child: const Text('Download Image'),
@@ -80,7 +80,7 @@ class _AppState extends State<App> {
                       'https://github.com/natsuk4ze/gal/raw/main/example/assets/done.mp4',
                       path,
                     );
-                    await Gal.putVideo(path);
+                    await Gal.putVideo(path, album: album);
                     showSnackbar();
                   },
                   child: const Text('Download Video'),
