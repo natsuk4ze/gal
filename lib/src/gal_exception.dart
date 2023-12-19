@@ -31,7 +31,16 @@ class GalException implements Exception {
   String toString() => "[GalException/${type.code}]: ${type.message}";
 }
 
+/// Types of [GalException]
+///
+/// Except for [accessDenied] is best effort and is not always
+/// classified and may return [unexpected].
+/// In that case, you can get support by submitting 
+/// an [issue](https://github.com/natsuk4ze/gal/issues)
+/// including all values of [GalException.platformException] 
+/// and [GalException.stackTrace].
 enum GalExceptionType {
+
   /// When has no permission to access gallery app.
   /// See: https://github.com/natsuk4ze/gal/wiki/Permissions
   accessDenied,
@@ -43,7 +52,7 @@ enum GalExceptionType {
   /// See: https://github.com/natsuk4ze/gal/wiki/Formats
   notSupportedFormat,
 
-  /// When an error occurs with unexpected.
+  /// When an error occurs with unexpected (could not classified).
   unexpected;
 
   String get code => switch (this) {
