@@ -99,6 +99,14 @@ Flutter has [fatal crash issue for loading info.plist on macOS](https://github.c
 
 Update [Visual Studio](https://visualstudio.microsoft.com) to the latest version for using `C++ 20`.
 
+> **💡 If you can't compile**
+> 
+> Try downloading a latest Windows SDK
+> Here are the steps:
+> 1. Open Visual Studio Installer
+> 2. Select Mofify
+> 3. Select Windows SDK
+
 ### Linux
 
 Currently does not officially support Linux, but it can be added through a community plugin.
