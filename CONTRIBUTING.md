@@ -20,11 +20,14 @@ such as the following changes, the issue submission is exempt.
 
 ## 🎯 Management Policy
 
-### 1. Maintainability > Backward compatibility.
+### 1. Production-Ready Package.
 
-Expanding the code base and adding numerous test cases to preserve backward compatibility can lead to a decline in the overall maintainability of the project. 
-In the worst-case scenario, this could result in the project being neglected entirely. 
-Numerous community plugins have faced this issue, and it is imperative that this plugin does not repeat the same mistake.
+This package should be of a quality suitable for use in production. 
+To ensure this, it is essential to conduct tests on all supported operating systems wherever possible.
 
-Consequently, to safeguard the project, we may occasionally need to sacrifice compatibility with a small percentage of outdated device shares. 
-This decision, though difficult, is essential to ensure the long-term viability and health of the project.
+### 2. Maintainability > Backward compatibility.
+
+Prioritizing backward compatibility by expanding the code base and adding numerous test cases can decrease the project's maintainability, 
+potentially leading to neglect. Many community plugins have encountered this issue. 
+Therefore, to maintain the project's health, 
+we may sometimes choose to forgo compatibility with a minor portion of outdated devices, a necessary decision for the project's long-term success.
