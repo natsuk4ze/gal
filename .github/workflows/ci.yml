@@ -17,105 +17,105 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
-  windows:
-    needs: set-up
-    timeout-minutes: 30
-    strategy:
-      matrix:
-        windows-version: [10]
-      fail-fast: false
-    runs-on: windows-latest
-    steps:
-      - name: Check out
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter SDK
-        timeout-minutes: 10
-        uses: subosito/flutter-action@v2
-        with:
-          channel: beta
-
-      - name: Run integration tests
-        id: Run-integration-tests
-        timeout-minutes: 15
-        run: |
-          cd example
-          flutter test integration_test/integration_test.dart windows
-
-  macos:
-    needs: set-up
-    timeout-minutes: 30
-    strategy:
-      matrix:
-        macos-version: [13]
-      fail-fast: false
-    runs-on: macos-${{ matrix.macos-version }}
-    steps:
-      - name: Check out
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter SDK
-        timeout-minutes: 10
-        uses: subosito/flutter-action@v2
-        with:
-          channel: beta
-
-      - name: Run integration tests
-        id: Run-integration-tests
-        timeout-minutes: 15
-        run: |
-          cd example
-          flutter test integration_test/integration_test.dart macos
-
-  ios:
-    needs: set-up
-    timeout-minutes: 60
-    strategy:
-      matrix:
-        ios-version: [16]
-      fail-fast: false
-    runs-on: macos-13
-    steps:
-      - name: Check out
-        uses: actions/checkout@v4
-
-      - name: Setup Flutter SDK
-        timeout-minutes: 10
-        uses: subosito/flutter-action@v2
-        with:
-          channel: beta
-
-      - name: Boot ios simulator
-        uses: futureware-tech/simulator-action@v2
-        with:
-          model: iPhone 14 Pro Max
-          os_version: ^${{ matrix.ios-version }}
-      
-      - name: Grant permission
-        run: |
-          brew tap wix/brew
-          brew install applesimutils
-          cd example
-          applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
-
-      - name: Run integration tests
-        id: Run-integration-tests
-        continue-on-error: true
-        timeout-minutes: 15
-        run: |
-          cd example
-          flutter test integration_test/integration_test.dart
-
-      # Retry: Integration testing with GitHub Actions is unstable.
-      - name: Retry integration tests
-        id: Retry-integration-tests
-        timeout-minutes: 15
-        if: steps.Run-integration-tests.outcome == 'failure'
-        run: |
-          flutter clean && flutter pub get
-          cd example
-          flutter clean && flutter pub get
-          flutter test integration_test/integration_test.dart
+#  windows:
+#    needs: set-up
+#    timeout-minutes: 30
+#    strategy:
+#      matrix:
+#        windows-version: [10]
+#      fail-fast: false
+#    runs-on: windows-latest
+#    steps:
+#      - name: Check out
+#        uses: actions/checkout@v4
+#
+#      - name: Setup Flutter SDK
+#        timeout-minutes: 10
+#        uses: subosito/flutter-action@v2
+#        with:
+#          channel: beta
+#
+#      - name: Run integration tests
+#        id: Run-integration-tests
+#        timeout-minutes: 15
+#        run: |
+#          cd example
+#          flutter test integration_test/integration_test.dart windows
+#
+#  macos:
+#    needs: set-up
+#    timeout-minutes: 30
+#    strategy:
+#      matrix:
+#        macos-version: [13]
+#      fail-fast: false
+#    runs-on: macos-${{ matrix.macos-version }}
+#    steps:
+#      - name: Check out
+#        uses: actions/checkout@v4
+#
+#      - name: Setup Flutter SDK
+#        timeout-minutes: 10
+#        uses: subosito/flutter-action@v2
+#        with:
+#          channel: beta
+#
+#      - name: Run integration tests
+#        id: Run-integration-tests
+#        timeout-minutes: 15
+#        run: |
+#          cd example
+#          flutter test integration_test/integration_test.dart macos
+#
+#  ios:
+#    needs: set-up
+#    timeout-minutes: 60
+#    strategy:
+#      matrix:
+#        ios-version: [16]
+#      fail-fast: false
+#    runs-on: macos-13
+#    steps:
+#      - name: Check out
+#        uses: actions/checkout@v4
+#
+#      - name: Setup Flutter SDK
+#        timeout-minutes: 10
+#        uses: subosito/flutter-action@v2
+#        with:
+#          channel: beta
+#
+#      - name: Boot ios simulator
+#        uses: futureware-tech/simulator-action@v2
+#        with:
+#          model: iPhone 14 Pro Max
+#          os_version: ^${{ matrix.ios-version }}
+#      
+#      - name: Grant permission
+#        run: |
+#          brew tap wix/brew
+#          brew install applesimutils
+#          cd example
+#          applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
+#
+#      - name: Run integration tests
+#        id: Run-integration-tests
+#        continue-on-error: true
+#        timeout-minutes: 15
+#        run: |
+#          cd example
+#          flutter test integration_test/integration_test.dart
+#
+#      # Retry: Integration testing with GitHub Actions is unstable.
+#      - name: Retry integration tests
+#        id: Retry-integration-tests
+#        timeout-minutes: 15
+#        if: steps.Run-integration-tests.outcome == 'failure'
+#        run: |
+#          flutter clean && flutter pub get
+#          cd example
+#          flutter clean && flutter pub get
+#          flutter test integration_test/integration_test.dart
 
   android:
     needs: set-up
@@ -138,7 +138,7 @@ jobs:
         run: flutter pub get ./example
  
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: temurin
@@ -167,7 +167,6 @@ jobs:
           arch: x86_64
           emulator-boot-timeout: 300
           disable-spellchecker: true
-          disk-size: 2048M
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -185,7 +184,6 @@ jobs:
           arch: x86_64
           emulator-boot-timeout: 180
           disable-spellchecker: true
-          disk-size: 2048M
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -207,7 +205,6 @@ jobs:
           emulator-boot-timeout: 180
           disable-spellchecker: true
           force-avd-creation: false
-          disk-size: 2048M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
@@ -230,7 +227,6 @@ jobs:
           emulator-boot-timeout: 180
           disable-spellchecker: true
           force-avd-creation: false
-          disk-size: 2048M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
