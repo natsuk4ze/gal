@@ -9,8 +9,18 @@ class GalException implements Exception {
     required this.platformException,
     required this.stackTrace,
   });
+
+  /// Type of error.
+  /// 
+  /// See: [GalExceptionType]
   final GalExceptionType type;
+
+  /// Native code error information.
   final PlatformException platformException;
+
+  /// Stack trace of the error in dart side.
+  /// 
+  /// The native code StackTrace is stored in [PlatformException.stacktrace].
   final StackTrace stackTrace;
 
   factory GalException.fromCode({
@@ -23,21 +33,22 @@ class GalException implements Exception {
       orElse: () => GalExceptionType.unexpected,
     );
     return GalException(
-        type: type,
-        platformException: platformException,
-        stackTrace: stackTrace);
+      type: type,
+      platformException: platformException,
+      stackTrace: stackTrace,
+    );
   }
+
   @override
   String toString() => "[GalException/${type.code}]: ${type.message}";
 }
 
 /// Types of [GalException]
 ///
-/// Except for [accessDenied] is best effort and is not always
-/// classified and may return [unexpected].
-/// In that case, you can get support by submitting 
+/// If the type cannot be determined, it will be [unexpected].
+/// In that case, you can get support by submitting
 /// an [issue](https://github.com/natsuk4ze/gal/issues)
-/// including all values of [GalException.platformException] 
+/// including all values of [GalException.platformException]
 /// and [GalException.stackTrace].
 enum GalExceptionType {
 
@@ -52,7 +63,7 @@ enum GalExceptionType {
   /// See: https://github.com/natsuk4ze/gal/wiki/Formats
   notSupportedFormat,
 
-  /// When an error occurs with unexpected (could not classified).
+  /// When an error occurs with unexpected.
   unexpected;
 
   String get code => switch (this) {
