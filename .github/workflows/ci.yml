@@ -158,20 +158,6 @@ jobs:
             ~/.android/adb*
           key: avd-${{ matrix.api-level }}
  
-      - name: Create AVD and generate snapshot for caching
-        if: steps.cache-avd.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main'
-        timeout-minutes: 20
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          arch: x86_64
-          emulator-boot-timeout: 300
-          disable-spellchecker: true
-          force-avd-creation: false
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
-          script: echo "Generated AVD snapshot for caching."
- 
       # Retry: Integration testing with GitHub Actions is unstable.
       - name: Run integration tests
         id: Run-integration-tests
@@ -182,7 +168,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 180
+          emulator-boot-timeout: 200
           disable-spellchecker: true
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -202,7 +188,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 180
+          emulator-boot-timeout: 200
           disable-spellchecker: true
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
@@ -224,7 +210,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 180
+          emulator-boot-timeout: 200
           disable-spellchecker: true
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
