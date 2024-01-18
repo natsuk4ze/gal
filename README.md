@@ -217,7 +217,6 @@ If you write an article about Gal, let us know in discussion and we will post th
 - ### [🎯 Example](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart)
 - ### [👌 Best Practice](https://github.com/natsuk4ze/gal/wiki/Best-Practice)
 - ### [🏠 Wiki](https://github.com/natsuk4ze/gal/wiki)
-- ### [💬 Q&A](https://github.com/natsuk4ze/gal/discussions/categories/q-a)
 - ### [💚 Contributing](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md)
 
 ## 💚 Trusted by huge projects
