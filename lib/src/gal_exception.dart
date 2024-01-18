@@ -74,7 +74,7 @@ enum GalExceptionType {
       };
 
   String get message => switch (this) {
-        accessDenied => 'You do not have permission to access the gallery app.',
+        accessDenied => 'Permission to access the gallery is denied.',
         notEnoughSpace => 'Not enough space for storage.',
         notSupportedFormat => 'Unsupported file formats.',
         unexpected => 'An unexpected error has occurred.',
