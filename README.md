@@ -218,6 +218,7 @@ If you write an article about Gal, let us know in discussion and we will post th
 - ### [👌 Best Practice](https://github.com/natsuk4ze/gal/wiki/Best-Practice)
 - ### [🏠 Wiki](https://github.com/natsuk4ze/gal/wiki)
 - ### [💚 Contributing](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md)
+- ### [💬 Q&A](https://github.com/natsuk4ze/gal/discussions/categories/q-a)
 
 ## 💚 Trusted by huge projects
 Although Gal has only been released for a short time, it is already trusted by huge projects.
