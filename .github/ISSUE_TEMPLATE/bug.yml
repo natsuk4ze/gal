@@ -7,6 +7,8 @@ body:
     attributes:
       label: Did you check the documentation and it did not help?
       options:
+      - label: I have read the [README](https://github.com/natsuk4ze/gal/blob/main/README.md)
+        required: true
       - label: I have searched the [existing documentation](https://github.com/natsuk4ze/gal/wiki)
         required: true
       - label: I have searched the [existing answer](https://github.com/natsuk4ze/gal/discussions)

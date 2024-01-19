@@ -1,7 +1,3 @@
-name: Blank issue
-description: Use when no matching template was found.
-labels: "\U0001F440 in triage"
-assignees: natsuk4ze
 body:
   - type: checkboxes
     attributes:
