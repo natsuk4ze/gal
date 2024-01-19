@@ -3,14 +3,18 @@ description: Suggest a new idea for gal.
 labels: "✨ feature, \U0001F440 in triage"
 assignees: natsuk4ze
 body:
-  - type: markdown
+  - type: checkboxes
     attributes:
-      value: |
-        Thank you for using gal!
-        If you are looking for support, please check out our documentation.
-
-          - https://github.com/natsuk4ze/gal/wiki
-          - https://github.com/natsuk4ze/gal/discussions
+      label: Did you check the documentation and it did not help?
+      options:
+      - label: I have carefully read the [README](https://github.com/natsuk4ze/gal/blob/main/README.md)
+        required: true
+      - label: I have carefully searched the [existing documentation](https://github.com/natsuk4ze/gal/wiki)
+        required: true
+      - label: I have carefully searched the [existing answer](https://github.com/natsuk4ze/gal/discussions)
+        required: true
+      - label: I have carefully read the [contribution guide](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md)
+        required: true
   - type: textarea
     attributes:
       label: Proposal
