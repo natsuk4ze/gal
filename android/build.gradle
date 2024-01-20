@@ -1,17 +1,6 @@
 group 'studio.midoridesign.gal'
 version '1.0'
 
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.0'
-    }
-}
-
 rootProject.allprojects {
     repositories {
         google()
@@ -26,7 +15,7 @@ android {
       namespace 'studio.midoridesign.gal'
     }
     
-    compileSdkVersion 33
+    compileSdk 33
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -34,7 +23,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 19
+        minSdk 19
     }
 
     dependencies {
