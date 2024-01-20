@@ -1,3 +1,7 @@
+## 2.2.1
+
+* UPDATE: Gradle settings to latest #196
+
 ## 2.2.0
 
 * ADD: PlatformInterface #180
