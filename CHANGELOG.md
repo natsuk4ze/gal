@@ -1,3 +1,7 @@
+## 2.2.2
+
+* Fix analytics issue
+
 ## 2.2.1
 
 * UPDATE: Gradle settings to latest #196
