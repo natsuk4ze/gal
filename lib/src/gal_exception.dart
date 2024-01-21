@@ -11,7 +11,7 @@ class GalException implements Exception {
   });
 
   /// Type of error.
-  /// 
+  ///
   /// See: [GalExceptionType]
   final GalExceptionType type;
 
@@ -19,7 +19,7 @@ class GalException implements Exception {
   final PlatformException platformException;
 
   /// Stack trace of the error in dart side.
-  /// 
+  ///
   /// The native code StackTrace is stored in [PlatformException.stacktrace].
   final StackTrace stackTrace;
 
@@ -51,7 +51,6 @@ class GalException implements Exception {
 /// including all values of [GalException.platformException]
 /// and [GalException.stackTrace].
 enum GalExceptionType {
-
   /// When has no permission to access gallery app.
   /// See: https://github.com/natsuk4ze/gal/wiki/Permissions
   accessDenied,
