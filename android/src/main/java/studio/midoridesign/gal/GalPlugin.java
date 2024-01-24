@@ -137,8 +137,8 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             String album) throws IOException, SecurityException, FileNotFoundException {
         ContentResolver resolver = pluginBinding.getApplicationContext().getContentResolver();
         ContentValues values = createContentValues(isImage, name, extension, album);
+        Uri uri = getUniqueFileUri(resolver, values, isImage, name, extension);
 
-        Uri uri = resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
         try (OutputStream out = resolver.openOutputStream(uri)) {
             byte[] buffer = new byte[8192];
             int bytesRead;
@@ -146,6 +146,24 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                 out.write(buffer, 0, bytesRead);
             }
         }
+    }
+
+    // This is necessary because FileUtils.java only checks up to 31 times to generate unique names.
+    // See: https://github.com/natsuk4ze/gal/issues/198
+    private Uri getUniqueFileUri(ContentResolver resolver, ContentValues values, boolean isImage,
+            String name, String extension) throws IllegalStateException {
+        Uri uri = null;
+        int suffix = 0;
+
+        while (uri == null) {
+            try {
+                uri = resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
+            } catch (IllegalStateException e) {
+                if (!e.getMessage().contains("Failed to build unique file")) throw e;
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME, name + (++suffix) + extension);
+            }
+        }
+        return uri;
     }
 
     @SuppressWarnings("EmptyStatementCheck")
