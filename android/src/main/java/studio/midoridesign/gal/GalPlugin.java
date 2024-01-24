@@ -152,18 +152,17 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     // See: https://github.com/natsuk4ze/gal/issues/198
     private Uri getUniqueFileUri(ContentResolver resolver, ContentValues values, boolean isImage,
             String name, String extension) throws IllegalStateException {
-        Uri uri = null;
         int suffix = 0;
-
-        while (uri == null) {
+        while (true) {
             try {
-                uri = resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME,
+                        name + (suffix > 0 ? suffix : "") + extension);
+                return resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
             } catch (IllegalStateException e) {
                 if (!e.getMessage().contains("Failed to build unique file")) throw e;
-                values.put(MediaStore.MediaColumns.DISPLAY_NAME, name + (++suffix) + extension);
+                suffix++;
             }
         }
-        return uri;
     }
 
     @SuppressWarnings("EmptyStatementCheck")
