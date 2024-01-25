@@ -1,3 +1,7 @@
+## 2.2.3
+
+* Fix error when saving the same file name 32 times on Android. #199
+
 ## 2.2.2
 
 * Fix analytics issue
