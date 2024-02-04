@@ -38,7 +38,7 @@ final class Gal {
   /// Save a image to the gallery from [Uint8List].
   ///
   /// Specify the album with [album]. If it does not exist, it will be created.
-  /// Do not include the extension in [name].
+  /// Specify the file name with [name]. Do not include the extension.
   /// ```dart
   /// await Gal.putImageBytes(bytes, name: 'photo');
   /// ```
