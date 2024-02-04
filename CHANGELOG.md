@@ -1,3 +1,7 @@
+## 2.3.0
+
+* Add `name` parameter to `putImageBytes`. #205
+
 ## 2.2.3
 
 * Fix error when saving the same file name 32 times on Android. #199
