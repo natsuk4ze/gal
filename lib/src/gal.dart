@@ -41,8 +41,8 @@ final class Gal {
   /// Throws an [GalException] If you do not have access premission or
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
-  static Future<void> putImageBytes(Uint8List bytes, {String? album}) async =>
-      GalPlatform.instance.putImageBytes(bytes, album: album);
+  static Future<void> putImageBytes(Uint8List bytes, {String? album, String name = 'image'}) async =>
+      GalPlatform.instance.putImageBytes(bytes, album: album, name: name);
 
   /// Open gallery app.
   ///
