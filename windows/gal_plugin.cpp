@@ -11,6 +11,7 @@
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.Storage.h>
 #include <winrt/Windows.System.h>
+
 #include <thread>
 
 namespace gal {
@@ -95,7 +96,8 @@ static IAsyncAction PutMedia(string path, const optional<string> album) {
 }
 
 static IAsyncAction PutMediaBytes(const vector<uint8_t>& bytes,
-                                  const optional<string> album) {
+                                  const optional<string> album,
+                                  const string name) {
   auto folder = KnownFolders::PicturesLibrary();
   if (album) {
     folder = co_await folder.CreateFolderAsync(
@@ -103,7 +105,7 @@ static IAsyncAction PutMediaBytes(const vector<uint8_t>& bytes,
         CreationCollisionOption::OpenIfExists);
   }
   auto file = co_await folder.CreateFileAsync(
-      L"image." + GetExtension(bytes),
+      winrt::to_hstring(name) + L"." + GetExtension(bytes),
       CreationCollisionOption::GenerateUniqueName);
 
   auto stream = co_await file.OpenAsync(FileAccessMode::ReadWrite);
@@ -161,9 +163,10 @@ void GalPlugin::HandleMethodCall(
     if (auto p = std::get_if<string>(&args->at(EncodableValue("album")))) {
       album.emplace(*p);
     }
-    std::thread([bytes, album, result = std::move(result)]() mutable {
+    const auto name = std::get<string>(args->at(EncodableValue("name")));
+    std::thread([bytes, album, name, result = std::move(result)]() mutable {
       try {
-        PutMediaBytes(bytes, album).get();
+        PutMediaBytes(bytes, album, name).get();
         result->Success();
       } catch (const winrt::hresult_error& e) {
         HandleError(e, std::move(result));
