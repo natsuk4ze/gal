@@ -38,11 +38,16 @@ final class Gal {
   /// Save a image to the gallery from [Uint8List].
   ///
   /// Specify the album with [album]. If it does not exist, it will be created.
+  /// Specify the file name with [name]. Do not include the extension.
+  /// ```dart
+  /// await Gal.putImageBytes(bytes, name: 'photo');
+  /// ```
   /// Throws an [GalException] If you do not have access premission or
   /// if an error occurs during saving.
   /// See: [Formats](https://github.com/natsuk4ze/gal/wiki/Formats)
-  static Future<void> putImageBytes(Uint8List bytes, {String? album}) async =>
-      GalPlatform.instance.putImageBytes(bytes, album: album);
+  static Future<void> putImageBytes(Uint8List bytes,
+          {String? album, String name = 'image'}) async =>
+      GalPlatform.instance.putImageBytes(bytes, album: album, name: name);
 
   /// Open gallery app.
   ///
