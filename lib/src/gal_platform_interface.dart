@@ -20,7 +20,7 @@ base class GalPlatform {
 
   /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
   /// define [putImageBytes].
-  Future<void> putImageBytes(Uint8List bytes, {String? album}) =>
+  Future<void> putImageBytes(Uint8List bytes, {String? album, required final String name}) =>
       throw UnimplementedError('putImageBytes() has not been implemented.');
 
   /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
