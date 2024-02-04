@@ -34,7 +34,7 @@ final class MethodChannelGal extends GalPlatform {
   }
 
   @override
-  Future<void> putImageBytes(Uint8List bytes, {String? album, String name = 'image'}) async {
+  Future<void> putImageBytes(Uint8List bytes, {String? album, String name}) async {
     await requestAccess(toAlbum: album != null);
     await _invokeMethod<void>(
         'putImageBytes', {'bytes': bytes, 'album': album, 'name': name});
