@@ -97,7 +97,7 @@ static IAsyncAction PutMedia(string path, const optional<string> album) {
 
 static IAsyncAction PutMediaBytes(const vector<uint8_t>& bytes,
                                   const optional<string> album,
-                                  const string name) {
+                                  const string &name) {
   auto folder = KnownFolders::PicturesLibrary();
   if (album) {
     folder = co_await folder.CreateFolderAsync(
