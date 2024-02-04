@@ -77,7 +77,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             case "putImageBytes": {
                 new Thread(() -> {
                     try {
-                        putMediaBytes(call.argument("bytes"), call.argument("album"));
+                        putMediaBytes(call.argument("bytes"), call.argument("album"), call.argument("name"));
                         new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                     } catch (Exception e) {
                         handleError(e, result);
@@ -125,11 +125,11 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         }
     }
 
-    private void putMediaBytes(byte[] bytes, String album) throws IOException, SecurityException {
+    private void putMediaBytes(byte[] bytes, String album, String name) throws IOException, SecurityException {
         ImageFormat imageFormat = Imaging.guessFormat(bytes);
         String extension = "." + imageFormat.getDefaultExtension().toLowerCase();
         try (InputStream in = new ByteArrayInputStream(bytes)) {
-            writeData(in, true, "image", extension, album);
+            writeData(in, true, name, extension, album);
         }
     }
 

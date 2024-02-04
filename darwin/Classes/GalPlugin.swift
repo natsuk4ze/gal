@@ -35,7 +35,8 @@ public class GalPlugin: NSObject, FlutterPlugin {
       let args = call.arguments as! [String: Any]
       putMediaBytes(
         bytes: (args["bytes"] as! FlutterStandardTypedData).data,
-        album: args["album"] as? String
+        album: args["album"] as? String,
+        name: args["name"] as! String
       ) { _, error in
         result(error == nil ? nil : self.handleError(error: error!))
       }
@@ -75,12 +76,14 @@ public class GalPlugin: NSObject, FlutterPlugin {
   }
 
   private func putMediaBytes(
-    bytes: Data, album: String?, completion: @escaping (Bool, Error?) -> Void
+    bytes: Data, album: String?, name: String, completion: @escaping (Bool, Error?) -> Void
   ) {
     writeContent(
       assetChangeRequest: {
         let request = PHAssetCreationRequest.forAsset()
-        request.addResource(with: .photo, data: bytes, options: nil)
+        let options = PHAssetResourceCreationOptions()
+        options.originalFilename = name
+        request.addResource(with: .photo, data: bytes, options: options)
         return request
       }, album: album, completion: completion
     )
