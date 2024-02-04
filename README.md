@@ -223,7 +223,7 @@ If you write an article about Gal, let us know in discussion and we will post th
 ## 💚 Trusted by huge projects
 Although Gal has only been released for a short time, it is already trusted by huge projects.
 
-- ### [localsend - 27k⭐️](https://github.com/localsend/localsend)
-- ### [flutter-quill-extensions - 2.2k⭐️](https://github.com/singerdmx/flutter-quill/tree/master/flutter_quill_extensions)
-- ### [Thunder - 650⭐️](https://github.com/thunder-app/thunder)
+- ### [localsend - 28k⭐️](https://github.com/localsend/localsend)
+- ### [flutter-quill-extensions - 2.3k⭐️](https://github.com/singerdmx/flutter-quill)
+- ### [Thunder - 660⭐️](https://github.com/thunder-app/thunder)
 and more...
