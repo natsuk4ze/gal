@@ -32,6 +32,7 @@ build/
 
 # Private settings related
 .vscode/
+.vs/
 
 # Android related
 .gradle
