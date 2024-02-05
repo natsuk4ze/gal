@@ -111,7 +111,7 @@ Update [Visual Studio](https://visualstudio.microsoft.com) to the latest version
 
 ### Linux
 
-Currently does not officially support Linux, but it can be added through a community plugin.
+Currently does not officially support Linux, but it can be added through a non-endorsed federated plugin.
 See: [gal_linux](https://pub.dev/packages/gal_linux)
 
 ## ✅ Usage
