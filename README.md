@@ -95,7 +95,7 @@ Add the following keys to the `macos/Runner/Info.plist`:
 You can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/macos/Runner/Info.plist).
 
 > **🔴 Warning:**
-Flutter currently has a [fatal problem for loading info.plist](https://github.com/flutter/flutter/issues/134191), and permissions are always denied in
+Flutter currently has a [fatal problem for loading info.plist](https://github.com/flutter/flutter/issues/134191), and permissions are always denied or app crashing in
 some code editors.
 
 ### Windows
