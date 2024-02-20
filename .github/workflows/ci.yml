@@ -85,10 +85,13 @@ jobs:
         with:
           channel: beta
 
+      - name: List available iOS simulators
+        run: xcrun simctl list devices available
+
       - name: Boot ios simulator
         uses: futureware-tech/simulator-action@v3
         with:
-          model: iPhone 14 Pro Max
+          #model: iPhone 14 Pro Max
           os_version: ^${{ matrix.ios-version }}
       
       - name: Grant permission
