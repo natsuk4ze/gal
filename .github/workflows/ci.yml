@@ -26,7 +26,7 @@ jobs:
       matrix:
         ios-version: [17]
       fail-fast: false
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -43,7 +43,7 @@ jobs:
       - name: Boot ios simulator
         uses: futureware-tech/simulator-action@v2
         with:
-          os: ios
+          os: iOS
           os_version: ^${{ matrix.ios-version }}
       
       - name: Grant permission
