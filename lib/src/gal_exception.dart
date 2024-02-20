@@ -9,8 +9,18 @@ class GalException implements Exception {
     required this.platformException,
     required this.stackTrace,
   });
+
+  /// Type of error.
+  ///
+  /// See: [GalExceptionType]
   final GalExceptionType type;
+
+  /// Native code error information.
   final PlatformException platformException;
+
+  /// Stack trace of the error in dart side.
+  ///
+  /// The native code StackTrace is stored in [PlatformException.stacktrace].
   final StackTrace stackTrace;
 
   factory GalException.fromCode({
@@ -23,14 +33,23 @@ class GalException implements Exception {
       orElse: () => GalExceptionType.unexpected,
     );
     return GalException(
-        type: type,
-        platformException: platformException,
-        stackTrace: stackTrace);
+      type: type,
+      platformException: platformException,
+      stackTrace: stackTrace,
+    );
   }
+
   @override
   String toString() => "[GalException/${type.code}]: ${type.message}";
 }
 
+/// Types of [GalException]
+///
+/// If the type cannot be determined, it will be [unexpected].
+/// In that case, you can get support by submitting
+/// an [issue](https://github.com/natsuk4ze/gal/issues)
+/// including all values of [GalException.platformException]
+/// and [GalException.stackTrace].
 enum GalExceptionType {
   /// When has no permission to access gallery app.
   /// See: https://github.com/natsuk4ze/gal/wiki/Permissions
@@ -54,7 +73,7 @@ enum GalExceptionType {
       };
 
   String get message => switch (this) {
-        accessDenied => 'You do not have permission to access the gallery app.',
+        accessDenied => 'Permission to access the gallery is denied.',
         notEnoughSpace => 'Not enough space for storage.',
         notSupportedFormat => 'Unsupported file formats.',
         unexpected => 'An unexpected error has occurred.',

@@ -1,3 +1,19 @@
+## 2.3.0
+
+* Add `name` parameter to `putImageBytes`. #205
+
+## 2.2.3
+
+* Fix error when saving the same file name 32 times on Android. #199
+
+## 2.2.2
+
+* Fix analytics issue
+
+## 2.2.1
+
+* UPDATE: Gradle settings to latest #196
+
 ## 2.2.0
 
 * ADD: PlatformInterface #180

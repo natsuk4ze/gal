@@ -32,6 +32,8 @@
 
 ### Please [LIKE👍](https://pub.dev/packages/gal) and [STAR⭐️](https://github.com/natsuk4ze/gal) to support our volunteer efforts.
 
+
+**Support** means that all functions have been tested manually or [automatically](https://github.com/natsuk4ze/gal/actions/runs/7517751549) whenever possible.
 |             | Android | iOS | macOS | Windows | Linux |
 |-------------|---------|-----|-------|---------|-------|
 | **Support** | SDK 21+ | 11+ |  11+  |   10+   | See: [gal_linux](https://pub.dev/packages/gal_linux) |
@@ -93,15 +95,23 @@ Add the following keys to the `macos/Runner/Info.plist`:
 You can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/macos/Runner/Info.plist).
 
 > **🔴 Warning:**
-Flutter has [fatal crash issue for loading info.plist on macOS](https://github.com/flutter/flutter/issues/134191) now.
+Flutter currently has a [fatal problem for loading info.plist](https://github.com/flutter/flutter/issues/134191), and permissions are always denied or app crashing in
+some code editors.
 
 ### Windows
 
 Update [Visual Studio](https://visualstudio.microsoft.com) to the latest version for using `C++ 20`.
 
+> **💡 If you can't compile**
+> 
+> Try downloading a latest Windows SDK:
+> 1. Open Visual Studio Installer
+> 2. Select Modify
+> 3. Select Windows SDK
+
 ### Linux
 
-Currently does not officially support Linux, but it can be added through a community plugin.
+Currently does not officially support Linux, but it can be added through a non-endorsed federated plugin.
 See: [gal_linux](https://pub.dev/packages/gal_linux)
 
 ## ✅ Usage
@@ -164,11 +174,15 @@ await Gal.putVideo(video.path);
 ### Handle Permission
 
 ```dart
-// Check Permission
-await Gal.hasAccess();
+// Check for access premission
+final hasAccess = await Gal.hasAccess();
 
-// Request Permission
+// Request access premission
 await Gal.requestAccess();
+
+// ... for saving to album
+final hasAccess = await Gal.hasAccess(toAlbum: true);
+await Gal.requestAccess(toAlbum: true);
 ```
 
 ### Handle Errors
@@ -189,7 +203,7 @@ enum GalExceptionType {
   unexpected;
 
   String get message => switch (this) {
-        accessDenied => 'You do not have permission to access the gallery app.',
+        accessDenied => 'Permission to access the gallery is denied.',
         notEnoughSpace => 'Not enough space for storage.',
         notSupportedFormat => 'Unsupported file formats.',
         unexpected => 'An unexpected error has occurred.',
@@ -204,12 +218,13 @@ If you write an article about Gal, let us know in discussion and we will post th
 - ### [🎯 Example](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart)
 - ### [👌 Best Practice](https://github.com/natsuk4ze/gal/wiki/Best-Practice)
 - ### [🏠 Wiki](https://github.com/natsuk4ze/gal/wiki)
-- ### [💬 Q&A](https://github.com/natsuk4ze/gal/discussions/categories/q-a)
 - ### [💚 Contributing](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md)
+- ### [💬 Q&A](https://github.com/natsuk4ze/gal/discussions/categories/q-a)
 
 ## 💚 Trusted by huge projects
 Although Gal has only been released for a short time, it is already trusted by huge projects.
 
-- ### [localsend - 23k⭐️](https://github.com/localsend/localsend)
-- ### [flutter-quill-extensions - 2.2k⭐️](https://github.com/singerdmx/flutter-quill/tree/master/flutter_quill_extensions)
+- ### [localsend - 28k⭐️](https://github.com/localsend/localsend)
+- ### [flutter-quill-extensions - 2.3k⭐️](https://github.com/singerdmx/flutter-quill)
+- ### [Thunder - 660⭐️](https://github.com/thunder-app/thunder)
 and more...

@@ -1,0 +1,20 @@
+body:
+  - type: checkboxes
+    attributes:
+      label: Did you check the documentation and it did not help?
+      options:
+      - label: I have carefully read the [README](https://github.com/natsuk4ze/gal/blob/main/README.md)
+        required: true
+      - label: I have carefully searched the [existing documentation](https://github.com/natsuk4ze/gal/wiki)
+        required: true
+      - label: I have carefully searched the [existing answer](https://github.com/natsuk4ze/gal/discussions)
+        required: true
+      - label: I have carefully read the [contribution guide](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md)
+        required: true
+  - type: textarea
+    attributes:
+      label: Descrpition
+      description: |
+        Please tell us about the problem in as much detail as possible.
+    validations:
+      required: true

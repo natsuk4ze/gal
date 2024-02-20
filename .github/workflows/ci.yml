@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Cancel
-        uses: styfle/cancel-workflow-action@0.11.0
+        uses: styfle/cancel-workflow-action@0.12.1
         with:
           access_token: ${{ github.token }}
 
@@ -86,7 +86,7 @@ jobs:
           channel: beta
 
       - name: Boot ios simulator
-        uses: futureware-tech/simulator-action@v2
+        uses: futureware-tech/simulator-action@v3
         with:
           os: iOS
           model: 'iPhone 15'
@@ -139,40 +139,25 @@ jobs:
         run: flutter pub get ./example
  
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: temurin
           
       - name: Cache Gradle
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.gradle/caches
           key: gradle
         
       - name: Cache AVD
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-avd
         with:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
           key: avd-${{ matrix.api-level }}
- 
-      - name: Create AVD and generate snapshot for caching
-        if: steps.cache-avd.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main'
-        timeout-minutes: 20
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          arch: x86_64
-          emulator-boot-timeout: 300
-          disable-spellchecker: true
-          disk-size: 2048M
-          force-avd-creation: false
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
-          script: echo "Generated AVD snapshot for caching."
  
       # Retry: Integration testing with GitHub Actions is unstable.
       - name: Run integration tests
@@ -184,9 +169,8 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 180
+          emulator-boot-timeout: 200
           disable-spellchecker: true
-          disk-size: 2048M
           force-avd-creation: false
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
@@ -205,10 +189,9 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 180
+          emulator-boot-timeout: 200
           disable-spellchecker: true
           force-avd-creation: false
-          disk-size: 2048M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
@@ -228,10 +211,9 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          emulator-boot-timeout: 180
+          emulator-boot-timeout: 200
           disable-spellchecker: true
           force-avd-creation: false
-          disk-size: 2048M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
