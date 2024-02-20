@@ -85,13 +85,11 @@ jobs:
         with:
           channel: beta
 
-      - name: List available simulators
-        run: xcrun simctl list --json devices available
-
       - name: Boot ios simulator
         uses: futureware-tech/simulator-action@v2
         with:
           os: iOS
+          model: 'iPhone 15'
           os_version: ^${{ matrix.ios-version }}
       
       - name: Grant permission
