@@ -85,6 +85,9 @@ jobs:
         with:
           channel: beta
 
+      - name: List available simulators
+        run: xcrun simctl list --json devices available
+
       - name: Boot ios simulator
         uses: futureware-tech/simulator-action@v2
         with:
