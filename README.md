@@ -212,7 +212,7 @@ enum GalExceptionType {
 ```
 
 
-## 📝 Ducuments
+## 📝 Documents
 If you write an article about Gal, let us know in discussion and we will post the URL of the article in the wiki or readme 🤝
 
 - ### [🎯 Example](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart)
