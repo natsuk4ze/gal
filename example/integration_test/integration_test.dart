@@ -8,8 +8,12 @@ import 'package:gal/gal.dart';
 /// Integration_test is required to test native code,
 /// but it is not necessary to build the widget.
 Future<void> main() async {
-  for (var i = 0; i < TestCase.values.length; i++) {
-    final testCase = TestCase.values[i];
+  final testCases = [
+    for (final isSavedToAlbum in [true, false])
+      TestCase(isSavedToAlbum: isSavedToAlbum),
+  ];
+
+  for (final testCase in testCases) {
     final toAlbum = testCase.toAlbum;
     final album = testCase.album;
 
@@ -72,17 +76,10 @@ Future<Uint8List> getBytesData(String path) async {
   return Uint8List.fromList(uint8List);
 }
 
-enum TestCase {
-  saveToAlbum,
-  notSaveToAlbum;
+class TestCase {
+  const TestCase({required this.isSavedToAlbum});
+  final bool isSavedToAlbum;
 
-  bool get toAlbum => switch (this) {
-        saveToAlbum => true,
-        notSaveToAlbum => false,
-      };
-
-  String? get album => switch (this) {
-        saveToAlbum => 'toAlbum',
-        notSaveToAlbum => null,
-      };
+  bool get toAlbum => isSavedToAlbum;
+  String? get album => isSavedToAlbum ? 'album' : null;
 }
