@@ -47,7 +47,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        macos-version: [13]
+        macos-version: [13,14]
       fail-fast: false
     runs-on: macos-${{ matrix.macos-version }}
     steps:
@@ -65,14 +65,14 @@ jobs:
         timeout-minutes: 15
         run: |
           cd example
-          flutter test integration_test/integration_test.dart macos
+          flutter test -d macos integration_test/integration_test.dart macos
 
   ios:
     needs: set-up
     timeout-minutes: 60
     strategy:
       matrix:
-        ios-version: [17]
+        ios-version: [17,18]
       fail-fast: false
     runs-on: macos-14
     steps:
