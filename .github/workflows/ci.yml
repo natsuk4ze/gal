@@ -17,7 +17,30 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
+  windows:
+    needs: set-up
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        windows-version: [10]
+      fail-fast: false
+    runs-on: windows-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
 
+      - name: Setup Flutter SDK
+        timeout-minutes: 10
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Run integration tests
+        id: Run-integration-tests
+        timeout-minutes: 15
+        run: |
+          cd example
+          flutter test integration_test/integration_test.dart windows
 
   macos:
     needs: set-up
@@ -44,7 +67,56 @@ jobs:
           cd example
           flutter test -d macos integration_test/integration_test.dart macos
 
+  ios:
+    needs: set-up
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        ios-version: [17,18]
+      fail-fast: false
+    runs-on: macos-14
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
 
+      - name: Setup Flutter SDK
+        timeout-minutes: 10
+        uses: subosito/flutter-action@v2
+        with:
+          channel: beta
+
+      - name: Boot ios simulator
+        uses: futureware-tech/simulator-action@v3
+        with:
+          os: iOS
+          model: 'iPhone 15'
+          os_version: ^${{ matrix.ios-version }}
+      
+      - name: Grant permission
+        run: |
+          brew tap wix/brew
+          brew install applesimutils
+          cd example
+          applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
+
+      - name: Run integration tests
+        id: Run-integration-tests
+        continue-on-error: true
+        timeout-minutes: 15
+        run: |
+          cd example
+          flutter test integration_test/integration_test.dart
+
+      # Retry: Integration testing with GitHub Actions is unstable.
+      - name: Retry integration tests
+        id: Retry-integration-tests
+        timeout-minutes: 15
+        if: steps.Run-integration-tests.outcome == 'failure'
+        run: |
+          flutter clean && flutter pub get
+          cd example
+          flutter clean && flutter pub get
+          flutter test integration_test/integration_test.dart
 
   android:
     needs: set-up
@@ -52,7 +124,7 @@ jobs:
     runs-on: macos-14
     strategy:
       matrix:
-        api-level: [35]
+        api-level: [34,33,32,31,30,29,28,27,26,25,24,23,22,21]
       fail-fast: false
     steps:
       - name: Check out
