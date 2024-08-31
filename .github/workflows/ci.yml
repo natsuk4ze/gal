@@ -47,7 +47,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        macos-version: [13]
+        macos-version: [14]
       fail-fast: false
     runs-on: macos-${{ matrix.macos-version }}
     steps:
@@ -72,7 +72,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        ios-version: [17]
+        ios-version: [17,18]
       fail-fast: false
     runs-on: macos-14
     steps:
@@ -124,7 +124,7 @@ jobs:
     runs-on: macos-13
     strategy:
       matrix:
-        api-level: [34,33,32,31,30,29,28,27,26,25,24,23,22,21]
+        api-level: [35,34,33,32,31,30,29,28,27,26,25,24,23,22,21]
       fail-fast: false
     steps:
       - name: Check out
