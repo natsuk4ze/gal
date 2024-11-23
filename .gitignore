@@ -57,6 +57,8 @@ Flutter.podspec
 Generated.xcconfig
 flutter_export_environment.sh
 GeneratedPluginRegistrant.*
+.build/
+.swiftpm/
 
 # Windows related
 *.suo
