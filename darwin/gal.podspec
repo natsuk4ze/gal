@@ -10,7 +10,8 @@ Pod::Spec.new do |s|
   s.license          = { :type => 'BSD-3-Clause', :file => '../LICENSE' }
   s.author           = { 'Midori Design Studio' => 'https://midoridesign.studio' }
   s.source           = { :http => 'https://github.com/natsuk4ze/gal' }
-  s.source_files = 'Classes/**/*'
+  s.source_files = 'gal/Sources/gal/**/*.swift'
+  s.resource_bundles = {'gal_privacy' => ['gal/Sources/gal/PrivacyInfo.xcprivacy']}
   s.ios.dependency 'Flutter'
   s.osx.dependency 'FlutterMacOS'
   s.ios.deployment_target = '11.0'
