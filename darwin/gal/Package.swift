@@ -17,7 +17,9 @@ let package = Package(
         .target(
             name: "gal",
             dependencies: [],
-            resources: []
+            resources: [
+                .process("PrivacyInfo.xcprivacy")
+            ]
         )
     ]
 )

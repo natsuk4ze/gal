@@ -11,6 +11,7 @@ Pod::Spec.new do |s|
   s.author           = { 'Midori Design Studio' => 'https://midoridesign.studio' }
   s.source           = { :http => 'https://github.com/natsuk4ze/gal' }
   s.source_files = 'gal/Sources/gal/**/*.swift'
+  s.resource_bundles = {'gal_privacy' => ['gal/Sources/gal/PrivacyInfo.xcprivacy']}
   s.ios.dependency 'Flutter'
   s.osx.dependency 'FlutterMacOS'
   s.ios.deployment_target = '11.0'
