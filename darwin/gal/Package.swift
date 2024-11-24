@@ -18,7 +18,7 @@ let package = Package(
             name: "gal",
             dependencies: [],
             resources: [
-                .process("PrivacyInfo.xcprivacy"),
+                .process("PrivacyInfo.xcprivacy")
             ]
         )
     ]
