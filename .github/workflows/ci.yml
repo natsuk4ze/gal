@@ -8,6 +8,12 @@ on:
   pull_request:
 
 jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: styfle/cancel-workflow-action@0.12.1
+        with:
+          access_token: ${{ github.token }}
   windows:
     runs-on: windows-latest
     timeout-minutes: 30
