@@ -21,8 +21,10 @@ jobs:
       - name: Dry run
         run: flutter pub publish --dry-run
   test:
+    needs: analyze
     uses: ./.github/workflows/ci.yml
   publish:
+    needs: test
     permissions:
       id-token: write # Required for authentication using OIDC
     runs-on: ubuntu-latest
