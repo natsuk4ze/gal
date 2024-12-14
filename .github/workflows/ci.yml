@@ -60,6 +60,27 @@ jobs:
         with:
           channel: beta
 
+      # https://arc.net/l/quote/kbugwbpm
+      - name: Verify the plugin works with CocoaPods
+        timeout-minutes: 15
+        run: |
+            flutter config --no-enable-swift-package-manager
+            cd example
+            flutter run
+            cd ..
+            pod lib lint darwin/gal.podspec  --configuration=Debug --skip-tests --use-modular-headers --use-libraries
+            pod lib lint darwin/gal.podspec  --configuration=Debug --skip-tests --use-modular-headers
+      
+      - run: flutter clean
+
+      # https://arc.net/l/quote/xdsdqxfz
+      - name: Verify the plugin works with Swift Package Manager
+        timeout-minutes: 15
+        run: |
+            flutter config --enable-swift-package-manager
+            cd example
+            flutter run
+
       - name: Run integration tests
         id: Run-integration-tests
         timeout-minutes: 15
@@ -98,6 +119,27 @@ jobs:
           brew install applesimutils
           cd example
           applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
+
+      # https://arc.net/l/quote/kbugwbpm
+      - name: Verify the plugin works with CocoaPods
+        timeout-minutes: 15
+        run: |
+            flutter config --no-enable-swift-package-manager
+            cd example
+            flutter run
+            cd ..
+            pod lib lint darwin/gal.podspec  --configuration=Debug --skip-tests --use-modular-headers --use-libraries
+            pod lib lint darwin/gal.podspec  --configuration=Debug --skip-tests --use-modular-headers
+      
+      - run: flutter clean
+      
+      # https://arc.net/l/quote/xdsdqxfz
+      - name: Verify the plugin works with Swift Package Manager
+        timeout-minutes: 15
+        run: |
+            flutter config --enable-swift-package-manager
+            cd example
+            flutter run
 
       - name: Run integration tests
         id: Run-integration-tests
