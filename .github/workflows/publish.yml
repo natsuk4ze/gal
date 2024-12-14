@@ -28,6 +28,7 @@ jobs:
     with:
       run_all: true
   publish:
+    environment: pub.dev
     needs: test
     permissions:
       id-token: write # Required for authentication using OIDC
