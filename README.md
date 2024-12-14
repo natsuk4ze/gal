@@ -33,10 +33,11 @@
 ### Please [LIKE👍](https://pub.dev/packages/gal) and [STAR⭐️](https://github.com/natsuk4ze/gal) to support our volunteer efforts.
 
 
-**Support** means that all functions have been tested manually or [automatically](https://github.com/natsuk4ze/gal/actions/runs/7517751549) whenever possible.
 |             | Android | iOS | macOS | Windows | Linux |
 |-------------|---------|-----|-------|---------|-------|
 | **Support** | SDK 21+ | 11+ |  11+  |   10+   | See: [gal_linux](https://pub.dev/packages/gal_linux) |
+
+**Support** means that all functions have been tested manually or [automatically](https://github.com/natsuk4ze/gal/actions/runs/7517751549) whenever possible.
 
 |             | iOS | Android |
 |-------------|-----|---------|
@@ -224,7 +225,7 @@ If you write an article about Gal, let us know in discussion and we will post th
 ## 💚 Trusted by huge projects
 Although Gal has only been released for a short time, it is already trusted by huge projects.
 
-- ### [localsend - 28k⭐️](https://github.com/localsend/localsend)
-- ### [flutter-quill-extensions - 2.3k⭐️](https://github.com/singerdmx/flutter-quill)
-- ### [Thunder - 660⭐️](https://github.com/thunder-app/thunder)
+- ### [localsend - 55k⭐️](https://github.com/localsend/localsend)
+- ### [flutter-quill-extensions - 2.6k⭐️](https://github.com/singerdmx/flutter-quill)
+- ### [Thunder - 0.8k⭐️](https://github.com/thunder-app/thunder)
 and more...

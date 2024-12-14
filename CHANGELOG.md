@@ -1,3 +1,8 @@
+## 2.3.1
+
+* Add Swift Package Manager support. #242
+* Add PrivacyInfo.xcprivacy for Apple's Privacy Manifests. #242
+
 ## 2.3.0
 
 * Add `name` parameter to `putImageBytes`. #205
