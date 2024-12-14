@@ -50,7 +50,7 @@ jobs:
 
   windows:
     needs: filter
-    if: needs.filter.outputs.windows_changed == 'true' || needs.filter.outputs.common_changed == 'true' || github.event_name == 'workflow_call'
+    if: ${{ needs.filter.outputs.windows_changed == 'true' || needs.filter.outputs.common_changed == 'true' || github.event_name == 'workflow_call' }}
     runs-on: windows-latest
     timeout-minutes: 30
     strategy:
@@ -76,7 +76,7 @@ jobs:
 
   macos:
     needs: filter
-    if: needs.filter.outputs.macos_changed == 'true' || needs.filter.outputs.common_changed == 'true' || github.event_name == 'workflow_call'
+    if: ${{ needs.filter.outputs.macos_changed == 'true' || needs.filter.outputs.common_changed == 'true' || github.event_name == 'workflow_call' }}
     runs-on: macos-${{ matrix.macos-version }}
     timeout-minutes: 30
     strategy:
@@ -115,7 +115,7 @@ jobs:
 
   ios:
     needs: filter
-    if: needs.filter.outputs.ios_changed == 'true' || needs.filter.outputs.common_changed == 'true' || github.event_name == 'workflow_call'
+    if: ${{ needs.filter.outputs.ios_changed == 'true' || needs.filter.outputs.common_changed == 'true' || github.event_name == 'workflow_call' }}
     runs-on: macos-14
     timeout-minutes: 60
     strategy:
@@ -170,7 +170,7 @@ jobs:
 
   android:
     needs: filter
-    if: needs.filter.outputs.android_changed == 'true' || needs.filter.outputs.common_changed == 'true' || github.event_name == 'workflow_call'
+    if: ${{ needs.filter.outputs.android_changed == 'true' || needs.filter.outputs.common_changed == 'true' || github.event_name == 'workflow_call' }}
     timeout-minutes: 60
     runs-on: macos-13
     strategy:
