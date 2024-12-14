@@ -1,3 +1,7 @@
+## 2.3.1
+
+* Add Swift Package Manager support. #242
+
 ## 2.3.0
 
 * Add `name` parameter to `putImageBytes`. #205
