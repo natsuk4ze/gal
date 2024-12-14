@@ -61,12 +61,12 @@ jobs:
           channel: beta
 
       # https://arc.net/l/quote/kbugwbpm
-      - name: Verify the plugin works with CocoaPods
+      - name: Run integration tests with CocoaPods
         timeout-minutes: 15
         run: |
             flutter config --no-enable-swift-package-manager
             cd example
-            flutter run
+            flutter test -d macos integration_test/integration_test.dart macos
             cd ..
             pod lib lint darwin/gal.podspec  --configuration=Debug --skip-tests --use-modular-headers --use-libraries
             pod lib lint darwin/gal.podspec  --configuration=Debug --skip-tests --use-modular-headers
@@ -74,19 +74,12 @@ jobs:
       - run: flutter clean
 
       # https://arc.net/l/quote/xdsdqxfz
-      - name: Verify the plugin works with Swift Package Manager
+      - name: Run integration tests with Swift Package Manager
         timeout-minutes: 15
         run: |
             flutter config --enable-swift-package-manager
             cd example
-            flutter run
-
-      - name: Run integration tests
-        id: Run-integration-tests
-        timeout-minutes: 15
-        run: |
-          cd example
-          flutter test -d macos integration_test/integration_test.dart macos
+            flutter test -d macos integration_test/integration_test.dart macos
 
   ios:
     needs: set-up
@@ -121,12 +114,12 @@ jobs:
           applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
 
       # https://arc.net/l/quote/kbugwbpm
-      - name: Verify the plugin works with CocoaPods
+      - name: Run integration tests with CocoaPods
         timeout-minutes: 15
         run: |
             flutter config --no-enable-swift-package-manager
             cd example
-            flutter run
+            flutter test integration_test/integration_test.dart
             cd ..
             pod lib lint darwin/gal.podspec  --configuration=Debug --skip-tests --use-modular-headers --use-libraries
             pod lib lint darwin/gal.podspec  --configuration=Debug --skip-tests --use-modular-headers
@@ -134,31 +127,12 @@ jobs:
       - run: flutter clean
       
       # https://arc.net/l/quote/xdsdqxfz
-      - name: Verify the plugin works with Swift Package Manager
+      - name: Run integration tests with Swift Package Manager
         timeout-minutes: 15
         run: |
             flutter config --enable-swift-package-manager
             cd example
-            flutter run
-
-      - name: Run integration tests
-        id: Run-integration-tests
-        continue-on-error: true
-        timeout-minutes: 15
-        run: |
-          cd example
-          flutter test integration_test/integration_test.dart
-
-      # Retry: Integration testing with GitHub Actions is unstable.
-      - name: Retry integration tests
-        id: Retry-integration-tests
-        timeout-minutes: 15
-        if: steps.Run-integration-tests.outcome == 'failure'
-        run: |
-          flutter clean && flutter pub get
-          cd example
-          flutter clean && flutter pub get
-          flutter test integration_test/integration_test.dart
+            flutter test integration_test/integration_test.dart
 
   android:
     needs: set-up
