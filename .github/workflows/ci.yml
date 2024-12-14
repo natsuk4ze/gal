@@ -66,7 +66,6 @@ jobs:
       - name: Validate Podspec in CocoaPods
         if: matrix.package_manager == 'cocoapods'
         run: |
-          cd ..
           pod lib lint darwin/gal.podspec --configuration=Debug --skip-tests --use-modular-headers --use-libraries
           pod lib lint darwin/gal.podspec --configuration=Debug --skip-tests --use-modular-headers
 
@@ -117,7 +116,6 @@ jobs:
       - name: Validate Podspec in CocoaPods
         if: matrix.package_manager == 'cocoapods'
         run: |
-          cd ..
           pod lib lint darwin/gal.podspec --configuration=Debug --skip-tests --use-modular-headers --use-libraries
           pod lib lint darwin/gal.podspec --configuration=Debug --skip-tests --use-modular-headers
 
