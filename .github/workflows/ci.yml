@@ -1,5 +1,4 @@
 # Runner details on https://github.com/actions/runner-images/tree/main/images
-
 name: CI
 
 on:
@@ -19,12 +18,12 @@ jobs:
 
   windows:
     needs: set-up
+    runs-on: windows-latest
     timeout-minutes: 30
     strategy:
       matrix:
         windows-version: [10]
       fail-fast: false
-    runs-on: windows-latest
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -44,12 +43,13 @@ jobs:
 
   macos:
     needs: set-up
+    runs-on: macos-${{ matrix.macos-version }}
     timeout-minutes: 30
     strategy:
       matrix:
-        macos-version: [13,14]
+        macos-version: [13, 14]
+        package_manager: [cocoapods, swiftpm]
       fail-fast: false
-    runs-on: macos-${{ matrix.macos-version }}
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -60,52 +60,51 @@ jobs:
         with:
           channel: beta
 
-      # https://arc.net/l/quote/kbugwbpm
-      - name: Run integration tests with CocoaPods
-        timeout-minutes: 15
+      - name: Set Package Manager Configuration
         run: |
+          if [ "${{ matrix.package_manager }}" == "cocoapods" ]; then
             flutter config --no-enable-swift-package-manager
-            cd example
-            flutter test -d macos integration_test/integration_test.dart macos
-            cd ..
-            pod lib lint darwin/gal.podspec  --configuration=Debug --skip-tests --use-modular-headers --use-libraries
-            pod lib lint darwin/gal.podspec  --configuration=Debug --skip-tests --use-modular-headers
-      
-      - run: flutter clean
-
-      # https://arc.net/l/quote/xdsdqxfz
-      - name: Run integration tests with Swift Package Manager
-        timeout-minutes: 15
-        run: |
+          else
             flutter config --enable-swift-package-manager
-            cd example
-            flutter test -d macos integration_test/integration_test.dart macos
+          fi
+
+      - name: Run integration tests
+        run: |
+          cd example
+          flutter test -d macos integration_test/integration_test.dart macos
+
+      - name: Validate Podspec in CocoaPods
+        if: matrix.package_manager == 'cocoapods'
+        run: |
+          cd ..
+          pod lib lint darwin/gal.podspec --configuration=Debug --skip-tests --use-modular-headers --use-libraries
+          pod lib lint darwin/gal.podspec --configuration=Debug --skip-tests --use-modular-headers
 
   ios:
     needs: set-up
+    runs-on: macos-14
     timeout-minutes: 60
     strategy:
       matrix:
-        ios-version: [17,18]
+        ios-version: [17, 18]
+        package_manager: [cocoapods, swiftpm]
       fail-fast: false
-    runs-on: macos-14
     steps:
       - name: Check out
         uses: actions/checkout@v4
 
       - name: Setup Flutter SDK
-        timeout-minutes: 10
         uses: subosito/flutter-action@v2
         with:
           channel: beta
 
-      - name: Boot ios simulator
+      - name: Boot iOS simulator
         uses: futureware-tech/simulator-action@v4
         with:
           os: iOS
           model: 'iPhone 15'
           os_version: ^${{ matrix.ios-version }}
-      
+
       - name: Grant permission
         run: |
           brew tap wix/brew
@@ -113,59 +112,61 @@ jobs:
           cd example
           applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
 
-      # https://arc.net/l/quote/kbugwbpm
-      - name: Run integration tests with CocoaPods
-        timeout-minutes: 15
+      - name: Set Package Manager Configuration
         run: |
+          if [ "${{ matrix.package_manager }}" == "cocoapods" ]; then
             flutter config --no-enable-swift-package-manager
-            cd example
-            flutter test integration_test/integration_test.dart
-            cd ..
-            pod lib lint darwin/gal.podspec  --configuration=Debug --skip-tests --use-modular-headers --use-libraries
-            pod lib lint darwin/gal.podspec  --configuration=Debug --skip-tests --use-modular-headers
-      
-      - run: flutter clean
-      
-      # https://arc.net/l/quote/xdsdqxfz
-      - name: Run integration tests with Swift Package Manager
-        timeout-minutes: 15
-        run: |
+          else
             flutter config --enable-swift-package-manager
-            cd example
-            flutter test integration_test/integration_test.dart
+          fi
+
+      - name: Run integration tests
+        run: |
+          cd example
+          flutter test integration_test/integration_test.dart
+
+      - name: Validate Podspec in CocoaPods
+        if: matrix.package_manager == 'cocoapods'
+        run: |
+          cd ..
+          pod lib lint darwin/gal.podspec --configuration=Debug --skip-tests --use-modular-headers --use-libraries
+          pod lib lint darwin/gal.podspec --configuration=Debug --skip-tests --use-modular-headers
+
+      - name: Clean Flutter
+        run: flutter clean
 
   android:
     needs: set-up
-    timeout-minutes: 60
     runs-on: macos-13
+    timeout-minutes: 60
     strategy:
       matrix:
-        api-level: [34,33,32,31,30,29,28,27,26,25,24,23,22,21]
+        api-level: [34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21]
       fail-fast: false
     steps:
       - name: Check out
         uses: actions/checkout@v4
- 
+
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
         with:
           channel: beta
- 
+
       - name: Install Flutter dependencies
         run: flutter pub get ./example
- 
+
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: temurin
-          
+
       - name: Cache Gradle
         uses: actions/cache@v4
         with:
           path: ~/.gradle/caches
           key: gradle
-        
+
       - name: Cache AVD
         uses: actions/cache@v4
         id: cache-avd
@@ -174,8 +175,7 @@ jobs:
             ~/.android/avd/*
             ~/.android/adb*
           key: avd-${{ matrix.api-level }}
- 
-      # Retry: Integration testing with GitHub Actions is unstable.
+
       - name: Run integration tests
         id: Run-integration-tests
         continue-on-error: true
@@ -192,10 +192,14 @@ jobs:
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
-            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
+            if [ ${{ matrix.api-level }} -le 29 ]; then
+              flutter build apk --debug
+              adb install -r build/app/outputs/flutter-apk/app-debug.apk
+              adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
+              adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE
+            fi
             flutter test integration_test/integration_test.dart
- 
-      # Retry: Integration testing with GitHub Actions is unstable.
+
       - name: Retry integration tests
         id: Retry-integration-tests
         continue-on-error: true
@@ -217,10 +221,14 @@ jobs:
             adb start-server
           script: |
             flutter clean && flutter pub get
-            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
+            if [ ${{ matrix.api-level }} -le 29 ]; then
+              flutter build apk --debug
+              adb install -r build/app/outputs/flutter-apk/app-debug.apk
+              adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
+              adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE
+            fi
             flutter test integration_test/integration_test.dart
 
-      # Retry: Integration testing with GitHub Actions is unstable.
       - name: Re:Retry integration tests
         if: steps.Retry-integration-tests.outcome == 'failure'
         timeout-minutes: 20
@@ -240,5 +248,10 @@ jobs:
             adb start-server
           script: |
             flutter clean && flutter pub get
-            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
+            if [ ${{ matrix.api-level }} -le 29 ]; then
+              flutter build apk --debug
+              adb install -r build/app/outputs/flutter-apk/app-debug.apk
+              adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
+              adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE
+            fi
             flutter test integration_test/integration_test.dart
