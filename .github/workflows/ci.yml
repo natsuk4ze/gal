@@ -8,16 +8,7 @@ on:
   pull_request:
 
 jobs:
-  set-up:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cancel
-        uses: styfle/cancel-workflow-action@0.12.1
-        with:
-          access_token: ${{ github.token }}
-
   windows:
-    needs: set-up
     runs-on: windows-latest
     timeout-minutes: 30
     strategy:
@@ -42,7 +33,6 @@ jobs:
           flutter test integration_test/integration_test.dart windows
 
   macos:
-    needs: set-up
     runs-on: macos-${{ matrix.macos-version }}
     timeout-minutes: 30
     strategy:
@@ -81,7 +71,6 @@ jobs:
           pod lib lint darwin/gal.podspec --configuration=Debug --skip-tests --use-modular-headers
 
   ios:
-    needs: set-up
     runs-on: macos-14
     timeout-minutes: 60
     strategy:
@@ -136,7 +125,7 @@ jobs:
         run: flutter clean
 
   android:
-    needs: set-up
+    timeout-minutes: 60
     runs-on: macos-13
     timeout-minutes: 60
     strategy:
