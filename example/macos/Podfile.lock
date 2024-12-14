@@ -1,23 +1,16 @@
 PODS:
   - FlutterMacOS (1.0.0)
-  - gal (1.0.0):
-    - Flutter
-    - FlutterMacOS
 
 DEPENDENCIES:
   - FlutterMacOS (from `Flutter/ephemeral`)
-  - gal (from `Flutter/ephemeral/.symlinks/plugins/gal/darwin`)
 
 EXTERNAL SOURCES:
   FlutterMacOS:
     :path: Flutter/ephemeral
-  gal:
-    :path: Flutter/ephemeral/.symlinks/plugins/gal/darwin
 
 SPEC CHECKSUMS:
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
-  gal: 61e868295d28fe67ffa297fae6dacebf56fd53e1
 
 PODFILE CHECKSUM: 23282d8bcd3669427c3011c3d9efa633cc463571
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.16.2
