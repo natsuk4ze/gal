@@ -11,9 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dart-lang/setup-dart@v1
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
       - name: Install dependencies
-        run: dart pub get
+        run: flutter pub get
       - name: Analyze
         run: dart analyze
       - name: Format
