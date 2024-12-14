@@ -8,7 +8,41 @@ on:
   pull_request:
 
 jobs:
+  filter:
+    runs-on: ubuntu-latest
+    outputs:
+      common_changed: ${{ steps.filter.outputs.common }}
+      windows_changed: ${{ steps.filter.outputs.windows }}
+      macos_changed: ${{ steps.filter.outputs.macos }}
+      ios_changed: ${{ steps.filter.outputs.ios }}
+      android_changed: ${{ steps.filter.outputs.android }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Filter changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            common:
+              - '**/ci.yml'
+              - '**/lib/**'
+              - '**/pubspec.yaml'
+              - '**/pubspec.lock'
+            windows:
+              - '**/windows/**'
+            macos:
+              - 'darwin/**'
+              - 'example/macos/**'
+            ios:
+              - 'darwin/**'
+              - 'example/ios/**'
+            android:
+              - '**/android/**'
+
   windows:
+    needs: filter
+    if: needs.filter.outputs.windows_changed == 'true' || needs.filter.outputs.common_changed == 'true'
     timeout-minutes: 30
     strategy:
       matrix:
@@ -33,6 +67,8 @@ jobs:
           flutter test integration_test/integration_test.dart windows
 
   macos:
+    needs: filter
+    if: needs.filter.outputs.macos_changed == 'true' || needs.filter.outputs.common_changed == 'true'
     timeout-minutes: 30
     strategy:
       matrix:
@@ -57,6 +93,8 @@ jobs:
           flutter test -d macos integration_test/integration_test.dart macos
 
   ios:
+    needs: filter
+    if: needs.filter.outputs.ios_changed == 'true' || needs.filter.outputs.common_changed == 'true'
     timeout-minutes: 60
     strategy:
       matrix:
@@ -107,6 +145,8 @@ jobs:
           flutter test integration_test/integration_test.dart
 
   android:
+    needs: filter
+    if: needs.filter.outputs.android_changed == 'true' || needs.filter.outputs.common_changed == 'true'
     timeout-minutes: 60
     runs-on: macos-13
     strategy:
