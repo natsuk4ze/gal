@@ -7,10 +7,11 @@ Pod::Spec.new do |s|
   s.version          = '1.0.0'
   s.summary          = 'Flutter plugin for handle native gallary apps.'
   s.homepage         = 'https://github.com/natsuk4ze/gal'
-  s.license          = { :file => '../LICENSE' }
+  s.license          = { :type => 'BSD-3-Clause', :file => '../LICENSE' }
   s.author           = { 'Midori Design Studio' => 'https://midoridesign.studio' }
-  s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source           = { :http => 'https://github.com/natsuk4ze/gal' }
+  s.source_files = 'gal/Sources/gal/**/*.swift'
+  s.resource_bundles = {'gal_privacy' => ['gal/Sources/gal/PrivacyInfo.xcprivacy']}
   s.ios.dependency 'Flutter'
   s.osx.dependency 'FlutterMacOS'
   s.ios.deployment_target = '11.0'
