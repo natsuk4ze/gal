@@ -9,6 +9,13 @@ on:
   workflow_call:
 
 jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: styfle/cancel-workflow-action@0.12.1
+        with:
+          access_token: ${{ github.token }}
+  
   filter:
     runs-on: ubuntu-latest
     outputs:
