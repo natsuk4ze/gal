@@ -25,6 +25,8 @@ jobs:
   test:
     needs: analyze
     uses: ./.github/workflows/ci.yml
+    with:
+      run_all: 'true'
   publish:
     needs: test
     permissions:

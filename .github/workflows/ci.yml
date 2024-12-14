@@ -7,6 +7,12 @@ on:
       - main
   pull_request:
   workflow_call:
+    inputs:
+      run_all:
+        type: boolean
+        description: 'Run all jobs regardless of path filters'
+        required: false
+        default: false
 
 jobs:
   cancel:
@@ -47,12 +53,10 @@ jobs:
               - 'example/ios/**'
             android:
               - '**/android/**'
-      - name: Debug event_name
-        run: echo "Event name is ${{ github.event_name }}"
 
   windows:
     needs: filter
-    if: ${{ needs.filter.outputs.windows_changed == 'true' || needs.filter.outputs.common_changed == 'true' || github.event_name == 'workflow_call' }}
+    if: ${{ needs.filter.outputs.windows_changed == 'true' || needs.filter.outputs.common_changed == 'true' || inputs.run_all == 'true' }}
     runs-on: windows-latest
     timeout-minutes: 30
     strategy:
@@ -78,7 +82,7 @@ jobs:
 
   macos:
     needs: filter
-    if: ${{ needs.filter.outputs.macos_changed == 'true' || needs.filter.outputs.common_changed == 'true' || github.event_name == 'workflow_call' }}
+    if: ${{ needs.filter.outputs.macos_changed == 'true' || needs.filter.outputs.common_changed == 'true' || inputs.run_all == 'true' }}
     runs-on: macos-${{ matrix.macos-version }}
     timeout-minutes: 30
     strategy:
@@ -117,7 +121,7 @@ jobs:
 
   ios:
     needs: filter
-    if: ${{ needs.filter.outputs.ios_changed == 'true' || needs.filter.outputs.common_changed == 'true' || github.event_name == 'workflow_call' }}
+    if: ${{ needs.filter.outputs.ios_changed == 'true' || needs.filter.outputs.common_changed == 'true' || inputs.run_all == 'true' }}
     runs-on: macos-14
     timeout-minutes: 60
     strategy:
@@ -172,7 +176,7 @@ jobs:
 
   android:
     needs: filter
-    if: ${{ needs.filter.outputs.android_changed == 'true' || needs.filter.outputs.common_changed == 'true' || github.event_name == 'workflow_call' }}
+    if: ${{ needs.filter.outputs.android_changed == 'true' || needs.filter.outputs.common_changed == 'true' || inputs.run_all == 'true' }}
     timeout-minutes: 60
     runs-on: macos-13
     strategy:
