@@ -35,6 +35,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Install dependencies
+        run: flutter pub get
       - uses: dart-lang/setup-dart@v1
       - name: Publish
         run: dart pub publish
