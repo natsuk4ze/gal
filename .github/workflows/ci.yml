@@ -14,14 +14,7 @@ on:
         required: false
         default: false
 
-jobs:
-  cancel:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: styfle/cancel-workflow-action@0.12.1
-        with:
-          access_token: ${{ github.token }}
-  
+jobs:  
   filter:
     runs-on: ubuntu-latest
     outputs:
