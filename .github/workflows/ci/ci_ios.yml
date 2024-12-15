@@ -1,0 +1,66 @@
+name: iOS Integration Tests
+
+on:
+  workflow_call:
+
+jobs:
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        ios-version: [17, 18]
+        package_manager: [cocoapods, swiftpm]
+      fail-fast: false
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: beta
+
+      - name: Boot iOS simulator
+        uses: futureware-tech/simulator-action@v4
+        with:
+          os: iOS
+          os_version: ^${{ matrix.ios-version }}
+          wait_for_boot: true
+
+      - name: Grant permission
+        run: |
+          brew tap wix/brew
+          brew install applesimutils
+          cd example
+          applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
+
+      - name: Set Package Manager Configuration
+        run: |
+          if [ "${{ matrix.package_manager }}" == "cocoapods" ]; then
+            flutter config --no-enable-swift-package-manager
+          else
+            flutter config --enable-swift-package-manager
+          fi
+
+      - name: Run integration tests
+        id: Run-integration-tests
+        timeout-minutes: 15
+        continue-on-error: true
+        run: |
+          cd example
+          flutter test integration_test/integration_test.dart
+      
+      - name: Retry integration tests
+        if: steps.Run-integration-tests.outcome == 'failure'
+        timeout-minutes: 15
+        run: |
+          cd example
+          flutter clean && flutter pub get
+          flutter test integration_test/integration_test.dart
+
+      - name: Validate Podspec in CocoaPods
+        if: matrix.package_manager == 'cocoapods'
+        run: |
+          pod lib lint darwin/gal.podspec --configuration=Debug --skip-tests --use-modular-headers --use-libraries
+          pod lib lint darwin/gal.podspec --configuration=Debug --skip-tests --use-modular-headers
