@@ -60,19 +60,19 @@ jobs:
   windows:
     needs: filter
     if: ${{ needs.filter.outputs.windows_changed == 'true' || needs.filter.outputs.common_changed == 'true' || inputs.run_all }}
-    uses: ./.github/workflows/ci/ci_windows.yml
+    uses: ./.github/workflows/ci_windows.yml
 
   macos:
     needs: filter
     if: ${{ needs.filter.outputs.macos_changed == 'true' || needs.filter.outputs.common_changed == 'true' || inputs.run_all }}
-    uses: ./.github/workflows/ci/ci_macos.yml
+    uses: ./.github/workflows/ci_macos.yml
 
   ios:
     needs: filter
     if: ${{ needs.filter.outputs.ios_changed == 'true' || needs.filter.outputs.common_changed == 'true' || inputs.run_all }}
-    uses: ./.github/workflows/ci/ci_ios.yml
+    uses: ./.github/workflows/ci_ios.yml
 
   android:
     needs: filter
     if: ${{ needs.filter.outputs.android_changed == 'true' || needs.filter.outputs.common_changed == 'true' || inputs.run_all }}
-    uses: ./.github/workflows/ci/ci_android.yml
+    uses: ./.github/workflows/ci_android.yml
