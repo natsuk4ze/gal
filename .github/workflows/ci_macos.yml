@@ -21,6 +21,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: beta
+          cache: true
 
       - name: Set Package Manager Configuration
         run: |
@@ -33,17 +34,8 @@ jobs:
       - name: Run integration tests
         id: Run-integration-tests
         timeout-minutes: 15
-        continue-on-error: true
         run: |
           cd example
-          flutter test -d macos integration_test/integration_test.dart macos
-
-      - name: Retry integration tests
-        if: steps.Run-integration-tests.outcome == 'failure'
-        timeout-minutes: 15
-        run: |
-          cd example
-          flutter clean && flutter pub get
           flutter test -d macos integration_test/integration_test.dart macos
 
       - name: Validate Podspec in CocoaPods

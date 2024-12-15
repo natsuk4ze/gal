@@ -20,6 +20,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
       - name: Run integration tests
         id: Run-integration-tests
