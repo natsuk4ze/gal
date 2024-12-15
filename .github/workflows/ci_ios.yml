@@ -20,6 +20,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: beta
+          cache: true
 
       - name: Boot iOS simulator
         uses: futureware-tech/simulator-action@v4
@@ -27,6 +28,7 @@ jobs:
           os: iOS
           os_version: ^${{ matrix.ios-version }}
           wait_for_boot: true
+          erase_before_boot: true
 
       - name: Grant permission
         run: |
@@ -55,6 +57,7 @@ jobs:
         if: steps.Run-integration-tests.outcome == 'failure'
         timeout-minutes: 15
         run: |
+          flutter clean && flutter pub get
           cd example
           flutter clean && flutter pub get
           flutter test integration_test/integration_test.dart
