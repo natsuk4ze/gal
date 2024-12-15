@@ -1,0 +1,29 @@
+name: Windows Integration Tests
+
+on:
+  workflow_call:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    strategy:
+        matrix:
+          windows-version: [10]
+        fail-fast: false
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter SDK
+        timeout-minutes: 10
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Run integration tests
+        id: Run-integration-tests
+        timeout-minutes: 15
+        run: |
+          cd example
+          flutter test integration_test/integration_test.dart windows
