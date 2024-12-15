@@ -27,6 +27,7 @@ jobs:
         with:
           os: iOS
           os_version: ^${{ matrix.ios-version }}
+          model: iPad Pro 13-inch (M4)
           wait_for_boot: true
 
       - name: Grant permission
