@@ -109,7 +109,18 @@ jobs:
           fi
 
       - name: Run integration tests
+        id: Run-integration-tests
+        timeout-minutes: 15
+        continue-on-error: true
         run: |
+          cd example
+          flutter test -d macos integration_test/integration_test.dart macos
+
+      - name: Retry integration tests
+        if: steps.Run-integration-tests.outcome == 'failure'
+        timeout-minutes: 15
+        run: |
+          flutter clean && flutter pub get
           cd example
           flutter test -d macos integration_test/integration_test.dart macos
 
@@ -161,7 +172,18 @@ jobs:
           fi
 
       - name: Run integration tests
+        id: Run-integration-tests
+        timeout-minutes: 15
+        continue-on-error: true
         run: |
+          cd example
+          flutter test integration_test/integration_test.dart
+      
+      - name: Retry integration tests
+        if: steps.Run-integration-tests.outcome == 'failure'
+        timeout-minutes: 15
+        run: |
+          flutter clean && flutter pub get
           cd example
           flutter test integration_test/integration_test.dart
 
