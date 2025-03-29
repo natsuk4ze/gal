@@ -6,6 +6,13 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
+    inputs:
+      run_all:
+        type: boolean
+        description: 'Run all jobs regardless of path filters'
+        required: false
+        default: false
   workflow_call:
     inputs:
       run_all:
