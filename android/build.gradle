@@ -15,7 +15,7 @@ android {
       namespace 'studio.midoridesign.gal'
     }
     
-    compileSdk 34
+    compileSdk flutter.compileSdkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
