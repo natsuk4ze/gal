@@ -60,6 +60,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
+          heap-size: 512M
           emulator-boot-timeout: 200
           disable-spellchecker: true
           force-avd-creation: false
@@ -80,6 +81,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
+          heap-size: 512M
           emulator-boot-timeout: 200
           disable-spellchecker: true
           force-avd-creation: false
@@ -102,6 +104,7 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
+          heap-size: 512M
           emulator-boot-timeout: 200
           disable-spellchecker: true
           force-avd-creation: false
