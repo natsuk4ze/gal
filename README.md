@@ -92,7 +92,7 @@ Add the following keys to `android/app/src/main/AndroidManifest.xml`:
 
 You can copy from [example's AndroidManifest.xml](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
 
-> **⚠️ Note:**
+> [!WARNING]
 > Android emulators with API < 29 require SD card setup. Real devices don't.
 
 ### macOS Setup
@@ -104,16 +104,15 @@ Add the following keys to `macos/Runner/Info.plist`:
 
 You can copy from [example's Info.plist](https://github.com/natsuk4ze/gal/blob/main/example/macos/Runner/Info.plist).
 
-> **⚠️ Note:**
+> [!WARNING]
 > Flutter currently has a [fatal problem for loading info.plist](https://github.com/flutter/flutter/issues/134191), which may cause permission denials or app crashes in some code editors.
 
 ### Windows Setup
 
 Update [Visual Studio](https://visualstudio.microsoft.com) to the latest version for using `C++ 20`.
 
-> **💡 If you can't compile**
->
-> Try downloading the latest Windows SDK:
+> [!TIP]
+> If you can't compile, try downloading the latest Windows SDK:
 >
 > 1. Open Visual Studio Installer
 > 2. Select Modify
