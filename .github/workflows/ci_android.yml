@@ -5,11 +5,11 @@ on:
 
 jobs:
   android:
-    runs-on: macos-13
+    runs-on: macos-15
     timeout-minutes: 60
     strategy:
       matrix:
-        api-level: [34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21]
+        api-level: [35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21]
       fail-fast: false
     steps:
       - name: Check out
