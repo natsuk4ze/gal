@@ -2,14 +2,14 @@
   <p align="center">
    <img width="200" height="200" src="https://github.com/natsuk4ze/gal/raw/main/assets/logo.png" alt="Logo">
   </p>
-	<h1 align="center"><b>Gal</b></h1>
-	<h3 align="center">
+ <h1 align="center"><b>Gal</b></h1>
+ <h3 align="center">
   <b>
-  	Dart3 plugin for saving image or video to photos gallery
-    <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/fe/3a/7e/fe3a7e0e-7f52-b750-0ed2-523998c59d48/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/246x0w.webp" alt="ios photos" width="20" height="20"/> <img src="https://play-lh.googleusercontent.com/ZyWNGIfzUyoajtFcD7NhMksHEZh37f-MkHVGr5Yfefa-IX7yj9SMfI82Z7a2wpdKCA=w240-h480-rw" alt="google photos" width="20" height="20"/> <img src="https://upload.wikimedia.org/wikipedia/en/9/94/Microsoft_Photos_logo.png" alt="microsoft photos" width="22" height="22"/> 
+   Dart3 plugin for saving image or video to photos gallery
+    <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/fe/3a/7e/fe3a7e0e-7f52-b750-0ed2-523998c59d48/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/246x0w.webp" alt="ios photos" width="20" height="20"/> <img src="https://play-lh.googleusercontent.com/ZyWNGIfzUyoajtFcD7NhMksHEZh37f-MkHVGr5Yfefa-IX7yj9SMfI82Z7a2wpdKCA=w240-h480-rw" alt="google photos" width="20" height="20"/> <img src="https://upload.wikimedia.org/wikipedia/en/9/94/Microsoft_Photos_logo.png" alt="microsoft photos" width="22" height="22"/>
   </b>
   </h3>
-	<p align="center">
+ <p align="center">
     <a href="https://pub.dev/packages/gal"><strong>pub.dev »</strong></a>
     <br />
     <br />
@@ -31,9 +31,11 @@
 </p>
 
 ## 📢 Support Us
+
 Please support our volunteer efforts by giving us a [LIKE👍](https://pub.dev/packages/gal) and [STAR⭐️](https://github.com/natsuk4ze/gal).
 
 ## 🧠 DeepWiki Documentation
+
 [![DeepWiki](https://img.shields.io/badge/DeepWiki-Documentation-2E8B57?style=for-the-badge&logo=read-the-docs&logoColor=white)](https://deepwiki.com/natsuk4ze/gal/1-overview)
 
 ## 📱 Supported Platforms
@@ -68,7 +70,7 @@ Please support our volunteer efforts by giving us a [LIKE👍](https://pub.dev/p
 Add the latest stable version of gal to your dependencies:
 
 ```console
-$ flutter pub add gal
+flutter pub add gal
 ```
 
 ### iOS Setup
@@ -90,7 +92,7 @@ Add the following keys to `android/app/src/main/AndroidManifest.xml`:
 
 You can copy from [example's AndroidManifest.xml](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
 
-> **⚠️ Note:**
+> [!WARNING]
 > Android emulators with API < 29 require SD card setup. Real devices don't.
 
 ### macOS Setup
@@ -102,16 +104,16 @@ Add the following keys to `macos/Runner/Info.plist`:
 
 You can copy from [example's Info.plist](https://github.com/natsuk4ze/gal/blob/main/example/macos/Runner/Info.plist).
 
-> **⚠️ Note:**
+> [!WARNING]
 > Flutter currently has a [fatal problem for loading info.plist](https://github.com/flutter/flutter/issues/134191), which may cause permission denials or app crashes in some code editors.
 
 ### Windows Setup
 
 Update [Visual Studio](https://visualstudio.microsoft.com) to the latest version for using `C++ 20`.
 
-> **💡 If you can't compile**
-> 
-> Try downloading the latest Windows SDK:
+> [!TIP]
+> If you can't compile, try downloading the latest Windows SDK:
+>
 > 1. Open Visual Studio Installer
 > 2. Select Modify
 > 3. Select Windows SDK
@@ -141,7 +143,7 @@ await Gal.putImage('$filePath', album: '$album')
 ### Download from Internet
 
 ```console
-$ flutter pub add dio
+flutter pub add dio
 ```
 
 ```dart
@@ -159,7 +161,7 @@ await Gal.putVideo(videoPath);
 ### Save from Camera
 
 ```console
-$ flutter pub add image_picker
+flutter pub add image_picker
 ```
 
 ```dart
@@ -169,8 +171,9 @@ await Gal.putImage(image.path);
 ```
 
 ```console
-$ flutter pub add camera
+flutter pub add camera
 ```
+
 ```dart
 // Record and Save
 ...
@@ -219,19 +222,29 @@ enum GalExceptionType {
 ```
 
 ## 📚 Documentation
+
 If you write an article about Gal, let us know in the discussion and we'll post the URL in the wiki or readme 🤝
 
-- ### [🎯 Example](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart)
-- ### [👌 Best Practices](https://github.com/natsuk4ze/gal/wiki/Best-Practice)
-- ### [🏠 Official Wiki](https://github.com/natsuk4ze/gal/wiki)
-- ### [💚 Contributing](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md)
-- ### [💬 Q&A](https://github.com/natsuk4ze/gal/discussions/categories/q-a)
+* ### [🎯 Example](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart)
+
+* ### [👌 Best Practices](https://github.com/natsuk4ze/gal/wiki/Best-Practice)
+
+* ### [🏠 Official Wiki](https://github.com/natsuk4ze/gal/wiki)
+
+* ### [💚 Contributing](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md)
+
+* ### [💬 Q&A](https://github.com/natsuk4ze/gal/discussions/categories/q-a)
 
 ## 💚 Trusted by Major Projects
+
 Although Gal has only been released for a short time, it's already trusted by major projects.
 
-- ### [localsend - 60k⭐️](https://github.com/localsend/localsend)
-- ### [flutter-quill-extensions - 2.6k⭐️](https://github.com/singerdmx/flutter-quill)
-- ### [stream-chat-flutter - 1k⭐️](https://github.com/GetStream/stream-chat-flutter)
-- ### [Thunder - 0.8k⭐️](https://github.com/thunder-app/thunder)
+* ### [localsend - 60k⭐️](https://github.com/localsend/localsend)
+
+* ### [flutter-quill-extensions - 2.6k⭐️](https://github.com/singerdmx/flutter-quill)
+
+* ### [stream-chat-flutter - 1k⭐️](https://github.com/GetStream/stream-chat-flutter)
+
+* ### [Thunder - 0.8k⭐️](https://github.com/thunder-app/thunder)
+
 and more...
