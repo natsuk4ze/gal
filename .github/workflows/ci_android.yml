@@ -64,7 +64,7 @@ jobs:
           disable-spellchecker: true
           force-avd-creation: false
           disk-size: 4GB
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
+          sdcard-path-or-size: '100M'
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
@@ -84,7 +84,7 @@ jobs:
           disable-spellchecker: true
           force-avd-creation: false
           disk-size: 4GB
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
+          sdcard-path-or-size: '100M'
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
             adb kill-server
@@ -106,7 +106,7 @@ jobs:
           disable-spellchecker: true
           force-avd-creation: false
           disk-size: 4GB
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
+          sdcard-path-or-size: '100M'
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
             adb kill-server
