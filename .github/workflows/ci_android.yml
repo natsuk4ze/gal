@@ -58,6 +58,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          channel: dev
           working-directory: ./example
           arch: x86_64
           heap-size: 512M
@@ -79,6 +80,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          channel: dev
           working-directory: ./example
           arch: x86_64
           heap-size: 512M
@@ -102,6 +104,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          channel: dev
           working-directory: ./example
           arch: x86_64
           heap-size: 512M
