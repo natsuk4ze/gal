@@ -5,7 +5,7 @@ on:
 
 jobs:
   android:
-    runs-on: macos-13
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       matrix:
@@ -14,6 +14,12 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v4
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
 
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
