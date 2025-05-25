@@ -64,6 +64,7 @@ jobs:
           heap-size: 512M
           emulator-boot-timeout: 200
           disable-spellchecker: true
+          disable-animations: true
           force-avd-creation: false
           disk-size: 4GB
           sdcard-path-or-size: '100M'
@@ -85,10 +86,11 @@ jobs:
           heap-size: 512M
           emulator-boot-timeout: 200
           disable-spellchecker: true
+          disable-animations: true
           force-avd-creation: false
           disk-size: 4GB
           sdcard-path-or-size: '100M'
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          emulator-options: -no-snapshot-save
           pre-emulator-launch-script: |
             adb kill-server
             adb start-server
@@ -109,10 +111,11 @@ jobs:
           heap-size: 512M
           emulator-boot-timeout: 200
           disable-spellchecker: true
+          disable-animations: true
           force-avd-creation: false
           disk-size: 4GB
           sdcard-path-or-size: '100M'
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          emulator-options: -no-snapshot-save
           pre-emulator-launch-script: |
             adb kill-server
             adb start-server
