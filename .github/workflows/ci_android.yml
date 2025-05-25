@@ -71,6 +71,8 @@ jobs:
           script: |
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart
+            adb devices
+            adb -s emulator-5554 emu kill
 
       - name: Retry integration tests
         id: Retry-integration-tests
@@ -98,6 +100,8 @@ jobs:
             flutter clean && flutter pub get
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart
+            adb devices
+            adb -s emulator-5554 emu kill
 
       - name: Re:Retry integration tests
         if: steps.Retry-integration-tests.outcome == 'failure'
@@ -123,3 +127,5 @@ jobs:
             flutter clean && flutter pub get
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart
+            adb devices
+            adb -s emulator-5554 emu kill
