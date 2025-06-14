@@ -1,4 +1,5 @@
-name: Claude Code
+name: Claude PR Assistant
+
 on:
   issue_comment:
     types: [created]
@@ -10,32 +11,36 @@ on:
     types: [submitted]
 
 jobs:
-  claude:
+  claude-code-action:
     if: |
-      (github.event_name == 'issue_comment' && github.event.comment.user.login == 'natsuk4ze' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && github.event.comment.user.login == 'natsuk4ze' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review' && github.event.review.user.login == 'natsuk4ze' && contains(github.event.review.body, '@claude')) ||
-      (github.event_name == 'issues' && github.event.issue.user.login == 'natsuk4ze' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
-
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude') && github.event.comment.user.login == 'natsuk4ze') ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude') && github.event.comment.user.login == 'natsuk4ze') ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude') && github.event.review.user.login == 'natsuk4ze') ||
+      (github.event_name == 'issues' && contains(github.event.issue.body, '@claude') && github.event.issue.user.login == 'natsuk4ze')
     runs-on: ubuntu-latest
-
     permissions:
+      actions: read
+      checks: read
+      deployments: read
       contents: write
       pull-requests: write
+      packages: read
+      pages: write
       issues: write
+      discussions: write
       id-token: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Run Claude Code
-        id: claude
-        uses: natsuk4ze/claude-code-action@main
+      - name: Run Claude PR Action
+        uses: grll/claude-code-action@beta
         with:
-          use_oauth: "true"
+          use_oauth: true
           claude_access_token: ${{ secrets.CLAUDE_ACCESS_TOKEN }}
           claude_refresh_token: ${{ secrets.CLAUDE_REFRESH_TOKEN }}
           claude_expires_at: ${{ secrets.CLAUDE_EXPIRES_AT }}
+
+          timeout_minutes: "60"
