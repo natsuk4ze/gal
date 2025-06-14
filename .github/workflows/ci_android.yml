@@ -5,7 +5,7 @@ on:
 
 jobs:
   android:
-    runs-on: macos-13
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       matrix:
@@ -14,6 +14,13 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v4
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          sudo usermod -a -G kvm $USER
 
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
@@ -52,17 +59,22 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          channel: dev
           working-directory: ./example
           arch: x86_64
+          heap-size: 512M
           emulator-boot-timeout: 200
           disable-spellchecker: true
+          disable-animations: true
           force-avd-creation: false
           disk-size: 4GB
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
+          sdcard-path-or-size: '100M'
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart
+            adb devices
+            adb -s emulator-5554 emu kill
 
       - name: Retry integration tests
         id: Retry-integration-tests
@@ -72,14 +84,17 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          channel: dev
           working-directory: ./example
           arch: x86_64
+          heap-size: 512M
           emulator-boot-timeout: 200
           disable-spellchecker: true
+          disable-animations: true
           force-avd-creation: false
           disk-size: 4GB
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          sdcard-path-or-size: '100M'
+          emulator-options: -no-snapshot-save
           pre-emulator-launch-script: |
             adb kill-server
             adb start-server
@@ -87,6 +102,8 @@ jobs:
             flutter clean && flutter pub get
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart
+            adb devices
+            adb -s emulator-5554 emu kill
 
       - name: Re:Retry integration tests
         if: steps.Retry-integration-tests.outcome == 'failure'
@@ -94,14 +111,17 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          channel: dev
           working-directory: ./example
           arch: x86_64
+          heap-size: 512M
           emulator-boot-timeout: 200
           disable-spellchecker: true
+          disable-animations: true
           force-avd-creation: false
           disk-size: 4GB
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          sdcard-path-or-size: '100M'
+          emulator-options: -no-snapshot-save
           pre-emulator-launch-script: |
             adb kill-server
             adb start-server
@@ -109,3 +129,5 @@ jobs:
             flutter clean && flutter pub get
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart
+            adb devices
+            adb -s emulator-5554 emu kill
