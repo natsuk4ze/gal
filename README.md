@@ -2,14 +2,14 @@
   <p align="center">
    <img width="200" height="200" src="https://github.com/natsuk4ze/gal/raw/main/assets/logo.png" alt="Logo">
   </p>
-	<h1 align="center"><b>Gal</b></h1>
-	<h3 align="center">
+ <h1 align="center"><b>Gal</b></h1>
+ <h3 align="center">
   <b>
-  	Dart3 plugin for saving image or video to photos gallery
-    <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/fe/3a/7e/fe3a7e0e-7f52-b750-0ed2-523998c59d48/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/246x0w.webp" alt="ios photos" width="20" height="20"/> <img src="https://play-lh.googleusercontent.com/ZyWNGIfzUyoajtFcD7NhMksHEZh37f-MkHVGr5Yfefa-IX7yj9SMfI82Z7a2wpdKCA=w240-h480-rw" alt="google photos" width="20" height="20"/> <img src="https://upload.wikimedia.org/wikipedia/en/9/94/Microsoft_Photos_logo.png" alt="microsoft photos" width="22" height="22"/> 
+   Dart3 plugin for saving image or video to photos gallery
+    <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/fe/3a/7e/fe3a7e0e-7f52-b750-0ed2-523998c59d48/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/246x0w.webp" alt="ios photos" width="20" height="20"/> <img src="https://play-lh.googleusercontent.com/ZyWNGIfzUyoajtFcD7NhMksHEZh37f-MkHVGr5Yfefa-IX7yj9SMfI82Z7a2wpdKCA=w240-h480-rw" alt="google photos" width="20" height="20"/> <img src="https://upload.wikimedia.org/wikipedia/en/9/94/Microsoft_Photos_logo.png" alt="microsoft photos" width="22" height="22"/>
   </b>
   </h3>
-	<p align="center">
+ <p align="center">
     <a href="https://pub.dev/packages/gal"><strong>pub.dev »</strong></a>
     <br />
     <br />
@@ -30,14 +30,23 @@
   </p>
 </p>
 
-### Please [LIKE👍](https://pub.dev/packages/gal) and [STAR⭐️](https://github.com/natsuk4ze/gal) to support our volunteer efforts.
+## 📢 Support Us
 
+Please support our volunteer efforts by giving us a [LIKE👍](https://pub.dev/packages/gal) and [STAR⭐️](https://github.com/natsuk4ze/gal).
+
+## 🧠 DeepWiki Documentation
+
+[![DeepWiki](https://img.shields.io/badge/DeepWiki-Documentation-2E8B57?style=for-the-badge&logo=read-the-docs&logoColor=white)](https://deepwiki.com/natsuk4ze/gal/1-overview)
+
+## 📱 Supported Platforms
 
 |             | Android | iOS | macOS | Windows | Linux |
 |-------------|---------|-----|-------|---------|-------|
 | **Support** | SDK 21+ | 11+ |  11+  |   10+   | See: [gal_linux](https://pub.dev/packages/gal_linux) |
 
 **Support** means that all functions have been tested manually or [automatically](https://github.com/natsuk4ze/gal/actions/runs/7517751549) whenever possible.
+
+## 📸 Demo
 
 |             | iOS | Android |
 |-------------|-----|---------|
@@ -52,72 +61,71 @@
 * Save with metadata
 * Handle permission
 * Handle errors
-* Lots of docs and wiki
+* Comprehensive documentation and wiki
 
-## 🚀 Get started
+## 🚀 Getting Started
 
-### Add dependency
+### Add Dependency
 
-You can use the command to add gal as a dependency with the latest stable version:
+Add the latest stable version of gal to your dependencies:
 
 ```console
-$ flutter pub add gal
+flutter pub add gal
 ```
 
-### iOS
+### iOS Setup
 
-Add the following keys to the `ios/Runner/Info.plist`:
+Add the following keys to `ios/Runner/Info.plist`:
 
 * `<key>NSPhotoLibraryAddUsageDescription</key>` Required
-* `<key>NSPhotoLibraryUsageDescription</key>` Required for ios < 14 or saving to album
+* `<key>NSPhotoLibraryUsageDescription</key>` Required for iOS < 14 or saving to album
 
-You can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
+You can copy from [example's Info.plist](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
 
-### Android
+### Android Setup
 
-Add the following keys to the `android/app/src/main/AndroidManifest.xml`:
+Add the following keys to `android/app/src/main/AndroidManifest.xml`:
 
 * `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
                  android:maxSdkVersion="29" />` Required for API <= 29
-* `android:requestLegacyExternalStorage="true"` Required for saving to the album in API 29
+* `android:requestLegacyExternalStorage="true"` Required for saving to album in API 29
 
-You can copy from [AndroidManifest.xml from example](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
+You can copy from [example's AndroidManifest.xml](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
 
-> **🔴 Warning:**
-Android emulators with API < 29 require SD card setup. Real devices don't.
+> [!WARNING]
+> Android emulators with API < 29 require SD card setup. Real devices don't.
 
-### macOS
+### macOS Setup
 
-Add the following keys to the `macos/Runner/Info.plist`:
+Add the following keys to `macos/Runner/Info.plist`:
 
 * `<key>NSPhotoLibraryAddUsageDescription</key>` Required
 * `<key>NSPhotoLibraryUsageDescription</key>` Required for saving to album
 
-You can copy from [Info.plist in example](https://github.com/natsuk4ze/gal/blob/main/example/macos/Runner/Info.plist).
+You can copy from [example's Info.plist](https://github.com/natsuk4ze/gal/blob/main/example/macos/Runner/Info.plist).
 
-> **🔴 Warning:**
-Flutter currently has a [fatal problem for loading info.plist](https://github.com/flutter/flutter/issues/134191), and permissions are always denied or app crashing in
-some code editors.
+> [!WARNING]
+> Flutter currently has a [fatal problem for loading info.plist](https://github.com/flutter/flutter/issues/134191), which may cause permission denials or app crashes in some code editors.
 
-### Windows
+### Windows Setup
 
 Update [Visual Studio](https://visualstudio.microsoft.com) to the latest version for using `C++ 20`.
 
-> **💡 If you can't compile**
-> 
-> Try downloading a latest Windows SDK:
+> [!TIP]
+> If you can't compile, try downloading the latest Windows SDK:
+>
 > 1. Open Visual Studio Installer
 > 2. Select Modify
 > 3. Select Windows SDK
 
-### Linux
+### Linux Setup
 
-Currently does not officially support Linux, but it can be added through a non-endorsed federated plugin.
+Linux is not officially supported, but can be added through a non-endorsed federated plugin.
 See: [gal_linux](https://pub.dev/packages/gal_linux)
 
-## ✅ Usage
+## 💻 Usage
 
-### Save from local
+### Save from Local
 
 ```dart
 // Save Image (Supports two ways)
@@ -127,15 +135,15 @@ await Gal.putImageBytes('$uint8List');
 // Save Video
 await Gal.putVideo('$filePath');
 
-// Save to album
+// Save to Album
 await Gal.putImage('$filePath', album: '$album')
 ...
 ```
 
-### Download from the Internet
+### Download from Internet
 
 ```console
-$ flutter pub add dio
+flutter pub add dio
 ```
 
 ```dart
@@ -153,18 +161,19 @@ await Gal.putVideo(videoPath);
 ### Save from Camera
 
 ```console
-$ flutter pub add image_picker
+flutter pub add image_picker
 ```
 
 ```dart
-// Shot and Save
+// Capture and Save
 final image = await ImagePicker.pickImage(source: ImageSource.camera);
 await Gal.putImage(image.path);
 ```
 
 ```console
-$ flutter pub add camera
+flutter pub add camera
 ```
+
 ```dart
 // Record and Save
 ...
@@ -172,13 +181,13 @@ final video = await controller.stopVideoRecording();
 await Gal.putVideo(video.path);
 ```
 
-### Handle Permission
+### Handle Permissions
 
 ```dart
-// Check for access premission
+// Check Access Permission
 final hasAccess = await Gal.hasAccess();
 
-// Request access premission
+// Request Access Permission
 await Gal.requestAccess();
 
 // ... for saving to album
@@ -206,26 +215,36 @@ enum GalExceptionType {
   String get message => switch (this) {
         accessDenied => 'Permission to access the gallery is denied.',
         notEnoughSpace => 'Not enough space for storage.',
-        notSupportedFormat => 'Unsupported file formats.',
+        notSupportedFormat => 'Unsupported file format.',
         unexpected => 'An unexpected error has occurred.',
       };
 }
 ```
 
+## 📚 Documentation
 
-## 📝 Documents
-If you write an article about Gal, let us know in discussion and we will post the URL of the article in the wiki or readme 🤝
+If you write an article about Gal, let us know in the discussion and we'll post the URL in the wiki or readme 🤝
 
-- ### [🎯 Example](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart)
-- ### [👌 Best Practice](https://github.com/natsuk4ze/gal/wiki/Best-Practice)
-- ### [🏠 Wiki](https://github.com/natsuk4ze/gal/wiki)
-- ### [💚 Contributing](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md)
-- ### [💬 Q&A](https://github.com/natsuk4ze/gal/discussions/categories/q-a)
+* ### [🎯 Example](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart)
 
-## 💚 Trusted by huge projects
-Although Gal has only been released for a short time, it is already trusted by huge projects.
+* ### [👌 Best Practices](https://github.com/natsuk4ze/gal/wiki/Best-Practice)
 
-- ### [localsend - 55k⭐️](https://github.com/localsend/localsend)
-- ### [flutter-quill-extensions - 2.6k⭐️](https://github.com/singerdmx/flutter-quill)
-- ### [Thunder - 0.8k⭐️](https://github.com/thunder-app/thunder)
+* ### [🏠 Official Wiki](https://github.com/natsuk4ze/gal/wiki)
+
+* ### [💚 Contributing](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md)
+
+* ### [💬 Q&A](https://github.com/natsuk4ze/gal/discussions/categories/q-a)
+
+## 💚 Trusted by Major Projects
+
+Although Gal has only been released for a short time, it's already trusted by major projects.
+
+* ### [localsend - 60k⭐️](https://github.com/localsend/localsend)
+
+* ### [flutter-quill-extensions - 2.6k⭐️](https://github.com/singerdmx/flutter-quill)
+
+* ### [stream-chat-flutter - 1k⭐️](https://github.com/GetStream/stream-chat-flutter)
+
+* ### [Thunder - 0.8k⭐️](https://github.com/thunder-app/thunder)
+
 and more...
