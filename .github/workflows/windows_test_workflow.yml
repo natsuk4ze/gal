@@ -102,6 +102,53 @@ jobs:
           } | Set-Content pubspec.yaml
           flutter pub get
 
+      - name: Add gal usage code to reproduce issue #278
+        timeout-minutes: 2
+        run: |
+          cd $env:PROJECT_NAME
+          # Create a simple main.dart that uses Gal plugin
+          # This should trigger the WinRT linking error from issue #278
+          echo "import 'package:flutter/material.dart';" > lib\main.dart
+          echo "import 'package:gal/gal.dart';" >> lib\main.dart
+          echo "" >> lib\main.dart
+          echo "void main() {" >> lib\main.dart
+          echo "  runApp(const MyApp());" >> lib\main.dart
+          echo "}" >> lib\main.dart
+          echo "" >> lib\main.dart
+          echo "class MyApp extends StatelessWidget {" >> lib\main.dart
+          echo "  const MyApp({super.key});" >> lib\main.dart
+          echo "" >> lib\main.dart
+          echo "  @override" >> lib\main.dart
+          echo "  Widget build(BuildContext context) {" >> lib\main.dart
+          echo "    return MaterialApp(" >> lib\main.dart
+          echo "      title: 'Gal Test'," >> lib\main.dart
+          echo "      home: const MyHomePage()," >> lib\main.dart
+          echo "    );" >> lib\main.dart
+          echo "  }" >> lib\main.dart
+          echo "}" >> lib\main.dart
+          echo "" >> lib\main.dart
+          echo "class MyHomePage extends StatelessWidget {" >> lib\main.dart
+          echo "  const MyHomePage({super.key});" >> lib\main.dart
+          echo "" >> lib\main.dart
+          echo "  @override" >> lib\main.dart
+          echo "  Widget build(BuildContext context) {" >> lib\main.dart
+          echo "    return Scaffold(" >> lib\main.dart
+          echo "      appBar: AppBar(title: const Text('Gal Test'))," >> lib\main.dart
+          echo "      body: const Center(" >> lib\main.dart
+          echo "        child: Text('Testing Gal Plugin')," >> lib\main.dart
+          echo "      )," >> lib\main.dart
+          echo "      floatingActionButton: FloatingActionButton(" >> lib\main.dart
+          echo "        onPressed: () async {" >> lib\main.dart
+          echo "          // This line should trigger WinRT linking error" >> lib\main.dart
+          echo "          await Gal.hasAccess();" >> lib\main.dart
+          echo "        }," >> lib\main.dart
+          echo "        child: const Icon(Icons.photo)," >> lib\main.dart
+          echo "      )," >> lib\main.dart
+          echo "    );" >> lib\main.dart
+          echo "  }" >> lib\main.dart
+          echo "}" >> lib\main.dart
+          echo "Added gal usage code to main.dart that should trigger issue #278"
+
       - name: Build Windows app with gal plugin
         id: build-windows-app
         timeout-minutes: 15
