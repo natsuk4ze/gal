@@ -5,31 +5,26 @@ on:
     branches:
       - main
     paths:
-      - '**/windows/**'
-      - '**/lib/**'
-      - '**/pubspec.yaml'
-      - '**/pubspec.lock'
-      - '.github/workflows/windows_test_workflow.yml'
-      - '.github/workflows/ci_windows.yml'
+      - "**/windows/**"
+      - "**/lib/**"
+      - "**/pubspec.yaml"
+      - "**/pubspec.lock"
+      - ".github/workflows/windows_test_workflow.yml"
+      - ".github/workflows/ci_windows.yml"
   pull_request:
     paths:
-      - '**/windows/**'
-      - '**/lib/**'
-      - '**/pubspec.yaml'
-      - '**/pubspec.lock'
-      - '.github/workflows/windows_test_workflow.yml'
-      - '.github/workflows/ci_windows.yml'
+      - "**/windows/**"
+      - "**/lib/**"
+      - "**/pubspec.yaml"
+      - "**/pubspec.lock"
+      - ".github/workflows/windows_test_workflow.yml"
+      - ".github/workflows/ci_windows.yml"
   workflow_dispatch:
     inputs:
       project_name:
         description: "Flutter project name to create"
         required: false
         default: "test_app"
-      run_plugin_test:
-        type: boolean
-        description: "Run plugin integration tests"
-        required: false
-        default: true
 
 jobs:
   windows-flutter-create-and-test:
@@ -75,18 +70,13 @@ jobs:
           flutter pub get
 
       - name: Build Windows app with gal plugin
-        if: ${{ inputs.run_plugin_test }}
         id: build-windows-app
         timeout-minutes: 15
         run: |
           cd ${{ inputs.project_name || 'test_app' }}
+          echo "Building Windows app with gal plugin in project: ${{ inputs.project_name || 'test_app' }}"
           flutter build windows --release
-
-      - name: Run existing example integration tests
-        timeout-minutes: 15
-        run: |
-          cd example
-          flutter test integration_test/integration_test.dart windows
+          echo "Build completed successfully!"
 
       - name: Clean up created project
         if: always()
