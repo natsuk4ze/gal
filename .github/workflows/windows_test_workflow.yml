@@ -34,6 +34,8 @@ jobs:
       matrix:
         windows-version: [10, 11]
       fail-fast: false
+    env:
+      PROJECT_NAME: ${{ inputs.project_name || 'test_app' }}
 
     steps:
       - name: Check out repository
@@ -46,19 +48,50 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Update Visual Studio to latest
+        timeout-minutes: 15
+        run: |
+          echo "Checking current Visual Studio installation..."
+          # Install/Update Visual Studio Build Tools 2022 with required workloads
+          $url = "https://aka.ms/vs/17/release/vs_buildtools.exe"
+          $installer = "$env:TEMP\vs_buildtools.exe"
+
+          echo "Downloading Visual Studio Build Tools 2022..."
+          Invoke-WebRequest -Uri $url -OutFile $installer
+
+          echo "Installing/Updating Visual Studio Build Tools with C++ workload..."
+          Start-Process -FilePath $installer -ArgumentList @(
+            "--quiet", 
+            "--wait",
+            "--add", "Microsoft.VisualStudio.Workload.VCTools",
+            "--add", "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
+            "--add", "Microsoft.VisualStudio.Component.Windows10SDK.19041",
+            "--add", "Microsoft.VisualStudio.Component.VC.CMake.Project"
+          ) -Wait
+
+          echo "Visual Studio Build Tools installation/update completed"
+
+          # Verify installation
+          echo "Verifying Visual Studio installation..."
+          if (Get-Command "msbuild" -ErrorAction SilentlyContinue) {
+            echo "MSBuild found: $(msbuild -version | Select-Object -First 1)"
+          } else {
+            echo "Warning: MSBuild not found in PATH"
+          }
+
       - name: Create Flutter project
         timeout-minutes: 5
         run: |
-          flutter create ${{ inputs.project_name || 'test_app' }}
-          cd ${{ inputs.project_name || 'test_app' }}
-          echo "Created Flutter project: ${{ inputs.project_name || 'test_app' }}"
+          flutter create $env:PROJECT_NAME
+          cd $env:PROJECT_NAME
+          echo "Created Flutter project: $env:PROJECT_NAME"
           flutter --version
           flutter doctor
 
       - name: Add gal plugin dependency
         timeout-minutes: 5
         run: |
-          cd ${{ inputs.project_name || 'test_app' }}
+          cd $env:PROJECT_NAME
           # Add the local gal plugin to dependencies section (before flutter:)
           (Get-Content pubspec.yaml) | ForEach-Object {
             $_
@@ -73,20 +106,20 @@ jobs:
         id: build-windows-app
         timeout-minutes: 15
         run: |
-          cd ${{ inputs.project_name || 'test_app' }}
-          echo "Building Windows app with gal plugin in project: ${{ inputs.project_name || 'test_app' }}"
+          cd $env:PROJECT_NAME
+          echo "Building Windows app with gal plugin in project: $env:PROJECT_NAME"
           flutter build windows --release
           echo "Build completed successfully!"
 
       - name: Clean up created project
         if: always()
         run: |
-          if (Test-Path "${{ inputs.project_name || 'test_app' }}") {
+          if (Test-Path "$env:PROJECT_NAME") {
             try {
               # Wait a moment and then try to remove
               Start-Sleep -Seconds 2
-              Remove-Item -Recurse -Force "${{ inputs.project_name || 'test_app' }}" -ErrorAction Stop
-              echo "Cleaned up created project: ${{ inputs.project_name || 'test_app' }}"
+              Remove-Item -Recurse -Force "$env:PROJECT_NAME" -ErrorAction Stop
+              echo "Cleaned up created project: $env:PROJECT_NAME"
             } catch {
               echo "Warning: Could not clean up project directory. It may be in use."
               echo "Error: $_"
