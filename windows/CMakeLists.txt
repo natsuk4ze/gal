@@ -56,9 +56,25 @@ target_include_directories(${PLUGIN_NAME} INTERFACE
   "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter flutter_wrapper_plugin)
 
-# Add WinRT library for Windows Runtime APIs
+# Add WinRT library support for Windows Runtime APIs
+# Required for Flutter 3.32+ and Windows App SDK compatibility
 if(WIN32)
+  # Link Windows Runtime library for WinRT API support
+  # This resolves unresolved symbols for:
+  # - WINRT_IMPL_RoGetActivationFactory
+  # - WINRT_IMPL_RoOriginateLanguageException
+  # - WINRT_IMPL_RoFailFastWithErrorContext
+  # - WINRT_IMPL_RoTransformError
   target_link_libraries(${PLUGIN_NAME} PRIVATE windowsapp)
+  
+  # Optional: Add version check for Windows 10 vs 11 compatibility
+  if(CMAKE_SYSTEM_VERSION VERSION_GREATER_EQUAL "10.0.22000")
+    # Windows 11 specific optimizations could go here
+    message(STATUS "Building for Windows 11 with Windows App SDK compatibility")
+  else()
+    # Windows 10 compatibility mode
+    message(STATUS "Building for Windows 10 with UWP/WinRT compatibility")
+  endif()
 endif()
 
 # List of absolute paths to libraries that should be bundled with the plugin.
