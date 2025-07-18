@@ -28,7 +28,7 @@ jobs:
       packages: read
       pages: write
       id-token: write
-      actions: read # Required for Claude to read CI results on PRs
+      actions: write # Required for Claude to edit workflow files
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
