@@ -2,6 +2,7 @@ name: iOS Integration Tests
 
 on:
   workflow_call:
+  workflow_dispatch:
 
 jobs:
   ios:
@@ -52,7 +53,7 @@ jobs:
         run: |
           cd example
           flutter test integration_test/integration_test.dart
-      
+
       - name: Retry integration tests
         if: steps.Run-integration-tests.outcome == 'failure'
         timeout-minutes: 15
