@@ -9,7 +9,7 @@ jobs:
     timeout-minutes: 30
     strategy:
         matrix:
-          windows-version: [10]
+          windows-version: [10, 11]
         fail-fast: false
     steps:
       - name: Check out
