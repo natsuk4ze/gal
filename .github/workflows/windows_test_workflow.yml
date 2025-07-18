@@ -69,34 +69,13 @@ jobs:
           echo "    path: ../" >> pubspec.yaml
           flutter pub get
 
-      - name: Copy integration test from example
-        timeout-minutes: 2
-        run: |
-          cd ${{ inputs.project_name || 'test_app' }}
-          # Create integration_test directory
-          mkdir integration_test
-          # Copy the integration test from example
-          copy ..\example\integration_test\integration_test.dart integration_test\
-          copy ..\example\assets\done.jpg assets\
-          copy ..\example\assets\done.mp4 assets\
-
-      - name: Update pubspec.yaml for integration tests
-        timeout-minutes: 2
-        run: |
-          cd ${{ inputs.project_name || 'test_app' }}
-          # Add integration_test dependency
-          echo "dev_dependencies:" >> pubspec.yaml
-          echo "  integration_test:" >> pubspec.yaml
-          echo "    sdk: flutter" >> pubspec.yaml
-          flutter pub get
-
-      - name: Run Windows integration tests
+      - name: Build Windows app with gal plugin
         if: ${{ inputs.run_plugin_test }}
-        id: run-integration-tests
+        id: build-windows-app
         timeout-minutes: 15
         run: |
           cd ${{ inputs.project_name || 'test_app' }}
-          flutter test integration_test/integration_test.dart windows
+          flutter build windows --release
 
       - name: Run existing example integration tests
         timeout-minutes: 15
