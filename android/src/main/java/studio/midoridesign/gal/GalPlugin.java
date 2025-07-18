@@ -196,11 +196,47 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             intent.setAction(Intent.ACTION_VIEW);
             intent.setType("*/*");
             intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            pluginBinding.getApplicationContext().startActivity(intent);
         } else {
-            intent = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_GALLERY);
+            // Try multiple approaches for modern Android versions with fallback mechanisms
+            Context context = pluginBinding.getApplicationContext();
+            
+            // Approach 1: Try makeMainSelectorActivity with CATEGORY_APP_GALLERY (works on most devices)
+            try {
+                intent = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_GALLERY);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+                return;
+            } catch (Exception e) {
+                // Approach 1 failed, try fallback
+            }
+            
+            // Approach 2: Fallback to ACTION_VIEW with image/video MIME types (Samsung-friendly)
+            try {
+                intent = new Intent(Intent.ACTION_VIEW);
+                intent.setType("image/*");
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+                return;
+            } catch (Exception e) {
+                // Approach 2 failed, try final fallback
+            }
+            
+            // Approach 3: Final fallback to ACTION_PICK (opens gallery in picker mode)
+            try {
+                intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+                return;
+            } catch (Exception e) {
+                // All approaches failed, throw the last exception
+                throw new RuntimeException("Unable to open gallery: no suitable gallery app found", e);
+            }
         }
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        pluginBinding.getApplicationContext().startActivity(intent);
     }
 
     private boolean hasAccess(boolean toAlbum) {
