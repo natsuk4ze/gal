@@ -1,6 +1,24 @@
 name: Windows Test Workflow - Flutter Create to CI
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/windows/**'
+      - '**/lib/**'
+      - '**/pubspec.yaml'
+      - '**/pubspec.lock'
+      - '.github/workflows/windows_test_workflow.yml'
+      - '.github/workflows/ci_windows.yml'
+  pull_request:
+    paths:
+      - '**/windows/**'
+      - '**/lib/**'
+      - '**/pubspec.yaml'
+      - '**/pubspec.lock'
+      - '.github/workflows/windows_test_workflow.yml'
+      - '.github/workflows/ci_windows.yml'
   workflow_dispatch:
     inputs:
       project_name:
