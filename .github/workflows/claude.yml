@@ -54,8 +54,8 @@ jobs:
           # Optional: Trigger when specific user is assigned to an issue
           # assignee_trigger: "claude-bot"
 
-          # Optional: Allow Claude to run specific commands
-          # allowed_tools: "Bash(npm install),Bash(npm run build),Bash(npm run test:*),Bash(npm run lint:*)"
+          # Allow Claude to run safe and commonly used commands
+          allowed_tools: "Bash(dart *),Bash(flutter *),Bash(xcrun simctl list),Bash(adb devices),Bash(adb -s * shell),Bash(git status),Bash(git log),Bash(git diff),Bash(git show),Bash(git branch),Bash(ls),Bash(cat),Bash(head),Bash(tail),Bash(grep),Bash(find),Bash(tree),Bash(wc),Bash(sort),Bash(npm install),Bash(npm test),Bash(npm run *),Bash(yarn install),Bash(yarn test),Bash(yarn run *)"
 
           # Optional: Add custom instructions for Claude to customize its behavior for your project
           # custom_instructions: |
