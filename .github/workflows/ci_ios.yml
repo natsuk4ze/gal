@@ -10,7 +10,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        ios-version: [17, 18]
+        ios-version: [18]
         package_manager: [cocoapods, swiftpm]
       fail-fast: false
     steps:
