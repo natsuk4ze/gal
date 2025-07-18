@@ -64,9 +64,14 @@ jobs:
         timeout-minutes: 5
         run: |
           cd ${{ inputs.project_name || 'test_app' }}
-          # Add the local gal plugin
-          echo "  gal:" >> pubspec.yaml
-          echo "    path: ../" >> pubspec.yaml
+          # Add the local gal plugin to dependencies section (before flutter:)
+          (Get-Content pubspec.yaml) | ForEach-Object {
+            $_
+            if ($_ -match "^dependencies:") {
+              "  gal:"
+              "    path: ../"
+            }
+          } | Set-Content pubspec.yaml
           flutter pub get
 
       - name: Build Windows app with gal plugin
@@ -87,6 +92,13 @@ jobs:
         if: always()
         run: |
           if (Test-Path "${{ inputs.project_name || 'test_app' }}") {
-            Remove-Item -Recurse -Force "${{ inputs.project_name || 'test_app' }}"
-            echo "Cleaned up created project: ${{ inputs.project_name || 'test_app' }}"
+            try {
+              # Wait a moment and then try to remove
+              Start-Sleep -Seconds 2
+              Remove-Item -Recurse -Force "${{ inputs.project_name || 'test_app' }}" -ErrorAction Stop
+              echo "Cleaned up created project: ${{ inputs.project_name || 'test_app' }}"
+            } catch {
+              echo "Warning: Could not clean up project directory. It may be in use."
+              echo "Error: $_"
+            }
           }
