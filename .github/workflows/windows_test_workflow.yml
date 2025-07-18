@@ -1,0 +1,95 @@
+name: Windows Test Workflow - Flutter Create to CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_name:
+        description: "Flutter project name to create"
+        required: false
+        default: "test_app"
+      run_plugin_test:
+        type: boolean
+        description: "Run plugin integration tests"
+        required: false
+        default: true
+
+jobs:
+  windows-flutter-create-and-test:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    strategy:
+      matrix:
+        windows-version: [10, 11]
+      fail-fast: false
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter SDK
+        timeout-minutes: 10
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Create Flutter project
+        timeout-minutes: 5
+        run: |
+          flutter create ${{ inputs.project_name || 'test_app' }}
+          cd ${{ inputs.project_name || 'test_app' }}
+          echo "Created Flutter project: ${{ inputs.project_name || 'test_app' }}"
+          flutter --version
+          flutter doctor
+
+      - name: Add gal plugin dependency
+        timeout-minutes: 5
+        run: |
+          cd ${{ inputs.project_name || 'test_app' }}
+          # Add the local gal plugin
+          echo "  gal:" >> pubspec.yaml
+          echo "    path: ../" >> pubspec.yaml
+          flutter pub get
+
+      - name: Copy integration test from example
+        timeout-minutes: 2
+        run: |
+          cd ${{ inputs.project_name || 'test_app' }}
+          # Create integration_test directory
+          mkdir integration_test
+          # Copy the integration test from example
+          copy ..\example\integration_test\integration_test.dart integration_test\
+          copy ..\example\assets\done.jpg assets\
+          copy ..\example\assets\done.mp4 assets\
+
+      - name: Update pubspec.yaml for integration tests
+        timeout-minutes: 2
+        run: |
+          cd ${{ inputs.project_name || 'test_app' }}
+          # Add integration_test dependency
+          echo "dev_dependencies:" >> pubspec.yaml
+          echo "  integration_test:" >> pubspec.yaml
+          echo "    sdk: flutter" >> pubspec.yaml
+          flutter pub get
+
+      - name: Run Windows integration tests
+        if: ${{ inputs.run_plugin_test }}
+        id: run-integration-tests
+        timeout-minutes: 15
+        run: |
+          cd ${{ inputs.project_name || 'test_app' }}
+          flutter test integration_test/integration_test.dart windows
+
+      - name: Run existing example integration tests
+        timeout-minutes: 15
+        run: |
+          cd example
+          flutter test integration_test/integration_test.dart windows
+
+      - name: Clean up created project
+        if: always()
+        run: |
+          if (Test-Path "${{ inputs.project_name || 'test_app' }}") {
+            Remove-Item -Recurse -Force "${{ inputs.project_name || 'test_app' }}"
+            echo "Cleaned up created project: ${{ inputs.project_name || 'test_app' }}"
+          }
