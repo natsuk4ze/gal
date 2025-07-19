@@ -70,8 +70,48 @@ jobs:
 
       - name: Start Android Emulator
         run: |
+          echo "Starting Android emulator..."
           $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window -gpu swiftshader_indirect -no-boot-anim -camera-back none -camera-front none -accel on -no-snapshot-save &
-          $ANDROID_HOME/platform-tools/adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
+          
+      - name: Wait for emulator to boot
+        timeout-minutes: 10
+        run: |
+          echo "Waiting for emulator to be detected..."
+          $ANDROID_HOME/platform-tools/adb wait-for-device
+          
+          echo "Waiting for boot completion..."
+          timeout 300 bash -c '
+            while true; do
+              boot_completed=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "[:space:]")
+              if [[ "$boot_completed" == "1" ]]; then
+                echo "Boot completed detected"
+                break
+              fi
+              echo "Waiting for boot completion... (boot_completed: $boot_completed)"
+              sleep 3
+            done
+          '
+          
+          echo "Waiting for launcher to be ready..."
+          timeout 60 bash -c '
+            while true; do
+              launcher_ready=$(adb shell getprop service.bootanim.exit 2>/dev/null | tr -d "[:space:]")
+              if [[ "$launcher_ready" == "1" ]]; then
+                echo "Launcher ready"
+                break
+              fi
+              echo "Waiting for launcher... (bootanim.exit: $launcher_ready)"
+              sleep 2
+            done
+          '
+          
+          echo "Unlocking screen..."
+          $ANDROID_HOME/platform-tools/adb shell input keyevent 82
+          sleep 2
+          
+          echo "Verifying emulator is responsive..."
+          $ANDROID_HOME/platform-tools/adb shell input keyevent 4  # Back key
+          echo "Emulator startup completed successfully"
 
       - name: Run integration tests
         id: Run-integration-tests
