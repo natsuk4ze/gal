@@ -2,6 +2,7 @@ name: Android Integration Tests
 
 on:
   workflow_call:
+  workflow_dispatch:
 
 jobs:
   android:
