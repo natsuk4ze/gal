@@ -3,6 +3,12 @@ name: Android Integration Tests
 on:
   workflow_call:
   workflow_dispatch:
+    inputs:
+      test_newer_apis:
+        description: 'Test newer Android API levels (30+) - may be unstable on GitHub runners'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   android:
@@ -10,9 +16,14 @@ jobs:
     timeout-minutes: 120
     strategy:
       matrix:
-        api-level: [34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21]
+        # Focus on stable API levels that work reliably on GitHub Actions ubuntu-latest runners
+        # API 30+ (Android 11+) have compatibility issues with GitHub runners due to:
+        # - Missing/unstable x86_64 system images
+        # - KVM compatibility problems  
+        # - Higher resource requirements
+        api-level: [29, 28, 27, 26, 25, 24, 23, 22, 21]
       fail-fast: false
-      max-parallel: 4
+      max-parallel: 3
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -177,4 +188,66 @@ jobs:
             adb shell settings put global animator_duration_scale 0.0
             echo "Emulator fully ready, starting tests..."
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
+            flutter test integration_test/integration_test.dart
+
+  # Optional job for newer Android API levels - may be unstable on GitHub runners
+  android-experimental:
+    if: github.event.inputs.test_newer_apis == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      matrix:
+        # Newer API levels that may have compatibility issues on GitHub runners
+        api-level: [34, 33, 32, 31, 30]
+      fail-fast: false
+      max-parallel: 2
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: beta
+          cache: true
+
+      - name: Install Flutter dependencies
+        run: |
+          flutter --version
+          flutter doctor -v
+          flutter pub get ./example
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Run experimental tests (newer API levels)
+        timeout-minutes: 25
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          working-directory: ./example
+          arch: x86_64
+          emulator-boot-timeout: 300
+          disable-spellchecker: true
+          force-avd-creation: true
+          disk-size: 4GB
+          ram-size: 3072M
+          heap-size: 512M
+          emulator-options: -accel on -no-snapshot-load -no-snapshot-save -wipe-data -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          script: |
+            echo "Testing experimental API level ${{ matrix.api-level }}..."
+            adb wait-for-device
+            timeout 120 bash -c 'until [[ $(adb shell getprop sys.boot_completed) == "1" ]]; do sleep 3; done'
+            adb shell settings put global window_animation_scale 0.0
+            adb shell settings put global transition_animation_scale 0.0
+            adb shell settings put global animator_duration_scale 0.0
             flutter test integration_test/integration_test.dart
