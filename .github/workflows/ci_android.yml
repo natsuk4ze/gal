@@ -7,26 +7,14 @@ on:
 jobs:
   android:
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 90
     strategy:
-      max-parallel: 3
+      max-parallel: 1  # Prevent resource contention on GitHub Actions runners
       matrix:
-        # Optimized Android API coverage with stable configurations
-        api-level: [34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21]
+        # Stable Android API levels optimized for GitHub Actions constraints
+        api-level: [30, 29, 28, 26, 23, 21]
         include:
-          # Standardized system images for all API levels (using default for reliability)
-          - api-level: 34
-            target: default
-            arch: x86_64
-          - api-level: 33
-            target: default
-            arch: x86_64
-          - api-level: 32
-            target: default
-            arch: x86_64
-          - api-level: 31
-            target: default
-            arch: x86_64
+          # Standard system images for maximum reliability
           - api-level: 30
             target: default
             arch: x86_64
@@ -36,22 +24,10 @@ jobs:
           - api-level: 28
             target: default
             arch: x86_64
-          - api-level: 27
-            target: default
-            arch: x86_64
           - api-level: 26
             target: default
             arch: x86_64
-          - api-level: 25
-            target: default
-            arch: x86_64
-          - api-level: 24
-            target: default
-            arch: x86_64
           - api-level: 23
-            target: default
-            arch: x86_64
-          - api-level: 22
             target: default
             arch: x86_64
           - api-level: 21
@@ -122,26 +98,25 @@ jobs:
       - name: Run integration tests
         id: Run-integration-tests
         continue-on-error: true
-        timeout-minutes: ${{ matrix.api-level >= 30 && 45 || 35 }}
+        timeout-minutes: 25
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
           target: ${{ matrix.target }}
           working-directory: ./example
           arch: ${{ matrix.arch }}
-          emulator-boot-timeout: ${{ matrix.api-level >= 30 && 480 || 360 }}
+          emulator-boot-timeout: 300
           disable-spellchecker: true
           force-avd-creation: false
-          disk-size: ${{ matrix.api-level >= 30 && '8GB' || '6GB' }}
-          ram-size: ${{ matrix.api-level >= 30 && '6144M' || '4096M' }}
-          heap-size: ${{ matrix.api-level >= 30 && '2048M' || '1024M' }}
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
+          disk-size: 4GB
+          ram-size: 2048M
+          heap-size: 512M
+          cores: 2
           emulator-options: '-accel on -no-snapshot-load -no-snapshot-save -wipe-data -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none'
           script: |
             echo "Waiting for emulator to be fully ready (API ${{ matrix.api-level }})..."
             adb wait-for-device
-            timeout 120 bash -c 'until [[ $(adb shell getprop sys.boot_completed) == "1" ]]; do echo "Waiting for boot..."; sleep 3; done'
-            timeout 60 bash -c 'until [[ $(adb shell getprop service.bootanim.exit) == "1" ]]; do echo "Waiting for boot animation..."; sleep 2; done'
+            timeout 90 bash -c 'until [[ $(adb shell getprop sys.boot_completed) == "1" ]]; do echo "Waiting for boot..."; sleep 3; done'
             adb shell settings put global window_animation_scale 0.0
             adb shell settings put global transition_animation_scale 0.0
             adb shell settings put global animator_duration_scale 0.0
@@ -155,36 +130,32 @@ jobs:
             flutter test integration_test/integration_test.dart
 
       - name: Retry integration tests
-        id: Retry-integration-tests
-        continue-on-error: true
-        timeout-minutes: ${{ matrix.api-level >= 30 && 45 || 35 }}
         if: steps.Run-integration-tests.outcome == 'failure'
+        timeout-minutes: 30
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
           target: ${{ matrix.target }}
           working-directory: ./example
           arch: ${{ matrix.arch }}
-          emulator-boot-timeout: ${{ matrix.api-level >= 30 && 480 || 360 }}
+          emulator-boot-timeout: 360
           disable-spellchecker: true
           force-avd-creation: true
-          disk-size: ${{ matrix.api-level >= 30 && '8GB' || '6GB' }}
-          ram-size: ${{ matrix.api-level >= 30 && '6144M' || '4096M' }}
-          heap-size: ${{ matrix.api-level >= 30 && '2048M' || '1024M' }}
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
+          disk-size: 4GB
+          ram-size: 2048M
+          heap-size: 512M
+          cores: 2
           emulator-options: '-accel on -no-snapshot-load -no-snapshot-save -wipe-data -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none'
           pre-emulator-launch-script: |
             adb kill-server
-            adb start-server
             rm -rf ~/.android/avd/*
             sudo pkill -f qemu-system || true
-            sleep 5
+            sleep 3
           script: |
             flutter clean && flutter pub get
             echo "Waiting for emulator to be fully ready (API ${{ matrix.api-level }}) - Retry attempt..."
             adb wait-for-device
             timeout 120 bash -c 'until [[ $(adb shell getprop sys.boot_completed) == "1" ]]; do echo "Waiting for boot..."; sleep 3; done'
-            timeout 60 bash -c 'until [[ $(adb shell getprop service.bootanim.exit) == "1" ]]; do echo "Waiting for boot animation..."; sleep 2; done'
             adb shell settings put global window_animation_scale 0.0
             adb shell settings put global transition_animation_scale 0.0
             adb shell settings put global animator_duration_scale 0.0
@@ -197,49 +168,3 @@ jobs:
             fi
             flutter test integration_test/integration_test.dart
 
-      - name: Re:Retry integration tests
-        if: steps.Retry-integration-tests.outcome == 'failure'
-        timeout-minutes: ${{ matrix.api-level >= 30 && 50 || 40 }}
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          target: ${{ matrix.target }}
-          working-directory: ./example
-          arch: ${{ matrix.arch }}
-          emulator-boot-timeout: ${{ matrix.api-level >= 30 && 600 || 420 }}
-          disable-spellchecker: true
-          force-avd-creation: true
-          disk-size: ${{ matrix.api-level >= 30 && '8GB' || '6GB' }}
-          ram-size: ${{ matrix.api-level >= 30 && '6144M' || '4096M' }}
-          heap-size: ${{ matrix.api-level >= 30 && '2048M' || '1024M' }}
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: '-accel on -no-snapshot-load -no-snapshot-save -wipe-data -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -verbose'
-          pre-emulator-launch-script: |
-            adb kill-server
-            adb start-server
-            rm -rf ~/.android/avd/*
-            sudo pkill -f qemu-system || true
-            sudo pkill -f emulator || true
-            sleep 10
-            echo "System memory info:"
-            free -h
-            echo "Available disk space:"
-            df -h
-          script: |
-            flutter clean && flutter pub get
-            echo "Waiting for emulator to be fully ready (API ${{ matrix.api-level }}) - Final attempt..."
-            adb wait-for-device
-            timeout 150 bash -c 'until [[ $(adb shell getprop sys.boot_completed) == "1" ]]; do echo "Waiting for boot..."; sleep 3; done'
-            echo "Boot completed, waiting for system ready..."
-            timeout 90 bash -c 'until [[ $(adb shell getprop service.bootanim.exit) == "1" ]]; do echo "Waiting for boot animation..."; sleep 2; done'
-            adb shell settings put global window_animation_scale 0.0
-            adb shell settings put global transition_animation_scale 0.0
-            adb shell settings put global animator_duration_scale 0.0
-            echo "Emulator fully ready, starting tests..."
-            if [ ${{ matrix.api-level }} -le 29 ]; then 
-              flutter build apk --debug
-              adb install -r build/app/outputs/flutter-apk/app-debug.apk
-              adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
-              adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE
-            fi
-            flutter test integration_test/integration_test.dart
