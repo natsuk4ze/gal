@@ -38,6 +38,7 @@ jobs:
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@beta
+        timeout-minutes: 200
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.CLAUDE_CODE_TOKEN }}
@@ -62,11 +63,11 @@ jobs:
           # Add custom instructions for Claude to customize its behavior for your project
           custom_instructions: |
             Follow our coding standards
-            
+
             IMPORTANT: Do NOT edit or modify the following files (self-modification prevention):
             - .github/workflows/claude.yml
             - .github/workflows/claude-code-review.yml
-            
+
             Other workflow files (ci_*.yml, publish.yml, etc.) can be edited.
 
           # Optional: Custom environment variables for Claude
