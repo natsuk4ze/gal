@@ -6,7 +6,7 @@ on:
 
 jobs:
   android:
-    runs-on: macos-13
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       matrix:
@@ -15,6 +15,12 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v4
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
 
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
@@ -34,8 +40,13 @@ jobs:
       - name: Cache Gradle
         uses: actions/cache@v4
         with:
-          path: ~/.gradle/caches
-          key: gradle
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.android/.gradle
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
 
       - name: Cache AVD
         uses: actions/cache@v4
@@ -44,7 +55,9 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-${{ matrix.api-level }}
+          key: avd-${{ runner.os }}-${{ matrix.api-level }}
+          restore-keys: |
+            avd-${{ runner.os }}-
 
       - name: Run integration tests
         id: Run-integration-tests
@@ -60,7 +73,7 @@ jobs:
           force-avd-creation: false
           disk-size: 4GB
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart
@@ -80,7 +93,7 @@ jobs:
           force-avd-creation: false
           disk-size: 4GB
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
             adb kill-server
             adb start-server
@@ -102,7 +115,7 @@ jobs:
           force-avd-creation: false
           disk-size: 4GB
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
             adb kill-server
             adb start-server
