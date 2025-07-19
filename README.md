@@ -17,8 +17,6 @@
     <a href="https://pub.dev/packages/gal/score">
     <img src="https://img.shields.io/pub/points/gal?color=2E8B57&label=pub%20points" alt="pub points">
     </a>
-    <a href="https://codeclimate.com/github/natsuk4ze/gal/maintainability">
-    <img src="https://api.codeclimate.com/v1/badges/4472a09f02bff9d6e0b9/maintainability" alt="Maintainability">
     <a href="https://www.codefactor.io/repository/github/natsuk4ze/gal">
     <img src="https://www.codefactor.io/repository/github/natsuk4ze/gal/badge" alt="CodeFactor">
     <a href="https://app.codacy.com/gh/natsuk4ze/gal/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade">
