@@ -7,22 +7,102 @@ on:
 jobs:
   android:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     strategy:
       max-parallel: 1
       matrix:
-        # Conservative stable API coverage for reliable CI
-        api-level: [28, 26, 23]
+        # Full API coverage (21-34) with optimized sequential execution
+        api-level: [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34]
         include:
-          - api-level: 28
+          # Android 5.0-6.0 (API 21-23) - Legacy APIs
+          - api-level: 21
             target: default
             arch: x86_64
-          - api-level: 26
+            ram-size: 1536M
+            heap-size: 384M
+            boot-timeout: 420
+          - api-level: 22
             target: default
             arch: x86_64
+            ram-size: 1536M
+            heap-size: 384M
+            boot-timeout: 420
           - api-level: 23
             target: default
             arch: x86_64
+            ram-size: 1536M
+            heap-size: 384M
+            boot-timeout: 420
+          # Android 7.0-7.1 (API 24-25) - Stable APIs
+          - api-level: 24
+            target: default
+            arch: x86_64
+            ram-size: 1792M
+            heap-size: 448M
+            boot-timeout: 360
+          - api-level: 25
+            target: default
+            arch: x86_64
+            ram-size: 1792M
+            heap-size: 448M
+            boot-timeout: 360
+          # Android 8.0-9.0 (API 26-28) - Modern stable APIs
+          - api-level: 26
+            target: default
+            arch: x86_64
+            ram-size: 2048M
+            heap-size: 512M
+            boot-timeout: 300
+          - api-level: 27
+            target: default
+            arch: x86_64
+            ram-size: 2048M
+            heap-size: 512M
+            boot-timeout: 300
+          - api-level: 28
+            target: default
+            arch: x86_64
+            ram-size: 2048M
+            heap-size: 512M
+            boot-timeout: 300
+          # Android 10 (API 29) - Scoped storage transition
+          - api-level: 29
+            target: default
+            arch: x86_64
+            ram-size: 2304M
+            heap-size: 576M
+            boot-timeout: 360
+          # Android 11+ (API 30-34) - Modern APIs with Google services
+          - api-level: 30
+            target: google_apis
+            arch: x86_64
+            ram-size: 2560M
+            heap-size: 640M
+            boot-timeout: 480
+          - api-level: 31
+            target: google_apis
+            arch: x86_64
+            ram-size: 2560M
+            heap-size: 640M
+            boot-timeout: 480
+          - api-level: 32
+            target: google_apis
+            arch: x86_64
+            ram-size: 2560M
+            heap-size: 640M
+            boot-timeout: 480
+          - api-level: 33
+            target: google_apis
+            arch: x86_64
+            ram-size: 2560M
+            heap-size: 640M
+            boot-timeout: 480
+          - api-level: 34
+            target: google_apis
+            arch: x86_64
+            ram-size: 2560M
+            heap-size: 640M
+            boot-timeout: 480
       fail-fast: false
     steps:
       - name: Check out
@@ -85,33 +165,68 @@ jobs:
           restore-keys: |
             avd-${{ runner.os }}-
 
-      - name: Run integration tests
-        timeout-minutes: 35
+      - name: Run integration tests (API ${{ matrix.api-level }})
+        timeout-minutes: 45
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
           target: ${{ matrix.target }}
           working-directory: ./example
           arch: ${{ matrix.arch }}
-          emulator-boot-timeout: 300
+          emulator-boot-timeout: ${{ matrix.boot-timeout }}
           disable-spellchecker: true
           force-avd-creation: false
-          disk-size: 4GB
-          ram-size: 2048M
-          heap-size: 512M
+          disk-size: ${{ matrix.api-level >= 30 && '6GB' || '4GB' }}
+          ram-size: ${{ matrix.ram-size }}
+          heap-size: ${{ matrix.heap-size }}
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: '-accel on -no-snapshot-load -no-snapshot-save -wipe-data -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none'
+          emulator-options: '-accel on -no-snapshot-load -no-snapshot-save -wipe-data -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none ${{ matrix.api-level >= 30 && "-partition-size 6144" || "-partition-size 4096" }}'
           script: |
-            echo "Waiting for emulator to be fully ready (API ${{ matrix.api-level }})..."
+            echo "Starting Android ${{ matrix.api-level }} emulator with ${{ matrix.ram-size }} RAM..."
             adb wait-for-device
-            timeout 120 bash -c 'until [[ $(adb shell getprop sys.boot_completed) == "1" ]]; do echo "Waiting for boot..."; sleep 3; done'
-            timeout 60 bash -c 'until [[ $(adb shell getprop service.bootanim.exit) == "1" ]]; do echo "Waiting for boot animation..."; sleep 2; done'
+            echo "Device detected, waiting for full boot completion..."
+            
+            # Enhanced boot detection with API-specific timeouts
+            BOOT_TIMEOUT=${{ matrix.boot-timeout }}
+            echo "Using boot timeout: ${BOOT_TIMEOUT}s for API ${{ matrix.api-level }}"
+            
+            timeout $BOOT_TIMEOUT bash -c 'until [[ $(adb shell getprop sys.boot_completed) == "1" ]]; do echo "Waiting for sys.boot_completed..."; sleep 3; done'
+            echo "Boot completed, waiting for boot animation exit..."
+            
+            # Additional stability checks for newer APIs
+            if [ ${{ matrix.api-level }} -ge 30 ]; then
+              timeout 120 bash -c 'until [[ $(adb shell getprop service.bootanim.exit) == "1" ]]; do echo "Waiting for boot animation exit..."; sleep 3; done'
+              echo "Waiting extra time for API ${{ matrix.api-level }} stabilization..."
+              sleep 10
+            else
+              timeout 90 bash -c 'until [[ $(adb shell getprop service.bootanim.exit) == "1" ]]; do echo "Waiting for boot animation exit..."; sleep 2; done'
+            fi
+            
+            # Disable animations for consistent testing
             adb shell settings put global window_animation_scale 0.0
             adb shell settings put global transition_animation_scale 0.0
             adb shell settings put global animator_duration_scale 0.0
-            echo "Emulator ready, starting tests..."
+            
+            # Additional system optimization for newer APIs
+            if [ ${{ matrix.api-level }} -ge 30 ]; then
+              adb shell settings put global development_settings_enabled 1
+              adb shell settings put global adb_enabled 1
+            fi
+            
+            echo "Emulator (API ${{ matrix.api-level }}) is ready, building and testing..."
             flutter build apk --debug
             adb install -r build/app/outputs/flutter-apk/app-debug.apk
-            adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
-            adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE
+            
+            # Grant permissions with API-specific handling
+            if [ ${{ matrix.api-level }} -ge 23 ]; then
+              adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
+              adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE
+            fi
+            
+            # Additional permissions for newer APIs
+            if [ ${{ matrix.api-level }} -ge 30 ]; then
+              adb shell pm grant studio.midoridesign.gal_example android.permission.MANAGE_EXTERNAL_STORAGE
+            fi
+            
+            echo "Running integration tests on Android API ${{ matrix.api-level }}..."
             flutter test integration_test/integration_test.dart
