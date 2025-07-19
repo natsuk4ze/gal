@@ -37,6 +37,9 @@ jobs:
           java-version: 17
           distribution: temurin
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Cache Gradle
         uses: actions/cache@v4
         with:
@@ -59,73 +62,61 @@ jobs:
           restore-keys: |
             avd-${{ runner.os }}-
 
+      - name: Create AVD and install system image
+        if: steps.cache-avd.outputs.cache-hit != 'true'
+        run: |
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-${{ matrix.api-level }};google_apis;x86_64"
+          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-${{ matrix.api-level }};google_apis;x86_64" --force
+
+      - name: Start Android Emulator
+        run: |
+          $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window -gpu swiftshader_indirect -no-boot-anim -camera-back none -camera-front none -accel on -no-snapshot-save &
+          $ANDROID_HOME/platform-tools/adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed | tr -d '\r') ]]; do sleep 1; done; input keyevent 82'
+
       - name: Run integration tests
         id: Run-integration-tests
         continue-on-error: true
         timeout-minutes: 20
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          working-directory: ./example
-          arch: x86_64
-          emulator-boot-timeout: 200
-          disable-spellchecker: true
-          force-avd-creation: false
-          disk-size: 8GB
-          ram-size: 4096M
-          heap-size: 1024M
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
-          script: |
-            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
-            flutter test integration_test/integration_test.dart
+        working-directory: ./example
+        run: |
+          if [ ${{ matrix.api-level }} -le 29 ]; then 
+            flutter build apk --debug
+            $ANDROID_HOME/platform-tools/adb install -r build/app/outputs/flutter-apk/app-debug.apk
+            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
+            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE
+          fi
+          flutter test integration_test/integration_test.dart
 
       - name: Retry integration tests
         id: Retry-integration-tests
         continue-on-error: true
         timeout-minutes: 20
         if: steps.Run-integration-tests.outcome == 'failure'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          working-directory: ./example
-          arch: x86_64
-          emulator-boot-timeout: 200
-          disable-spellchecker: true
-          force-avd-creation: false
-          disk-size: 8GB
-          ram-size: 4096M
-          heap-size: 1024M
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
-          pre-emulator-launch-script: |
-            adb kill-server
-            adb start-server
-          script: |
-            flutter clean && flutter pub get
-            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
-            flutter test integration_test/integration_test.dart
+        working-directory: ./example
+        run: |
+          $ANDROID_HOME/platform-tools/adb kill-server
+          $ANDROID_HOME/platform-tools/adb start-server
+          flutter clean && flutter pub get
+          if [ ${{ matrix.api-level }} -le 29 ]; then 
+            flutter build apk --debug
+            $ANDROID_HOME/platform-tools/adb install -r build/app/outputs/flutter-apk/app-debug.apk
+            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
+            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE
+          fi
+          flutter test integration_test/integration_test.dart
 
       - name: Re:Retry integration tests
         if: steps.Retry-integration-tests.outcome == 'failure'
         timeout-minutes: 20
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          working-directory: ./example
-          arch: x86_64
-          emulator-boot-timeout: 200
-          disable-spellchecker: true
-          force-avd-creation: false
-          disk-size: 8GB
-          ram-size: 4096M
-          heap-size: 1024M
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
-          pre-emulator-launch-script: |
-            adb kill-server
-            adb start-server
-          script: |
-            flutter clean && flutter pub get
-            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
-            flutter test integration_test/integration_test.dart
+        working-directory: ./example
+        run: |
+          $ANDROID_HOME/platform-tools/adb kill-server
+          $ANDROID_HOME/platform-tools/adb start-server
+          flutter clean && flutter pub get
+          if [ ${{ matrix.api-level }} -le 29 ]; then 
+            flutter build apk --debug
+            $ANDROID_HOME/platform-tools/adb install -r build/app/outputs/flutter-apk/app-debug.apk
+            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
+            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE
+          fi
+          flutter test integration_test/integration_test.dart
