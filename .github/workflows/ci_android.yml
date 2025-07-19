@@ -9,27 +9,27 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 150
     strategy:
+      max-parallel: 3
       matrix:
-        # Full Android API coverage with optimized configurations per API range
+        # Optimized Android API coverage with stable configurations
         api-level: [34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21]
         include:
-          # Modern API levels (30+) - Use Google APIs with optimized settings
+          # Standardized system images for all API levels (using default for reliability)
           - api-level: 34
-            target: google_apis
+            target: default
             arch: x86_64
           - api-level: 33
-            target: google_apis
+            target: default
             arch: x86_64
           - api-level: 32
-            target: google_apis
+            target: default
             arch: x86_64
           - api-level: 31
-            target: google_apis
+            target: default
             arch: x86_64
           - api-level: 30
-            target: google_apis
+            target: default
             arch: x86_64
-          # Stable API levels - Use default system images
           - api-level: 29
             target: default
             arch: x86_64
@@ -136,16 +136,12 @@ jobs:
           ram-size: ${{ matrix.api-level >= 30 && '6144M' || '4096M' }}
           heap-size: ${{ matrix.api-level >= 30 && '2048M' || '1024M' }}
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: ${{ matrix.api-level >= 30 && '-accel on -no-snapshot-load -no-snapshot-save -wipe-data -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -qemu -m 6144' || '-accel on -no-snapshot-load -no-snapshot-save -wipe-data -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -memory 4096 -partition-size 6144' }}
+          emulator-options: '-accel on -no-snapshot-load -no-snapshot-save -wipe-data -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none'
           script: |
             echo "Waiting for emulator to be fully ready (API ${{ matrix.api-level }})..."
             adb wait-for-device
-            if [ ${{ matrix.api-level }} -ge 30 ]; then
-              timeout 90 bash -c 'until [[ $(adb shell getprop sys.boot_completed) == "1" ]]; do echo "Waiting for boot..."; sleep 3; done'
-              timeout 30 bash -c 'until [[ $(adb shell getprop service.bootanim.exit) == "1" ]]; do echo "Waiting for boot animation..."; sleep 2; done'
-            else
-              timeout 60 bash -c 'until [[ $(adb shell getprop sys.boot_completed) == "1" ]]; do sleep 2; done'
-            fi
+            timeout 120 bash -c 'until [[ $(adb shell getprop sys.boot_completed) == "1" ]]; do echo "Waiting for boot..."; sleep 3; done'
+            timeout 60 bash -c 'until [[ $(adb shell getprop service.bootanim.exit) == "1" ]]; do echo "Waiting for boot animation..."; sleep 2; done'
             adb shell settings put global window_animation_scale 0.0
             adb shell settings put global transition_animation_scale 0.0
             adb shell settings put global animator_duration_scale 0.0
@@ -176,7 +172,7 @@ jobs:
           ram-size: ${{ matrix.api-level >= 30 && '6144M' || '4096M' }}
           heap-size: ${{ matrix.api-level >= 30 && '2048M' || '1024M' }}
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: ${{ matrix.api-level >= 30 && '-accel on -no-snapshot-load -no-snapshot-save -wipe-data -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -qemu -m 6144' || '-accel on -no-snapshot-load -no-snapshot-save -wipe-data -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -memory 4096 -partition-size 6144' }}
+          emulator-options: '-accel on -no-snapshot-load -no-snapshot-save -wipe-data -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none'
           pre-emulator-launch-script: |
             adb kill-server
             adb start-server
@@ -187,12 +183,8 @@ jobs:
             flutter clean && flutter pub get
             echo "Waiting for emulator to be fully ready (API ${{ matrix.api-level }}) - Retry attempt..."
             adb wait-for-device
-            if [ ${{ matrix.api-level }} -ge 30 ]; then
-              timeout 90 bash -c 'until [[ $(adb shell getprop sys.boot_completed) == "1" ]]; do echo "Waiting for boot..."; sleep 3; done'
-              timeout 30 bash -c 'until [[ $(adb shell getprop service.bootanim.exit) == "1" ]]; do echo "Waiting for boot animation..."; sleep 2; done'
-            else
-              timeout 60 bash -c 'until [[ $(adb shell getprop sys.boot_completed) == "1" ]]; do sleep 2; done'
-            fi
+            timeout 120 bash -c 'until [[ $(adb shell getprop sys.boot_completed) == "1" ]]; do echo "Waiting for boot..."; sleep 3; done'
+            timeout 60 bash -c 'until [[ $(adb shell getprop service.bootanim.exit) == "1" ]]; do echo "Waiting for boot animation..."; sleep 2; done'
             adb shell settings put global window_animation_scale 0.0
             adb shell settings put global transition_animation_scale 0.0
             adb shell settings put global animator_duration_scale 0.0
@@ -221,7 +213,7 @@ jobs:
           ram-size: ${{ matrix.api-level >= 30 && '6144M' || '4096M' }}
           heap-size: ${{ matrix.api-level >= 30 && '2048M' || '1024M' }}
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: ${{ matrix.api-level >= 30 && '-accel on -no-snapshot-load -no-snapshot-save -wipe-data -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -qemu -m 6144 -verbose' || '-accel on -no-snapshot-load -no-snapshot-save -wipe-data -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -memory 4096 -partition-size 6144 -verbose' }}
+          emulator-options: '-accel on -no-snapshot-load -no-snapshot-save -wipe-data -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -verbose'
           pre-emulator-launch-script: |
             adb kill-server
             adb start-server
@@ -237,15 +229,9 @@ jobs:
             flutter clean && flutter pub get
             echo "Waiting for emulator to be fully ready (API ${{ matrix.api-level }}) - Final attempt..."
             adb wait-for-device
-            if [ ${{ matrix.api-level }} -ge 30 ]; then
-              timeout 120 bash -c 'until [[ $(adb shell getprop sys.boot_completed) == "1" ]]; do echo "Waiting for boot..."; sleep 3; done'
-              echo "Boot completed, waiting for system ready..."
-              timeout 45 bash -c 'until [[ $(adb shell getprop service.bootanim.exit) == "1" ]]; do echo "Waiting for boot animation..."; sleep 2; done'
-            else
-              timeout 90 bash -c 'until [[ $(adb shell getprop sys.boot_completed) == "1" ]]; do echo "Waiting for boot..."; sleep 3; done'
-              echo "Boot completed, waiting for system ready..."
-              timeout 30 bash -c 'until [[ $(adb shell getprop service.bootanim.exit) == "1" ]]; do echo "Waiting for boot animation..."; sleep 2; done'
-            fi
+            timeout 150 bash -c 'until [[ $(adb shell getprop sys.boot_completed) == "1" ]]; do echo "Waiting for boot..."; sleep 3; done'
+            echo "Boot completed, waiting for system ready..."
+            timeout 90 bash -c 'until [[ $(adb shell getprop service.bootanim.exit) == "1" ]]; do echo "Waiting for boot animation..."; sleep 2; done'
             adb shell settings put global window_animation_scale 0.0
             adb shell settings put global transition_animation_scale 0.0
             adb shell settings put global animator_duration_scale 0.0
@@ -256,7 +242,4 @@ jobs:
               adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
               adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE
             fi
-            flutter test integration_test/integration_test.dart
-
-            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart
