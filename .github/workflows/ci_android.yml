@@ -39,27 +39,17 @@ jobs:
           java-version: 17
           distribution: temurin
 
-      - name: Cache Gradle
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+          
+      - name: AVD cache
         uses: actions/cache@v4
+        id: avd-cache
         with:
           path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            ~/.android/.gradle
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}-
-
-      - name: Cache AVD
-        uses: actions/cache@v4
-        id: cache-avd
-        with:
-          path: |
-            ~/.android/avd/*
-            ~/.android/adb*
-          key: avd-${{ runner.os }}-${{ matrix.api-level }}
-          restore-keys: |
-            avd-${{ runner.os }}-
+             ~/.android/avd/*
+             ~/.android/adb*
+          key: avd-${{ matrix.api-level }}
 
       - name: Run integration tests
         id: Run-integration-tests
