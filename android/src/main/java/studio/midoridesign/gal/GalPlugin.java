@@ -191,16 +191,23 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     private void open() {
+        Context context = pluginBinding.getApplicationContext();
         Intent intent = new Intent();
+        
         if (Build.VERSION.SDK_INT <= 23) {
             intent.setAction(Intent.ACTION_VIEW);
             intent.setType("*/*");
             intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
         } else {
-            intent = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_GALLERY);
+            try {
+                intent = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_GALLERY);
+            } catch (android.content.ActivityNotFoundException e) {
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setType("image/*");
+            }
         }
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        pluginBinding.getApplicationContext().startActivity(intent);
+        context.startActivity(intent);
     }
 
     private boolean hasAccess(boolean toAlbum) {
