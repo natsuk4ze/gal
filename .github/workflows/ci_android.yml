@@ -7,7 +7,7 @@ on:
 jobs:
   android:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 80
     strategy:
       matrix:
         api-level: [34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21]
@@ -58,20 +58,34 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-${{ runner.os }}-${{ matrix.api-level }}
+          key: avd-${{ runner.os }}-${{ matrix.api-level }}-${{ matrix.api-level <= 23 && 'x86' || 'x86_64' }}
           restore-keys: |
-            avd-${{ runner.os }}-
+            avd-${{ runner.os }}-${{ matrix.api-level }}-
 
       - name: Create AVD and install system image
         if: steps.cache-avd.outputs.cache-hit != 'true'
         run: |
-          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-${{ matrix.api-level }};google_apis;x86_64"
-          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-${{ matrix.api-level }};google_apis;x86_64" --force
+          # Use x86 for older API levels, x86_64 for newer ones for better stability
+          if [ ${{ matrix.api-level }} -le 23 ]; then
+            ARCH="x86"
+          else
+            ARCH="x86_64"
+          fi
+          echo "Using architecture: $ARCH for API level ${{ matrix.api-level }}"
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-${{ matrix.api-level }};google_apis;$ARCH"
+          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-${{ matrix.api-level }};google_apis;$ARCH" --force
 
       - name: Start Android Emulator
         run: |
           echo "Starting Android emulator..."
-          $ANDROID_HOME/emulator/emulator -avd test -no-audio -no-window -gpu swiftshader_indirect -no-boot-anim -camera-back none -camera-front none -accel on -no-snapshot-save &
+          $ANDROID_HOME/emulator/emulator -avd test \
+            -no-audio -no-window -no-boot-anim \
+            -camera-back none -camera-front none \
+            -gpu swiftshader_indirect \
+            -accel on -no-snapshot-save \
+            -memory 4096 -partition-size 4096 \
+            -netdelay none -netspeed full \
+            -qemu -m 4096 &
           
       - name: Wait for emulator to boot
         timeout-minutes: 10
@@ -111,6 +125,19 @@ jobs:
           
           echo "Verifying emulator is responsive..."
           $ANDROID_HOME/platform-tools/adb shell input keyevent 4  # Back key
+          
+          echo "Waiting for package manager to be ready..."
+          timeout 60 bash -c '
+            while true; do
+              if adb shell pm list packages >/dev/null 2>&1; then
+                echo "Package manager is ready"
+                break
+              fi
+              echo "Waiting for package manager..."
+              sleep 2
+            done
+          '
+          
           echo "Emulator startup completed successfully"
 
       - name: Run integration tests
@@ -119,12 +146,24 @@ jobs:
         timeout-minutes: 20
         working-directory: ./example
         run: |
+          # Verify emulator is still responsive before proceeding
+          $ANDROID_HOME/platform-tools/adb devices -l
+          
+          # Build and install APK for API levels that need it
           if [ ${{ matrix.api-level }} -le 29 ]; then 
+            echo "Building APK for API level ${{ matrix.api-level }}"
             flutter build apk --debug
-            $ANDROID_HOME/platform-tools/adb install -r build/app/outputs/flutter-apk/app-debug.apk
-            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
-            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE
+            
+            echo "Installing APK on emulator"
+            $ANDROID_HOME/platform-tools/adb install -t -r build/app/outputs/flutter-apk/app-debug.apk
+            
+            echo "Granting permissions"
+            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE || true
+            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE || true
+            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.MANAGE_EXTERNAL_STORAGE || true
           fi
+          
+          echo "Running integration tests"
           flutter test integration_test/integration_test.dart
 
       - name: Retry integration tests
@@ -134,15 +173,29 @@ jobs:
         if: steps.Run-integration-tests.outcome == 'failure'
         working-directory: ./example
         run: |
+          echo "Restarting ADB server for retry"
           $ANDROID_HOME/platform-tools/adb kill-server
           $ANDROID_HOME/platform-tools/adb start-server
+          
+          echo "Cleaning and reinstalling dependencies"
           flutter clean && flutter pub get
+          
+          # Wait a bit for ADB to stabilize
+          sleep 5
+          $ANDROID_HOME/platform-tools/adb devices -l
+          
           if [ ${{ matrix.api-level }} -le 29 ]; then 
+            echo "Rebuilding and reinstalling APK for retry"
             flutter build apk --debug
-            $ANDROID_HOME/platform-tools/adb install -r build/app/outputs/flutter-apk/app-debug.apk
-            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
-            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE
+            $ANDROID_HOME/platform-tools/adb install -t -r build/app/outputs/flutter-apk/app-debug.apk
+            
+            echo "Re-granting permissions"
+            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE || true
+            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE || true
+            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.MANAGE_EXTERNAL_STORAGE || true
           fi
+          
+          echo "Retrying integration tests"
           flutter test integration_test/integration_test.dart
 
       - name: Re:Retry integration tests
@@ -150,13 +203,27 @@ jobs:
         timeout-minutes: 20
         working-directory: ./example
         run: |
+          echo "Final attempt - restarting ADB server"
           $ANDROID_HOME/platform-tools/adb kill-server
           $ANDROID_HOME/platform-tools/adb start-server
+          
+          echo "Final clean and dependency installation"
           flutter clean && flutter pub get
+          
+          # Wait longer for ADB to stabilize on final attempt
+          sleep 10
+          $ANDROID_HOME/platform-tools/adb devices -l
+          
           if [ ${{ matrix.api-level }} -le 29 ]; then 
+            echo "Final APK build and installation"
             flutter build apk --debug
-            $ANDROID_HOME/platform-tools/adb install -r build/app/outputs/flutter-apk/app-debug.apk
-            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE
-            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE
+            $ANDROID_HOME/platform-tools/adb install -t -r build/app/outputs/flutter-apk/app-debug.apk
+            
+            echo "Final permission grants"
+            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE || true
+            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE || true
+            $ANDROID_HOME/platform-tools/adb shell pm grant studio.midoridesign.gal_example android.permission.MANAGE_EXTERNAL_STORAGE || true
           fi
+          
+          echo "Final attempt at integration tests"
           flutter test integration_test/integration_test.dart
