@@ -1,3 +1,8 @@
+## 2.3.2
+
+* Reduce package size by optimizing assets (.pubignore) #296
+* Fix Windows build by adding windowsapp library linking for WinRT support #284
+
 ## 2.3.1
 
 * Add Swift Package Manager support. #242
