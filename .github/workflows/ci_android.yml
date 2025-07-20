@@ -93,7 +93,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-${{ runner.os }}-${{ matrix.api-level }}-${{ hashFiles('.github/workflows/ci_android.yml') }}
+          key: avd-${{ runner.os }}-${{ matrix.api-level }}-${{ matrix.api-level <= 21 && 'default' || 'google_apis' }}-${{ matrix.api-level <= 23 && 'x86' || 'x86_64' }}-${{ hashFiles('.github/workflows/ci_android.yml') }}
           restore-keys: |
             avd-${{ runner.os }}-${{ matrix.api-level }}-
 
@@ -101,15 +101,29 @@ jobs:
         if: steps.cache-avd.outputs.cache-hit != 'true'
         run: |
           # Use x86 for older API levels, x86_64 for newer ones for better stability
-          if [[ ${{ matrix.api-level }} -le 23 ]]; then
+          # Also use default system images for API 21-23 for better compatibility
+          if [[ ${{ matrix.api-level }} -le 21 ]]; then
             ARCH="x86"
+            IMAGE_TYPE="default"
+          elif [[ ${{ matrix.api-level }} -le 23 ]]; then
+            ARCH="x86"
+            IMAGE_TYPE="google_apis"
           else
             ARCH="x86_64"
+            IMAGE_TYPE="google_apis"
           fi
-          echo "Using architecture: $ARCH for API level ${{ matrix.api-level }}"
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-${{ matrix.api-level }};google_apis;$ARCH"
-          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-${{ matrix.api-level }};google_apis;$ARCH" --force
+          echo "Using architecture: $ARCH, image type: $IMAGE_TYPE for API level ${{ matrix.api-level }}"
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-${{ matrix.api-level }};$IMAGE_TYPE;$ARCH"
+          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-${{ matrix.api-level }};$IMAGE_TYPE;$ARCH" --force
 
+      - name: Cleanup any existing emulator processes
+        run: |
+          echo "Cleaning up any existing emulator processes..."
+          pkill -f "emulator.*test" || echo "No existing emulator processes found"
+          adb kill-server || echo "ADB server was not running"
+          sleep 2
+          adb start-server
+          
       - name: Start Android Emulator
         run: |
           echo "Starting Android emulator..."
@@ -118,11 +132,12 @@ jobs:
             -camera-back none -camera-front none \
             -gpu swiftshader_indirect \
             -accel on -no-snapshot-save \
-            -memory 2048 -partition-size 2048 \
+            -memory 1536 -partition-size 1536 \
             -netdelay none -netspeed full &
           
           # Store emulator PID and verify it started
           EMULATOR_PID=$!
+          echo $EMULATOR_PID > /tmp/emulator_pid
           sleep 10
           if ! ps -p $EMULATOR_PID > /dev/null 2>&1; then
             echo "ERROR: Emulator process failed to start or crashed"
@@ -201,35 +216,36 @@ jobs:
             adb wait-for-device
           fi
           
-          # Build and install APK for API levels that need it
-          if [[ ${{ matrix.api-level }} -le 29 ]]; then 
-            echo "Building APK for API level ${{ matrix.api-level }}"
-            flutter build apk --debug
-            
-            echo "Installing APK on emulator with retries"
-            for attempt in 1 2 3; do
-              if adb install -t -r build/app/outputs/flutter-apk/app-debug.apk; then
-                echo "APK installation successful on attempt $attempt"
-                break
-              else
-                echo "APK installation failed on attempt $attempt"
-                if [[ $attempt -lt 3 ]]; then
-                  sleep 5
-                  adb kill-server && adb start-server
-                  sleep 3
-                  adb wait-for-device
-                fi
+          # Build and install APK for all API levels to ensure consistent testing
+          echo "Building APK for API level ${{ matrix.api-level }}"
+          flutter build apk --debug
+          
+          echo "Installing APK on emulator with retries"
+          for attempt in 1 2 3; do
+            if adb install -t -r build/app/outputs/flutter-apk/app-debug.apk; then
+              echo "APK installation successful on attempt $attempt"
+              break
+            else
+              echo "APK installation failed on attempt $attempt"
+              if [[ $attempt -lt 3 ]]; then
+                sleep 5
+                adb kill-server && adb start-server
+                sleep 3
+                adb wait-for-device
               fi
-            done
-            
-            echo "Granting storage permissions for API ${{ matrix.api-level }}"
+            fi
+          done
+          
+          echo "Granting storage permissions for API ${{ matrix.api-level }}"
+          # Grant basic storage permissions for older Android versions
+          if [[ ${{ matrix.api-level }} -le 29 ]]; then
             adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE 2>/dev/null || echo "WRITE_EXTERNAL_STORAGE permission not needed or failed"
             adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE 2>/dev/null || echo "READ_EXTERNAL_STORAGE permission not needed or failed"
-            
-            # Grant MANAGE_EXTERNAL_STORAGE for API 30+ if needed
-            if [[ ${{ matrix.api-level }} -ge 30 ]]; then
-              adb shell pm grant studio.midoridesign.gal_example android.permission.MANAGE_EXTERNAL_STORAGE 2>/dev/null || echo "MANAGE_EXTERNAL_STORAGE permission not needed or failed"
-            fi
+          fi
+          
+          # Grant MANAGE_EXTERNAL_STORAGE for API 30+ (scoped storage)
+          if [[ ${{ matrix.api-level }} -ge 30 ]]; then
+            adb shell pm grant studio.midoridesign.gal_example android.permission.MANAGE_EXTERNAL_STORAGE 2>/dev/null || echo "MANAGE_EXTERNAL_STORAGE permission not needed or failed"
           fi
           
           # Final device state verification before tests
@@ -245,7 +261,7 @@ jobs:
           export INTEGRATION_TEST_ZOMBIE_TIME=600
           
           echo "Running integration tests with optimized environment"
-          timeout 18m flutter test integration_test/integration_test.dart --reporter=expanded || {
+          timeout 15m flutter test integration_test/integration_test.dart --reporter=expanded || {
             echo "Integration test failed or timed out"
             # Capture some debug info on failure
             adb shell dumpsys activity | head -20 || echo "Could not get activity dump"
@@ -260,6 +276,9 @@ jobs:
         if: steps.Run-integration-tests.outcome == 'failure'
         working-directory: ./example
         run: |
+          echo "Cleaning up processes for retry"
+          pkill -f "flutter.*test" || echo "No flutter test processes to clean"
+          
           echo "Restarting ADB server for retry"
           $ANDROID_HOME/platform-tools/adb kill-server
           $ANDROID_HOME/platform-tools/adb start-server
@@ -284,36 +303,36 @@ jobs:
             fi
           done
           
-          if [[ ${{ matrix.api-level }} -le 29 ]]; then 
-            echo "Rebuilding and reinstalling APK for retry"
-            flutter build apk --debug
-            
-            # More robust APK installation for retry
-            for attempt in 1 2; do
-              if adb install -t -r build/app/outputs/flutter-apk/app-debug.apk; then
-                echo "APK reinstallation successful on attempt $attempt"
-                break
-              else
-                echo "APK reinstallation failed on attempt $attempt"
-                if [[ $attempt -lt 2 ]]; then
-                  sleep 3
-                fi
+          echo "Rebuilding and reinstalling APK for retry"
+          flutter build apk --debug
+          
+          # More robust APK installation for retry
+          for attempt in 1 2; do
+            if adb install -t -r build/app/outputs/flutter-apk/app-debug.apk; then
+              echo "APK reinstallation successful on attempt $attempt"
+              break
+            else
+              echo "APK reinstallation failed on attempt $attempt"
+              if [[ $attempt -lt 2 ]]; then
+                sleep 3
               fi
-            done
-            
-            echo "Re-granting permissions with better error handling"
+            fi
+          done
+          
+          echo "Re-granting permissions with better error handling"
+          if [[ ${{ matrix.api-level }} -le 29 ]]; then
             adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE 2>/dev/null || echo "WRITE_EXTERNAL_STORAGE not granted"
             adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE 2>/dev/null || echo "READ_EXTERNAL_STORAGE not granted"
-            if [[ ${{ matrix.api-level }} -ge 30 ]]; then
-              adb shell pm grant studio.midoridesign.gal_example android.permission.MANAGE_EXTERNAL_STORAGE 2>/dev/null || echo "MANAGE_EXTERNAL_STORAGE not granted"
-            fi
+          fi
+          if [[ ${{ matrix.api-level }} -ge 30 ]]; then
+            adb shell pm grant studio.midoridesign.gal_example android.permission.MANAGE_EXTERNAL_STORAGE 2>/dev/null || echo "MANAGE_EXTERNAL_STORAGE not granted"
           fi
           
           echo "Retrying integration tests with extended timeout"
           export FLUTTER_TEST_TIMEOUT=720
           export INTEGRATION_TEST_ZOMBIE_TIME=720
           
-          timeout 19m flutter test integration_test/integration_test.dart --reporter=expanded || {
+          timeout 16m flutter test integration_test/integration_test.dart --reporter=expanded || {
             echo "Retry integration test failed or timed out"
             adb shell dumpsys activity | head -20 || echo "Could not get activity dump"
             adb logcat -d | tail -50 || echo "Could not get logcat"
@@ -325,6 +344,10 @@ jobs:
         timeout-minutes: 20
         working-directory: ./example
         run: |
+          echo "Final attempt - cleaning up all processes"
+          pkill -f "flutter.*test" || echo "No flutter test processes to clean"
+          pkill -f "emulator.*test" || echo "No emulator processes to clean"
+          
           echo "Final attempt - restarting ADB server"
           $ANDROID_HOME/platform-tools/adb kill-server
           $ANDROID_HOME/platform-tools/adb start-server
@@ -344,36 +367,36 @@ jobs:
           adb shell getprop ro.build.version.sdk
           adb shell input keyevent 82  # unlock screen again
           
-          if [[ ${{ matrix.api-level }} -le 29 ]]; then 
-            echo "Final APK build and installation with maximum robustness"
-            flutter build apk --debug
-            
-            # Most robust APK installation for final attempt
-            for attempt in 1 2 3; do
-              echo "Final APK installation attempt $attempt/3"
-              if adb install -t -r build/app/outputs/flutter-apk/app-debug.apk; then
-                echo "Final APK installation successful"
-                break
-              else
-                echo "Final APK installation failed on attempt $attempt"
-                if [[ $attempt -lt 3 ]]; then
-                  adb kill-server && adb start-server
-                  sleep 5
-                  adb wait-for-device
-                fi
+          echo "Final APK build and installation with maximum robustness"
+          flutter build apk --debug
+          
+          # Most robust APK installation for final attempt
+          for attempt in 1 2 3; do
+            echo "Final APK installation attempt $attempt/3"
+            if adb install -t -r build/app/outputs/flutter-apk/app-debug.apk; then
+              echo "Final APK installation successful"
+              break
+            else
+              echo "Final APK installation failed on attempt $attempt"
+              if [[ $attempt -lt 3 ]]; then
+                adb kill-server && adb start-server
+                sleep 5
+                adb wait-for-device
               fi
-            done
-            
-            echo "Final permission grants with comprehensive coverage"
+            fi
+          done
+          
+          echo "Final permission grants with comprehensive coverage"
+          if [[ ${{ matrix.api-level }} -le 29 ]]; then
             adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE 2>/dev/null || echo "WRITE_EXTERNAL_STORAGE final grant failed"
             adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE 2>/dev/null || echo "READ_EXTERNAL_STORAGE final grant failed"
-            if [[ ${{ matrix.api-level }} -ge 30 ]]; then
-              adb shell pm grant studio.midoridesign.gal_example android.permission.MANAGE_EXTERNAL_STORAGE 2>/dev/null || echo "MANAGE_EXTERNAL_STORAGE final grant failed"
-            fi
-            
-            # Verify app is properly installed for final attempt
-            adb shell pm list packages | grep gal_example && echo "App package verified" || echo "WARNING: App package not found"
           fi
+          if [[ ${{ matrix.api-level }} -ge 30 ]]; then
+            adb shell pm grant studio.midoridesign.gal_example android.permission.MANAGE_EXTERNAL_STORAGE 2>/dev/null || echo "MANAGE_EXTERNAL_STORAGE final grant failed"
+          fi
+          
+          # Verify app is properly installed for final attempt
+          adb shell pm list packages | grep gal_example && echo "App package verified" || echo "WARNING: App package not found"
           
           echo "Final attempt at integration tests with maximum timeout"
           export FLUTTER_TEST_TIMEOUT=900
@@ -390,7 +413,7 @@ jobs:
           df -h . | head -2
           free -h
           
-          timeout 19m flutter test integration_test/integration_test.dart --reporter=expanded --verbose || {
+          timeout 17m flutter test integration_test/integration_test.dart --reporter=expanded --verbose || {
             echo "FINAL ATTEMPT FAILED - Collecting comprehensive debug info"
             adb shell dumpsys activity | head -30
             adb shell dumpsys meminfo | head -10
