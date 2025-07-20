@@ -58,7 +58,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-${{ runner.os }}-${{ matrix.api-level }}-${{ matrix.api-level <= 23 && 'x86' || 'x86_64' }}
+          key: avd-${{ runner.os }}-${{ matrix.api-level }}-${{ hashFiles('.github/workflows/ci_android.yml') }}
           restore-keys: |
             avd-${{ runner.os }}-${{ matrix.api-level }}-
 
@@ -66,13 +66,13 @@ jobs:
         if: steps.cache-avd.outputs.cache-hit != 'true'
         run: |
           # Use x86 for older API levels, x86_64 for newer ones for better stability
-          if [ ${{ matrix.api-level }} -le 23 ]; then
+          if [[ ${{ matrix.api-level }} -le 23 ]]; then
             ARCH="x86"
           else
             ARCH="x86_64"
           fi
           echo "Using architecture: $ARCH for API level ${{ matrix.api-level }}"
-          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-${{ matrix.api-level }};google_apis;$ARCH"
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-${{ matrix.api-level }};google_apis;$ARCH"
           echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n test -k "system-images;android-${{ matrix.api-level }};google_apis;$ARCH" --force
 
       - name: Start Android Emulator
@@ -83,9 +83,17 @@ jobs:
             -camera-back none -camera-front none \
             -gpu swiftshader_indirect \
             -accel on -no-snapshot-save \
-            -memory 4096 -partition-size 4096 \
-            -netdelay none -netspeed full \
-            -qemu -m 4096 &
+            -memory 2048 -partition-size 2048 \
+            -netdelay none -netspeed full &
+          
+          # Store emulator PID and verify it started
+          EMULATOR_PID=$!
+          sleep 10
+          if ! ps -p $EMULATOR_PID > /dev/null 2>&1; then
+            echo "ERROR: Emulator process failed to start or crashed"
+            exit 1
+          fi
+          echo "Emulator process started successfully (PID: $EMULATOR_PID)"
           
       - name: Wait for emulator to boot
         timeout-minutes: 10
@@ -150,7 +158,7 @@ jobs:
           $ANDROID_HOME/platform-tools/adb devices -l
           
           # Build and install APK for API levels that need it
-          if [ ${{ matrix.api-level }} -le 29 ]; then 
+          if [[ ${{ matrix.api-level }} -le 29 ]]; then 
             echo "Building APK for API level ${{ matrix.api-level }}"
             flutter build apk --debug
             
@@ -184,7 +192,7 @@ jobs:
           sleep 5
           $ANDROID_HOME/platform-tools/adb devices -l
           
-          if [ ${{ matrix.api-level }} -le 29 ]; then 
+          if [[ ${{ matrix.api-level }} -le 29 ]]; then 
             echo "Rebuilding and reinstalling APK for retry"
             flutter build apk --debug
             $ANDROID_HOME/platform-tools/adb install -t -r build/app/outputs/flutter-apk/app-debug.apk
@@ -214,7 +222,7 @@ jobs:
           sleep 10
           $ANDROID_HOME/platform-tools/adb devices -l
           
-          if [ ${{ matrix.api-level }} -le 29 ]; then 
+          if [[ ${{ matrix.api-level }} -le 29 ]]; then 
             echo "Final APK build and installation"
             flutter build apk --debug
             $ANDROID_HOME/platform-tools/adb install -t -r build/app/outputs/flutter-apk/app-debug.apk
