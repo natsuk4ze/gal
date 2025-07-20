@@ -34,27 +34,13 @@ jobs:
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      
-      - name: Setup Android environment
+
+      - name: Fix Android AVD path for Ubuntu 24.04
         run: |
-          # Set ANDROID_AVD_HOME to ensure consistent AVD location
-          echo "ANDROID_AVD_HOME=/home/runner/.android/avd" >> $GITHUB_ENV
-          echo "ANDROID_PREFS_ROOT=/home/runner/.android" >> $GITHUB_ENV
-          
-          # Fix for Ubuntu 24.04 AVD path issue
+          # Workaround for Ubuntu 24.04 AVD path issue
           # https://github.com/actions/runner-images/issues/11482
-          # Remove existing .android if it's a file
-          if [ -f /home/runner/.android ]; then
-            rm -f /home/runner/.android
-          fi
-          
-          # Ensure the config directory exists
-          mkdir -p /home/runner/.config/.android/avd
-          
-          # Create symbolic link only if .android doesn't exist
-          if [ ! -e /home/runner/.android ]; then
-            ln -s /home/runner/.config/.android /home/runner/.android
-          fi
+          mkdir -p /home/runner/.config
+          ln -s /home/runner/.config/.android /home/runner/.android || true
 
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
@@ -105,27 +91,14 @@ jobs:
           emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
             # Fix AVD path issue on Ubuntu 24.04
-            # First, check if .android exists and remove it if it's a file
-            if [ -f /home/runner/.android ]; then
-              echo "Removing existing .android file"
-              rm -f /home/runner/.android
-            fi
-            
             # Create symbolic link to fix path mismatch between avdmanager and emulator
-            if [ ! -e /home/runner/.android ]; then
-              mkdir -p /home/runner/.config/.android
+            mkdir -p /home/runner/.android
+            if [ -d /home/runner/.config/.android ] && [ ! -L /home/runner/.android ]; then
               ln -s /home/runner/.config/.android /home/runner/.android
-              echo "Created symlink: /home/runner/.android -> /home/runner/.config/.android"
             fi
-            
             # Ensure proper directory structure exists
             mkdir -p ~/.android/avd
             mkdir -p ~/.config/.android/avd
-            
-            # Debug: Show directory structure
-            echo "Directory structure:"
-            ls -la /home/runner/ | grep -E "(\.android|\.config)"
-            ls -la /home/runner/.config/ | grep android || true
           script: |
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart
@@ -150,24 +123,6 @@ jobs:
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
-            # Fix AVD path issue on Ubuntu 24.04
-            # First, check if .android exists and remove it if it's a file
-            if [ -f /home/runner/.android ]; then
-              echo "Removing existing .android file"
-              rm -f /home/runner/.android
-            fi
-            
-            # Create symbolic link to fix path mismatch between avdmanager and emulator
-            if [ ! -e /home/runner/.android ]; then
-              mkdir -p /home/runner/.config/.android
-              ln -s /home/runner/.config/.android /home/runner/.android
-              echo "Created symlink: /home/runner/.android -> /home/runner/.config/.android"
-            fi
-            
-            # Ensure proper directory structure exists
-            mkdir -p ~/.android/avd
-            mkdir -p ~/.config/.android/avd
-            
             adb kill-server
             adb start-server
             # Ensure proper directory structure exists
@@ -196,24 +151,6 @@ jobs:
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
-            # Fix AVD path issue on Ubuntu 24.04
-            # First, check if .android exists and remove it if it's a file
-            if [ -f /home/runner/.android ]; then
-              echo "Removing existing .android file"
-              rm -f /home/runner/.android
-            fi
-            
-            # Create symbolic link to fix path mismatch between avdmanager and emulator
-            if [ ! -e /home/runner/.android ]; then
-              mkdir -p /home/runner/.config/.android
-              ln -s /home/runner/.config/.android /home/runner/.android
-              echo "Created symlink: /home/runner/.android -> /home/runner/.config/.android"
-            fi
-            
-            # Ensure proper directory structure exists
-            mkdir -p ~/.android/avd
-            mkdir -p ~/.config/.android/avd
-            
             adb kill-server
             adb start-server
             # Ensure proper directory structure exists
