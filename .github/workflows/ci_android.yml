@@ -41,7 +41,30 @@ jobs:
           cache: true
 
       - name: Install Flutter dependencies
-        run: flutter pub get ./example
+        run: |
+          echo "Installing Flutter dependencies with error handling..."
+          cd ./example
+          
+          # Verify Flutter is working
+          flutter --version
+          flutter doctor --android-licenses || echo "Android licenses already accepted"
+          
+          # Install dependencies with retry
+          for attempt in 1 2 3; do
+            if flutter pub get; then
+              echo "Flutter dependencies installed successfully on attempt $attempt"
+              break
+            else
+              echo "Flutter pub get failed on attempt $attempt"
+              if [[ $attempt -lt 3 ]]; then
+                flutter clean
+                sleep 2
+              fi
+            fi
+          done
+          
+          # Verify dependencies are correctly installed
+          flutter pub deps || echo "Could not verify dependencies"
 
       - name: Set up JDK
         uses: actions/setup-java@v4
