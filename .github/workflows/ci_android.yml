@@ -6,7 +6,7 @@ on:
 
 jobs:
   android:
-    runs-on: macos-13
+    runs-on: macos-15-xlarge
     timeout-minutes: 60
     strategy:
       matrix:
