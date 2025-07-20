@@ -16,11 +16,23 @@ jobs:
       - name: Check out
         uses: actions/checkout@v4
 
-      - name: Enable KVM
+      - name: Enable KVM and Optimize System
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+          
+          # Optimize system for Android emulator
+          echo "Optimizing system resources..."
+          # Increase file descriptor limits
+          ulimit -n 4096 || echo "Could not increase file descriptor limit"
+          # Set swappiness to reduce swap usage
+          echo 1 | sudo tee /proc/sys/vm/swappiness >/dev/null || echo "Could not set swappiness"
+          # Check initial system resources
+          echo "=== Initial System Resources ==="
+          free -h
+          df -h .
+          nproc
 
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
@@ -202,8 +214,21 @@ jobs:
           adb shell getprop ro.build.version.sdk
           adb shell pm list packages | grep gal_example || echo "App package not found, may be running without APK"
           
-          echo "Running integration tests"
-          flutter test integration_test/integration_test.dart
+          # Check available disk space
+          df -h . || echo "Disk space check failed"
+          
+          # Optimize Flutter test environment
+          export FLUTTER_TEST_TIMEOUT=600
+          export INTEGRATION_TEST_ZOMBIE_TIME=600
+          
+          echo "Running integration tests with optimized environment"
+          timeout 18m flutter test integration_test/integration_test.dart --reporter=expanded || {
+            echo "Integration test failed or timed out"
+            # Capture some debug info on failure
+            adb shell dumpsys activity | head -20 || echo "Could not get activity dump"
+            adb shell ps | grep flutter || echo "No flutter processes found"
+            exit 1
+          }
 
       - name: Retry integration tests
         id: Retry-integration-tests
@@ -261,8 +286,16 @@ jobs:
             fi
           fi
           
-          echo "Retrying integration tests"
-          flutter test integration_test/integration_test.dart
+          echo "Retrying integration tests with extended timeout"
+          export FLUTTER_TEST_TIMEOUT=720
+          export INTEGRATION_TEST_ZOMBIE_TIME=720
+          
+          timeout 19m flutter test integration_test/integration_test.dart --reporter=expanded || {
+            echo "Retry integration test failed or timed out"
+            adb shell dumpsys activity | head -20 || echo "Could not get activity dump"
+            adb logcat -d | tail -50 || echo "Could not get logcat"
+            exit 1
+          }
 
       - name: Re:Retry integration tests
         if: steps.Retry-integration-tests.outcome == 'failure'
@@ -319,5 +352,26 @@ jobs:
             adb shell pm list packages | grep gal_example && echo "App package verified" || echo "WARNING: App package not found"
           fi
           
-          echo "Final attempt at integration tests"
-          flutter test integration_test/integration_test.dart
+          echo "Final attempt at integration tests with maximum timeout"
+          export FLUTTER_TEST_TIMEOUT=900
+          export INTEGRATION_TEST_ZOMBIE_TIME=900
+          
+          # Clear any potential zombie processes
+          pkill -f "flutter.*test" || echo "No zombie Flutter test processes found"
+          
+          # Final comprehensive system check
+          echo "=== Final System State ==="
+          adb devices -l
+          adb shell getprop sys.boot_completed
+          adb shell getprop ro.build.version.sdk
+          df -h . | head -2
+          free -h
+          
+          timeout 19m flutter test integration_test/integration_test.dart --reporter=expanded --verbose || {
+            echo "FINAL ATTEMPT FAILED - Collecting comprehensive debug info"
+            adb shell dumpsys activity | head -30
+            adb shell dumpsys meminfo | head -10
+            adb logcat -d | tail -100
+            adb shell ps | grep -E '(flutter|gal)'
+            exit 1
+          }
