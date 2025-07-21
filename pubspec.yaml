@@ -14,9 +14,6 @@ topics:
  - photos
  - util
 
-screenshots:
- - description: 'Logo of gal package.'
-   path: assets/logo.png
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
