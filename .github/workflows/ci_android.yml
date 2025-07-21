@@ -63,9 +63,7 @@ jobs:
           emulator-boot-timeout: 200
           disable-spellchecker: true
           force-avd-creation: false
-          disk-size: 8GB
-          ram-size: 4096M
-          heap-size: 1024M
+          disk-size: 4GB
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
@@ -85,9 +83,7 @@ jobs:
           emulator-boot-timeout: 200
           disable-spellchecker: true
           force-avd-creation: false
-          disk-size: 8GB
-          ram-size: 4096M
-          heap-size: 1024M
+          disk-size: 4GB
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
@@ -109,9 +105,7 @@ jobs:
           emulator-boot-timeout: 200
           disable-spellchecker: true
           force-avd-creation: false
-          disk-size: 8GB
-          ram-size: 4096M
-          heap-size: 1024M
+          disk-size: 4GB
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
