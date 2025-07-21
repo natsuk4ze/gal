@@ -14,7 +14,6 @@ jobs:
         # Source: https://github.com/flutter/flutter/blob/beta/packages/flutter_tools/gradle/src/main/kotlin/FlutterExtension.kt
         api-level: [35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24]
       fail-fast: false
-      max-parallel: 3  # Limit concurrent jobs to prevent memory exhaustion
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -79,7 +78,7 @@ jobs:
           emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -cores 2
           script: |
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
-            flutter test integration_test/integration_test.dart
+            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/integration_test.dart --no-pub
 
       - name: Retry integration tests
         id: Retry-integration-tests
