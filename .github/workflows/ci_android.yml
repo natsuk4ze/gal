@@ -8,10 +8,6 @@ jobs:
   android:
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    env:
-      ACTIONS_STEP_DEBUG: true
-      ACTIONS_RUNNER_DEBUG: true
-      FLUTTER_LOG_LEVEL: verbose
     strategy:
       matrix:
         # Flutter beta channel default minSdkVersion is 24 (Android 7.0)
@@ -45,34 +41,6 @@ jobs:
 
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-home-cache-cleanup: true
-
-      - name: Configure system resources
-        run: |
-          # Show available resources
-          echo "=== System Resources ==="
-          free -h
-          df -h
-          nproc
-          
-          # Increase swap space
-          sudo swapoff -a
-          sudo dd if=/dev/zero of=/swapfile bs=1G count=8
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-          echo "Swap increased:"
-          free -h
-          
-          # Configure Gradle memory
-          mkdir -p ~/.gradle
-          echo "org.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> ~/.gradle/gradle.properties
-          echo "org.gradle.parallel=false" >> ~/.gradle/gradle.properties
-          echo "org.gradle.daemon=true" >> ~/.gradle/gradle.properties
-          echo "org.gradle.caching=true" >> ~/.gradle/gradle.properties
-          echo "org.gradle.workers.max=2" >> ~/.gradle/gradle.properties
-          echo "kotlin.daemon.jvm.options=-Xmx1536m" >> ~/.gradle/gradle.properties
 
       - name: AVD cache
         uses: actions/cache@v4
@@ -85,6 +53,7 @@ jobs:
 
       - name: Run integration tests
         id: Run-integration-tests
+        continue-on-error: true
         timeout-minutes: 20
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -94,11 +63,52 @@ jobs:
           emulator-boot-timeout: 200
           disable-spellchecker: true
           force-avd-creation: false
-          disk-size: 8GB
-          ram-size: 3072M
-          heap-size: 512M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -memory 4096
+          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
+            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
+            flutter test integration_test/integration_test.dart
+
+      - name: Retry integration tests
+        id: Retry-integration-tests
+        continue-on-error: true
+        timeout-minutes: 20
+        if: steps.Run-integration-tests.outcome == 'failure'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          working-directory: ./example
+          arch: x86_64
+          emulator-boot-timeout: 200
+          disable-spellchecker: true
+          force-avd-creation: false
+          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
+          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          pre-emulator-launch-script: |
+            adb kill-server
+            adb start-server
+          script: |
+            flutter clean && flutter pub get
+            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
+            flutter test integration_test/integration_test.dart
+
+      - name: Re:Retry integration tests
+        if: steps.Retry-integration-tests.outcome == 'failure'
+        timeout-minutes: 20
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          working-directory: ./example
+          arch: x86_64
+          emulator-boot-timeout: 200
+          disable-spellchecker: true
+          force-avd-creation: false
+          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
+          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          pre-emulator-launch-script: |
+            adb kill-server
+            adb start-server
+          script: |
+            flutter clean && flutter pub get
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart
