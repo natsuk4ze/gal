@@ -6,7 +6,7 @@ on:
 
 jobs:
   android:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     timeout-minutes: 60
     strategy:
       matrix:
@@ -41,6 +41,16 @@ jobs:
 
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-home-cache-cleanup: true
+
+      - name: Configure Gradle memory
+        run: |
+          mkdir -p ~/.gradle
+          echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=2g -XX:+HeapDumpOnOutOfMemoryError" >> ~/.gradle/gradle.properties
+          echo "org.gradle.parallel=true" >> ~/.gradle/gradle.properties
+          echo "org.gradle.daemon=true" >> ~/.gradle/gradle.properties
+          echo "org.gradle.caching=true" >> ~/.gradle/gradle.properties
 
       - name: AVD cache
         uses: actions/cache@v4
@@ -54,7 +64,7 @@ jobs:
       - name: Run integration tests
         id: Run-integration-tests
         continue-on-error: true
-        timeout-minutes: 20
+        timeout-minutes: 30
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
@@ -64,8 +74,8 @@ jobs:
           disable-spellchecker: true
           force-avd-creation: false
           disk-size: 8GB
-          ram-size: 4096M
-          heap-size: 1024M
+          ram-size: 3072M
+          heap-size: 512M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
@@ -75,7 +85,7 @@ jobs:
       - name: Retry integration tests
         id: Retry-integration-tests
         continue-on-error: true
-        timeout-minutes: 20
+        timeout-minutes: 30
         if: steps.Run-integration-tests.outcome == 'failure'
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -86,8 +96,8 @@ jobs:
           disable-spellchecker: true
           force-avd-creation: false
           disk-size: 4GB
-          ram-size: 4096M
-          heap-size: 1024M
+          ram-size: 3072M
+          heap-size: 512M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
@@ -100,7 +110,7 @@ jobs:
 
       - name: Re:Retry integration tests
         if: steps.Retry-integration-tests.outcome == 'failure'
-        timeout-minutes: 20
+        timeout-minutes: 30
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
@@ -110,8 +120,8 @@ jobs:
           disable-spellchecker: true
           force-avd-creation: false
           disk-size: 4GB
-          ram-size: 4096M
-          heap-size: 1024M
+          ram-size: 3072M
+          heap-size: 512M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           pre-emulator-launch-script: |
