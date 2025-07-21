@@ -44,13 +44,31 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
 
-      - name: Configure Gradle memory
+      - name: Configure system resources
         run: |
+          # Show available resources
+          echo "=== System Resources ==="
+          free -h
+          df -h
+          nproc
+          
+          # Increase swap space
+          sudo swapoff -a
+          sudo dd if=/dev/zero of=/swapfile bs=1G count=8
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          echo "Swap increased:"
+          free -h
+          
+          # Configure Gradle memory
           mkdir -p ~/.gradle
-          echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=2g -XX:+HeapDumpOnOutOfMemoryError" >> ~/.gradle/gradle.properties
-          echo "org.gradle.parallel=true" >> ~/.gradle/gradle.properties
+          echo "org.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8" >> ~/.gradle/gradle.properties
+          echo "org.gradle.parallel=false" >> ~/.gradle/gradle.properties
           echo "org.gradle.daemon=true" >> ~/.gradle/gradle.properties
           echo "org.gradle.caching=true" >> ~/.gradle/gradle.properties
+          echo "org.gradle.workers.max=2" >> ~/.gradle/gradle.properties
+          echo "kotlin.daemon.jvm.options=-Xmx1536m" >> ~/.gradle/gradle.properties
 
       - name: AVD cache
         uses: actions/cache@v4
@@ -77,7 +95,7 @@ jobs:
           ram-size: 3072M
           heap-size: 512M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -memory 2048
           script: |
             if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
             flutter test integration_test/integration_test.dart
@@ -99,7 +117,7 @@ jobs:
           ram-size: 3072M
           heap-size: 512M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -memory 2048
           pre-emulator-launch-script: |
             adb kill-server
             adb start-server
@@ -123,7 +141,7 @@ jobs:
           ram-size: 3072M
           heap-size: 512M
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none -memory 2048
           pre-emulator-launch-script: |
             adb kill-server
             adb start-server
