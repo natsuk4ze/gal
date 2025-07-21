@@ -12,7 +12,7 @@ jobs:
       matrix:
         # Flutter beta channel default minSdkVersion is 24 (Android 7.0)
         # Source: https://github.com/flutter/flutter/blob/beta/packages/flutter_tools/gradle/src/main/kotlin/FlutterExtension.kt
-        api-level: [36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24]
+        api-level: [35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24]
       fail-fast: false
     steps:
       - name: Check out
