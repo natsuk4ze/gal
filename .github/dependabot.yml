@@ -10,6 +10,18 @@ updates:
     schedule:
       interval: "weekly"
   - package-ecosystem: "github-actions"
-    directory: "/" 
+    directory: "/"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "gradle"
+    directory: "/android"
+    schedule:
+      interval: "monthly"
+  - package-ecosystem: "swift"
+    directory: "/darwin"
+    schedule:
+      interval: "monthly"
+  - package-ecosystem: "nuget"
+    directory: "/windows"
+    schedule:
+      interval: "monthly"
