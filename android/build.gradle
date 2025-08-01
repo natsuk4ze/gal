@@ -29,6 +29,6 @@ android {
     dependencies {
         // Note: Version 1.0.0-alpha6 causes crashes, so using 1.0-alpha3
         // See: https://mvnrepository.com/artifact/org.apache.commons/commons-imaging
-        implementation 'org.apache.commons:commons-imaging:1.0-alpha3'
+        implementation 'org.apache.commons:commons-imaging:1.0.0-alpha6'
     }
 }
