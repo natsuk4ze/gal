@@ -59,7 +59,7 @@ final class Gal {
   /// Use the [toAlbum] for additional permissions to save to an album.
   /// If you want to save to an album other than the one created by your app
   /// See: [Permissions](https://github.com/natsuk4ze/gal/wiki/Permissions)
-  static Future<bool> hasAccess({bool toAlbum = false}) async =>
+  static Future<bool> hasPermission({bool toAlbum = false}) async =>
       GalPlatform.instance.hasAccess(toAlbum: toAlbum);
 
   /// Request access permissions.
@@ -69,6 +69,6 @@ final class Gal {
   /// Use the [toAlbum] for additional permissions to save to an album.
   /// If you want to save to an album other than the one created by your app
   /// See: [Permissions](https://github.com/natsuk4ze/gal/wiki/Permissions)
-  static Future<bool> requestAccess({bool toAlbum = false}) async =>
+  static Future<bool> requestPermission({bool toAlbum = false}) async =>
       GalPlatform.instance.requestAccess(toAlbum: toAlbum);
 }
