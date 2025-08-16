@@ -14,6 +14,7 @@ jobs:
         # Source: https://github.com/flutter/flutter/blob/beta/packages/flutter_tools/gradle/src/main/kotlin/FlutterExtension.kt
         # Note: API level 30 is excluded due to persistent integration test failures (exit code 143)
         # The issue appears to be related to emulator stability on GitHub Actions runners
+        # Gal plugin minimum Android SDK version is 24
         api-level: [35, 34, 33, 32, 31, 29, 28, 27, 26, 25, 24]
       fail-fast: false
     steps:
