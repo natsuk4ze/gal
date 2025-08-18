@@ -47,14 +47,14 @@ final class MethodChannelGal extends GalPlatform {
   @override
   Future<bool> hasPermission({bool toAlbum = false}) async {
     final hasPermission =
-        await _invokeMethod<bool>('hasAccess', {'toAlbum': toAlbum});
+        await _invokeMethod<bool>('hasPermission', {'toAlbum': toAlbum});
     return hasPermission ?? false;
   }
 
   @override
   Future<bool> requestPermission({bool toAlbum = false}) async {
     final granted =
-        await _invokeMethod<bool>('requestAccess', {'toAlbum': toAlbum});
+        await _invokeMethod<bool>('requestPermission', {'toAlbum': toAlbum});
     return granted ?? false;
   }
 }

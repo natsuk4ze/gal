@@ -42,10 +42,10 @@ public class GalPlugin: NSObject, FlutterPlugin {
       }
     case "open":
       open { result(nil) }
-    case "hasAccess":
+    case "hasPermission":
       let args = call.arguments as! [String: Bool]
       result(hasAccess(toAlbum: args["toAlbum"]!))
-    case "requestAccess":
+    case "requestPermission":
       let args = call.arguments as! [String: Bool]
       let toAlbum = args["toAlbum"]!
 
