@@ -175,7 +175,7 @@ void GalPlugin::HandleMethodCall(
   } else if (method == "open") {
     std::thread([] { Open(); }).detach();
     result->Success();
-  } else if (method == "hasAccess" || method == "requestAccess") {
+  } else if (method == "hasPermission" || method == "requestPermission") {
     result->Success(true);
   } else {
     result->NotImplemented();

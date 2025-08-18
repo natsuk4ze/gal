@@ -91,11 +91,11 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                 new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                 break;
             }
-            case "hasAccess": {
+            case "hasPermission": {
                 result.success(hasAccess(call.argument("toAlbum")));
                 break;
             }
-            case "requestAccess": {
+            case "requestPermission": {
                 if (hasAccess(call.argument("toAlbum"))) {
                     result.success(true);
                     return;
