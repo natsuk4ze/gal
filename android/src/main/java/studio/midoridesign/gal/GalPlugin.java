@@ -87,8 +87,12 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                 break;
             }
             case "open": {
-                open();
-                new Handler(Looper.getMainLooper()).post(() -> result.success(null));
+                try {
+                    open();
+                    new Handler(Looper.getMainLooper()).post(() -> result.success(null));
+                } catch (Exception e) {
+                    handleError(e, result);
+                }
                 break;
             }
             case "hasAccess": {
@@ -191,7 +195,6 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     private void open() {
-        Context context = pluginBinding.getApplicationContext();
         Intent intent = new Intent(Intent.ACTION_VIEW);
         if (Build.VERSION.SDK_INT <= 23) {
             intent.setType("*/*");
@@ -203,10 +206,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             intent.setDataAndType(IMAGE_URI, "vnd.android.cursor.dir/image");
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        try {
-            context.startActivity(intent);
-        } catch (android.content.ActivityNotFoundException ignored) {
-        }
+        pluginBinding.getApplicationContext().startActivity(intent);
     }
 
     private boolean hasAccess(boolean toAlbum) {
