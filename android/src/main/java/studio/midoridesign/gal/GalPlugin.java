@@ -191,16 +191,22 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     private void open() {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
+        Context context = pluginBinding.getApplicationContext();
+        Intent intent = new Intent(Intent.ACTION_VIEW);
         if (Build.VERSION.SDK_INT <= 23) {
             intent.setType("*/*");
             intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
         } else {
-            intent.setData(IMAGE_URI);
+            // "vnd.android.cursor.dir/image" tells gallery apps to open in browse mode.
+            // Without it Samsung Gallery treats the collection URI as a single item and
+            // shows an empty tile.
+            intent.setDataAndType(IMAGE_URI, "vnd.android.cursor.dir/image");
         }
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        pluginBinding.getApplicationContext().startActivity(intent);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            context.startActivity(intent);
+        } catch (android.content.ActivityNotFoundException ignored) {
+        }
     }
 
     private boolean hasAccess(boolean toAlbum) {
