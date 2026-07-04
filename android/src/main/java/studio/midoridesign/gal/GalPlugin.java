@@ -128,10 +128,20 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
 
     private void putMediaBytes(byte[] bytes, String album, String name)
             throws IOException, SecurityException {
-        ImageFormat imageFormat = Imaging.guessFormat(bytes);
-        String extension = "." + imageFormat.getDefaultExtension().toLowerCase();
+        // If the caller already included an extension in `name` (e.g.
+        // "photo.jpg" or "photo.jpeg"), honor it instead of unconditionally
+        // appending a freshly-guessed one on top -- otherwise the file is
+        // written as "photo.jpg.jpg" / "photo.jpeg.jpg". putMedia() above
+        // already splits an existing extension off file-path-based names;
+        // this brought the bytes-based path in line with that behavior.
+        int dotIndex = name.lastIndexOf('.');
+        String baseName = dotIndex == -1 ? name : name.substring(0, dotIndex);
+        String extension = dotIndex == -1
+                ? "." + Imaging.guessFormat(bytes).getDefaultExtension().toLowerCase()
+                : name.substring(dotIndex);
+
         try (InputStream in = new ByteArrayInputStream(bytes)) {
-            writeData(in, true, name, extension, album);
+            writeData(in, true, baseName, extension, album);
         }
     }
 
