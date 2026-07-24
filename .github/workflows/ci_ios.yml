@@ -34,6 +34,8 @@ jobs:
       - name: Grant permission
         run: |
           brew tap wix/brew
+          # Homebrew 6.0 requires explicit trust for third-party taps
+          brew trust wix/brew
           brew install applesimutils
           cd example
           applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
