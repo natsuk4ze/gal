@@ -87,8 +87,12 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                 break;
             }
             case "open": {
-                open();
-                new Handler(Looper.getMainLooper()).post(() -> result.success(null));
+                try {
+                    open();
+                    new Handler(Looper.getMainLooper()).post(() -> result.success(null));
+                } catch (Exception e) {
+                    handleError(e, result);
+                }
                 break;
             }
             case "hasAccess": {
@@ -191,15 +195,12 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     private void open() {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
-        if (Build.VERSION.SDK_INT <= 23) {
-            intent.setType("*/*");
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
-        } else {
-            intent.setData(IMAGE_URI);
-        }
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        // "vnd.android.cursor.dir/image" tells gallery apps to open in browse mode.
+        // Without it Samsung Gallery treats the collection URI as a single item and
+        // shows an empty tile.
+        Intent intent = new Intent(Intent.ACTION_VIEW)
+                .setDataAndType(IMAGE_URI, "vnd.android.cursor.dir/image")
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         pluginBinding.getApplicationContext().startActivity(intent);
     }
 
