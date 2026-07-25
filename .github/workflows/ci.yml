@@ -71,7 +71,7 @@ jobs:
       ios_changed: ${{ steps.filter.outputs.ios }}
       android_changed: ${{ steps.filter.outputs.android }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Filter changes
         id: filter
