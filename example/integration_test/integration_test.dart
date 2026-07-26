@@ -17,11 +17,11 @@ Future<void> main() async {
     final toAlbum = testCase.toAlbum;
     final album = testCase.album;
 
-    await run('hasAccess(toAlbum: $toAlbum)',
-        () async => Gal.hasAccess(toAlbum: toAlbum));
+    await run('hasPermission(toAlbum: $toAlbum)',
+        () async => Gal.hasPermission(toAlbum: toAlbum));
 
-    await run('requestAccess(toAlbum: $toAlbum)',
-        () async => Gal.requestAccess(toAlbum: toAlbum),
+    await run('requestPermission(toAlbum: $toAlbum)',
+        () async => Gal.requestPermission(toAlbum: toAlbum),
         skip: Platform.isMacOS);
 
     await run('putImage(album: $album)', () async {

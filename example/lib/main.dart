@@ -87,18 +87,18 @@ class _AppState extends State<App> {
                 ),
                 FilledButton(
                   onPressed: () async {
-                    final hasAccess = await Gal.hasAccess(toAlbum: toAlbum);
-                    log('Has Access:${hasAccess.toString()}');
+                    final hasPermission = await Gal.hasPermission(toAlbum: toAlbum);
+                    log('Has Permission:${hasPermission.toString()}');
                   },
-                  child: const Text('Has Access'),
+                  child: const Text('Has Permission'),
                 ),
                 FilledButton(
                   onPressed: () async {
                     final requestGranted =
-                        await Gal.requestAccess(toAlbum: toAlbum);
+                        await Gal.requestPermission(toAlbum: toAlbum);
                     log('Request Granted:${requestGranted.toString()}');
                   },
-                  child: const Text('Request Access'),
+                  child: const Text('Request Permission'),
                 ),
               ],
             ),

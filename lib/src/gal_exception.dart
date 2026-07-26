@@ -23,7 +23,7 @@ class GalException implements Exception {
   /// The native code StackTrace is stored in [PlatformException.stacktrace].
   final StackTrace stackTrace;
 
-  factory GalException.fromCode({
+  factory GalException.fromPlatformException({
     required String code,
     required PlatformException platformException,
     required StackTrace stackTrace,

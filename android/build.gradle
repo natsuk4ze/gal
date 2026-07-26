@@ -23,7 +23,7 @@ android {
     }
 
     defaultConfig {
-        minSdk 19
+        minSdk 24
     }
 
     dependencies {
