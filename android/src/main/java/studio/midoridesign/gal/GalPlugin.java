@@ -18,6 +18,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Build;
@@ -122,7 +123,8 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         if (dotIndex == -1) throw new FileNotFoundException("Extension not found.");
 
         try (InputStream in = new FileInputStream(file)) {
-            writeData(in, isImage, name.substring(0, dotIndex), name.substring(dotIndex), album);
+            writeData(in, isImage, name.substring(0, dotIndex), name.substring(dotIndex), album,
+                    file.lastModified());
         }
     }
 
@@ -131,12 +133,13 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         ImageFormat imageFormat = Imaging.guessFormat(bytes);
         String extension = "." + imageFormat.getDefaultExtension().toLowerCase();
         try (InputStream in = new ByteArrayInputStream(bytes)) {
-            writeData(in, true, name, extension, album);
+            writeData(in, true, name, extension, album, 0);
         }
     }
 
     private void writeData(InputStream in, boolean isImage, String name, String extension,
-            String album) throws IOException, SecurityException, FileNotFoundException {
+            String album, long lastModified)
+            throws IOException, SecurityException, FileNotFoundException {
         ContentResolver resolver = pluginBinding.getApplicationContext().getContentResolver();
         ContentValues values = createContentValues(isImage, name, extension, album);
         Uri uri = getUniqueFileUri(resolver, values, isImage, name, extension);
@@ -146,6 +149,16 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             int bytesRead;
             while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);
+            }
+            if (lastModified > 0) setLastModified(resolver, uri, lastModified);
+        }
+    }
+
+    private void setLastModified(ContentResolver resolver, Uri uri, long time) {
+        try (Cursor cursor = resolver.query(uri,
+                new String[] {MediaStore.MediaColumns.DATA}, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                new File(cursor.getString(0)).setLastModified(time);
             }
         }
     }
