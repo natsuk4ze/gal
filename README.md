@@ -182,15 +182,15 @@ await Gal.putVideo(video.path);
 ### Handle Permissions
 
 ```dart
-// Check Access Permission
-final hasAccess = await Gal.hasAccess();
+// Check Permission
+final hasPermission = await Gal.hasPermission();
 
-// Request Access Permission
-await Gal.requestAccess();
+// Request Permission
+await Gal.requestPermission();
 
 // ... for saving to album
-final hasAccess = await Gal.hasAccess(toAlbum: true);
-await Gal.requestAccess(toAlbum: true);
+final hasPermission = await Gal.hasPermission(toAlbum: true);
+await Gal.requestPermission(toAlbum: true);
 ```
 
 ### Handle Errors

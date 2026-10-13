@@ -10,6 +10,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
+        # Gal plugin minimum iOS version is 13.0
         ios-version: [18]
         package_manager: [cocoapods, swiftpm]
       fail-fast: false

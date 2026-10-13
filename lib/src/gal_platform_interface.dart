@@ -30,12 +30,12 @@ base class GalPlatform {
       throw UnimplementedError('open() has not been implemented.');
 
   /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
-  /// define [hasAccess].
-  Future<bool> hasAccess({bool toAlbum = false}) =>
-      throw UnimplementedError('hasAccess() has not been implemented.');
+  /// define [hasPermission].
+  Future<bool> hasPermission({bool toAlbum = false}) =>
+      throw UnimplementedError('hasPermission() has not been implemented.');
 
   /// throw [UnimplementedError] when Plugin [MethodChannelGal] did not
-  /// define [requestAccess].
-  Future<bool> requestAccess({bool toAlbum = false}) =>
-      throw UnimplementedError('requestAccess() has not been implemented.');
+  /// define [requestPermission].
+  Future<bool> requestPermission({bool toAlbum = false}) =>
+      throw UnimplementedError('requestPermission() has not been implemented.');
 }
