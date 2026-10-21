@@ -1,5 +1,5 @@
-group 'studio.midoridesign.gal'
-version '1.0'
+group = 'studio.midoridesign.gal'
+version = '1.0'
 
 rootProject.allprojects {
     repositories {
@@ -12,18 +12,18 @@ apply plugin: 'com.android.library'
 
 android {
     if (project.android.hasProperty("namespace")) {
-      namespace 'studio.midoridesign.gal'
+      namespace = 'studio.midoridesign.gal'
     }
     
-    compileSdk flutter.compileSdkVersion
+    compileSdk = flutter.compileSdkVersion
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     defaultConfig {
-        minSdk 19
+        minSdk = 19
     }
 
     dependencies {
