@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Check out
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Flutter SDK
         uses: subosito/flutter-action@v2
@@ -24,7 +24,7 @@ jobs:
           cache: true
 
       - name: Boot iOS simulator
-        uses: futureware-tech/simulator-action@v4
+        uses: futureware-tech/simulator-action@v5
         with:
           os: iOS
           os_version: ^${{ matrix.ios-version }}
