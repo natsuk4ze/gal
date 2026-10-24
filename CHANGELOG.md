@@ -1,3 +1,7 @@
+## 2.3.4
+
+* Use assignment syntax in Android build.gradle to support Gradle 10 #334
+
 ## 2.3.3
 
 * Fix Windows build on latest MSVC by removing /await flag #324
