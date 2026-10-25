@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.Manifest;
 import android.app.Activity;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,6 +51,8 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private FlutterPluginBinding pluginBinding;
     private Activity activity;
     private Runnable requestAccessCallback;
+    private Uri lastSavedImageUri;
+
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -148,6 +151,8 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                 out.write(buffer, 0, bytesRead);
             }
         }
+
+        this.lastSavedImageUri = uri;
     }
 
     // This is necessary because FileUtils.java only checks up to 31 times to generate unique names.
@@ -191,17 +196,24 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     private void open() {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
-        if (Build.VERSION.SDK_INT <= 23) {
-            intent.setType("*/*");
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
-        } else {
-            intent.setData(IMAGE_URI);
+        if (lastSavedImageUri == null) {
+            Log.e("GalPlugin", "No image URI available to open.");
+            return;
         }
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(lastSavedImageUri, "image/*");
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        pluginBinding.getApplicationContext().startActivity(intent);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        Context context = pluginBinding.getApplicationContext();
+        if (intent.resolveActivity(context.getPackageManager()) != null) {
+            context.startActivity(intent);
+        } else {
+            Log.e("GalPlugin", "No activity found to handle image view intent.");
+        }
     }
+
 
     private boolean hasAccess(boolean toAlbum) {
         if (Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT > 29) return true;
