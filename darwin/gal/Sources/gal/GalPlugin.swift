@@ -68,9 +68,14 @@ public class GalPlugin: NSObject, FlutterPlugin {
     let url = URL(fileURLWithPath: path)
     writeContent(
       assetChangeRequest: {
-        isImage
+        let request = isImage
           ? PHAssetChangeRequest.creationRequestForAssetFromImage(atFileURL: url)!
           : PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: url)!
+        if let attributes = try? FileManager.default.attributesOfItem(atPath: path),
+           let modificationDate = attributes[.modificationDate] as? Date {
+          request.creationDate = modificationDate
+        }
+        return request
       }, album: album, completion: completion
     )
   }
