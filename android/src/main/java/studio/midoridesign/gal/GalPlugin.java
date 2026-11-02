@@ -18,6 +18,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Build;
@@ -122,7 +123,8 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         if (dotIndex == -1) throw new FileNotFoundException("Extension not found.");
 
         try (InputStream in = new FileInputStream(file)) {
-            writeData(in, isImage, name.substring(0, dotIndex), name.substring(dotIndex), album);
+            writeData(in, isImage, name.substring(0, dotIndex), name.substring(dotIndex), album,
+                    file.lastModified());
         }
     }
 
@@ -131,12 +133,13 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         ImageFormat imageFormat = Imaging.guessFormat(bytes);
         String extension = "." + imageFormat.getDefaultExtension().toLowerCase();
         try (InputStream in = new ByteArrayInputStream(bytes)) {
-            writeData(in, true, name, extension, album);
+            writeData(in, true, name, extension, album, 0);
         }
     }
 
     private void writeData(InputStream in, boolean isImage, String name, String extension,
-            String album) throws IOException, SecurityException, FileNotFoundException {
+                           String album, long lastModified)
+            throws IOException, SecurityException, FileNotFoundException {
         ContentResolver resolver = pluginBinding.getApplicationContext().getContentResolver();
         ContentValues values = createContentValues(isImage, name, extension, album);
         Uri uri = getUniqueFileUri(resolver, values, isImage, name, extension);
@@ -147,14 +150,24 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);
             }
+            if (lastModified > 0) setLastModified(resolver, uri, lastModified);
+        }
+    }
+
+    private void setLastModified(ContentResolver resolver, Uri uri, long time) {
+        try (Cursor cursor = resolver.query(uri,
+                new String[]{MediaStore.MediaColumns.DATA}, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                new File(cursor.getString(0)).setLastModified(time);
+            }
         }
     }
 
     // This is necessary because FileUtils.java only checks up to 31 times to generate unique names.
     // See: https://github.com/natsuk4ze/gal/issues/198
     private Uri getUniqueFileUri(ContentResolver resolver, ContentValues values, boolean isImage,
-            String name, String extension) throws IllegalStateException {
-        for (int suffix = 0;; suffix++) {
+                                 String name, String extension) throws IllegalStateException {
+        for (int suffix = 0; ; suffix++) {
             try {
                 values.put(MediaStore.MediaColumns.DISPLAY_NAME,
                         name + (suffix > 0 ? suffix : "") + extension);
@@ -167,7 +180,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
 
     @SuppressWarnings("EmptyStatementCheck")
     private ContentValues createContentValues(boolean isImage, String name, String extension,
-            String album) {
+                                              String album) {
         ContentValues values = new ContentValues();
         String dirPath = isImage || album != null ? Environment.DIRECTORY_PICTURES
                 : Environment.DIRECTORY_MOVIES;
@@ -178,7 +191,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             if (!dir.exists()) dir.mkdirs();
             String path;
             String n = dir.getPath() + File.separator + name;
-            for (int i = 0; new File(path = n + (i == 0 ? "" : i) + extension).exists(); i++);
+            for (int i = 0; new File(path = n + (i == 0 ? "" : i) + extension).exists(); i++) ;
 
             values.put(MediaStore.MediaColumns.DATA, path);
         } else {
@@ -195,7 +208,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         intent.setAction(Intent.ACTION_VIEW);
         if (Build.VERSION.SDK_INT <= 23) {
             intent.setType("*/*");
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"});
         } else {
             intent.setData(IMAGE_URI);
         }
@@ -212,12 +225,12 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     private void requestAccess() {
-        ActivityCompat.requestPermissions(activity, new String[] {PERMISSION},
+        ActivityCompat.requestPermissions(activity, new String[]{PERMISSION},
                 PERMISSION_REQUEST_CODE);
     }
 
     private void sendError(String errorCode, String message, StackTraceElement[] stackTrace,
-            Result result) {
+                           Result result) {
         StringBuilder trace = new StringBuilder();
         for (StackTraceElement st : stackTrace) {
             trace.append(st.toString());
@@ -266,7 +279,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
 
     @Override
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions,
-            int[] grantResults) {
+                                              int[] grantResults) {
         if (requestCode != PERMISSION_REQUEST_CODE || grantResults.length == 0) return false;
         new Handler(Looper.getMainLooper()).post(requestAccessCallback);
         requestAccessCallback = null;
