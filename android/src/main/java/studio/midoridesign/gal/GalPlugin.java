@@ -18,12 +18,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Build;
 import android.os.Environment;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.webkit.MimeTypeMap;
 import android.Manifest;
 import android.app.Activity;
 
@@ -34,9 +36,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
-
-import org.apache.commons.imaging.ImageFormat;
-import org.apache.commons.imaging.Imaging;
 
 public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware,
         PluginRegistry.RequestPermissionsResultListener {
@@ -128,11 +127,24 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
 
     private void putMediaBytes(byte[] bytes, String album, String name)
             throws IOException, SecurityException {
-        ImageFormat imageFormat = Imaging.guessFormat(bytes);
-        String extension = "." + imageFormat.getDefaultExtension().toLowerCase();
+        String extension = "." + getImageExtension(bytes);
         try (InputStream in = new ByteArrayInputStream(bytes)) {
             writeData(in, true, name, extension, album);
         }
+    }
+
+    // Uses the platform decoder, so only formats that the device can display are saved.
+    private String getImageExtension(byte[] bytes) throws FileNotFoundException {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+        String mimeType = options.outMimeType;
+        // BitmapFactory reports HEIC as image/heif, which MimeTypeMap does not know on API 28.
+        String extension = mimeType == null ? null
+                : mimeType.equals("image/heif") ? "heic"
+                : MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+        if (extension == null) throw new FileNotFoundException("Unsupported image format.");
+        return extension;
     }
 
     private void writeData(InputStream in, boolean isImage, String name, String extension,
