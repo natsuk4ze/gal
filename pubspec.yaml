@@ -3,6 +3,7 @@ description: Flutter plugin to save images/videos to photos gallery with permiss
 version: 2.3.3
 homepage: https://pub.dev/packages/gal
 repository: https://github.com/natsuk4ze/gal
+documentation: https://deepwiki.com/natsuk4ze/gal
 funding: 
  - https://github.com/sponsors/natsuk4ze
 
