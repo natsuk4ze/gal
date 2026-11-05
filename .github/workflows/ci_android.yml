@@ -46,7 +46,8 @@ jobs:
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v6.4.1
 
-      # Retry in the same emulator. timeout stops an attempt that hangs while installing (seen on API 24).
+      # Retry in the same emulator. timeout stops an attempt that hangs while installing (seen on API 24),
+      # and the wait between attempts outlasts short download failures such as HTTP 504 from GitHub.
       # API 29 and lower need the storage permissions, granted by `adb install -g` before the tests run.
       # --no-uninstall keeps them for the next attempt.
       - name: Run integration tests
@@ -62,6 +63,7 @@ jobs:
           emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: >-
             for i in 1 2 3; do
+            [ $i -eq 1 ] || sleep 60;
             if ${{ matrix.api-level <= 29 }}; then flutter build apk --debug && adb install -r -g build/app/outputs/flutter-apk/app-debug.apk || continue; fi;
             timeout 10m flutter test --no-uninstall integration_test/integration_test.dart && exit 0;
             done; exit 1
