@@ -20,13 +20,6 @@ jobs:
       - name: Check out
         uses: actions/checkout@v7
 
-      # The system image, Flutter, Gradle and the NDK can fill the runner's disk
-      - name: Free disk space
-        run: |
-          df -h /
-          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost
-          df -h /
-
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -51,10 +44,9 @@ jobs:
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v6.4.1
 
+      # Retry in the same emulator. timeout stops an attempt that hangs while installing (seen on API 24).
+      # --no-uninstall keeps the permissions granted by `adb install -g` for the next attempt.
       - name: Run integration tests
-        id: Run-integration-tests
-        continue-on-error: true
-        timeout-minutes: 10
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
@@ -66,59 +58,5 @@ jobs:
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: |
-            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
-            flutter test integration_test/integration_test.dart
-
-      # A step that timed out leaves its emulator running
-      - name: Stop leftover emulator
-        if: steps.Run-integration-tests.outcome == 'failure'
-        run: pkill -9 -f qemu-system || true
-
-      - name: Retry integration tests
-        id: Retry-integration-tests
-        continue-on-error: true
-        timeout-minutes: 10
-        if: steps.Run-integration-tests.outcome == 'failure'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          working-directory: ./example
-          arch: x86_64
-          emulator-boot-timeout: 200
-          disable-spellchecker: true
-          disk-size: 4GB
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
-          pre-emulator-launch-script: |
-            adb kill-server
-            adb start-server
-          script: |
-            flutter clean && flutter pub get
-            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
-            flutter test integration_test/integration_test.dart
-
-      # A step that timed out leaves its emulator running
-      - name: Stop leftover emulator
-        if: steps.Retry-integration-tests.outcome == 'failure'
-        run: pkill -9 -f qemu-system || true
-
-      - name: Re:Retry integration tests
-        if: steps.Retry-integration-tests.outcome == 'failure'
-        timeout-minutes: 10
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          working-directory: ./example
-          arch: x86_64
-          emulator-boot-timeout: 200
-          disable-spellchecker: true
-          disk-size: 4GB
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
-          pre-emulator-launch-script: |
-            adb kill-server
-            adb start-server
-          script: |
-            flutter clean && flutter pub get
-            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r build/app/outputs/flutter-apk/app-debug.apk; adb shell pm grant studio.midoridesign.gal_example android.permission.WRITE_EXTERNAL_STORAGE; adb shell pm grant studio.midoridesign.gal_example android.permission.READ_EXTERNAL_STORAGE; fi
-            flutter test integration_test/integration_test.dart
+            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r -g build/app/outputs/flutter-apk/app-debug.apk; fi
+            for i in 1 2 3; do timeout 10m flutter test --no-uninstall integration_test/integration_test.dart && exit 0; done; exit 1
