@@ -34,7 +34,7 @@ Please support our volunteer efforts by giving us a [LIKE👍](https://pub.dev/p
 
 ## 🧠 DeepWiki Documentation
 
-[![DeepWiki](https://img.shields.io/badge/DeepWiki-Documentation-2E8B57?style=for-the-badge&logo=read-the-docs&logoColor=white)](https://deepwiki.com/natsuk4ze/gal/1-overview)
+[![DeepWiki](https://img.shields.io/badge/DeepWiki-Documentation-2E8B57?style=for-the-badge&logo=read-the-docs&logoColor=white)](https://deepwiki.com/natsuk4ze/gal)
 
 ## 📱 Supported Platforms
 
@@ -59,7 +59,7 @@ Please support our volunteer efforts by giving us a [LIKE👍](https://pub.dev/p
 * Save with metadata
 * Handle permission
 * Handle errors
-* Comprehensive documentation and wiki
+* Comprehensive documentation
 
 ## 🚀 Getting Started
 
@@ -221,13 +221,13 @@ enum GalExceptionType {
 
 ## 📚 Documentation
 
-If you write an article about Gal, let us know in the discussion and we'll post the URL in the wiki or readme 🤝
+If you write an article about Gal, let us know in the discussion and we'll post the URL in the readme 🤝
 
 * ### [🎯 Example](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart)
 
-* ### [👌 Best Practices](https://github.com/natsuk4ze/gal/wiki/Best-Practice)
+* ### [📖 API Reference](https://pub.dev/documentation/gal/latest/)
 
-* ### [🏠 Official Wiki](https://github.com/natsuk4ze/gal/wiki)
+* ### [🧠 DeepWiki](https://deepwiki.com/natsuk4ze/gal)
 
 * ### [💚 Contributing](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md)
 

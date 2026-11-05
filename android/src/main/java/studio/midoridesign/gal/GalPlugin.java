@@ -199,6 +199,11 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                     : MediaStore.Video.Media.RELATIVE_PATH, path);
         }
         values.put(MediaStore.MediaColumns.DISPLAY_NAME, name + extension);
+        // Without MIME_TYPE, Android 10 assigns a default MIME type (image/jpeg for images) and
+        // appends its extension to DISPLAY_NAME, e.g. "image.png" becomes "image.png.jpg".
+        String mimeType = MimeTypeMap.getSingleton()
+                .getMimeTypeFromExtension(extension.substring(1).toLowerCase());
+        if (mimeType != null) values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
         return values;
     }
 
