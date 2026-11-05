@@ -4,7 +4,7 @@ Welcome to the Gal contribution guide. Feel free to create issue or PR.
 
 ## 🙋‍♀️ Question
 
-First, read the [wiki](https://github.com/natsuk4ze/gal/wiki) carefully. If that does not solve the problem,
+First, read the [README](https://github.com/natsuk4ze/gal#readme) and [DeepWiki](https://deepwiki.com/natsuk4ze/gal) carefully. If that does not solve the problem,
 you can use the [Discussions](https://github.com/natsuk4ze/gal/discussions).
   
 ## 🐝 Others
