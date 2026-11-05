@@ -127,24 +127,17 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
 
     private void putMediaBytes(byte[] bytes, String album, String name)
             throws IOException, SecurityException {
-        String extension = "." + getImageExtension(bytes);
-        try (InputStream in = new ByteArrayInputStream(bytes)) {
-            writeData(in, true, name, extension, album);
-        }
-    }
-
-    // Uses the platform decoder, so only formats that the device can display are saved.
-    private String getImageExtension(byte[] bytes) throws FileNotFoundException {
+        // Only formats that the device can decode are saved.
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
-        String mimeType = options.outMimeType;
         // BitmapFactory reports HEIC as image/heif, which MimeTypeMap does not know on API 28.
-        String extension = mimeType == null ? null
-                : mimeType.equals("image/heif") ? "heic"
-                : MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+        String extension = "image/heif".equals(options.outMimeType) ? "heic"
+                : MimeTypeMap.getSingleton().getExtensionFromMimeType(options.outMimeType);
         if (extension == null) throw new FileNotFoundException("Unsupported image format.");
-        return extension;
+        try (InputStream in = new ByteArrayInputStream(bytes)) {
+            writeData(in, true, name, "." + extension, album);
+        }
     }
 
     private void writeData(InputStream in, boolean isImage, String name, String extension,
