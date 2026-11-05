@@ -12,9 +12,7 @@ jobs:
       matrix:
         # Flutter beta channel default minSdkVersion is 24 (Android 7.0)
         # Source: https://github.com/flutter/flutter/blob/beta/packages/flutter_tools/gradle/src/main/kotlin/FlutterExtension.kt
-        # Note: API level 30 is excluded due to persistent integration test failures (exit code 143)
-        # The issue appears to be related to emulator stability on GitHub Actions runners
-        api-level: [35, 34, 33, 32, 31, 29, 28, 27, 26, 25, 24]
+        api-level: ['37.0', 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24]
       fail-fast: false
     steps:
       - name: Check out
@@ -49,7 +47,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v6.4.1
 
       # Retry in the same emulator. timeout stops an attempt that hangs while installing (seen on API 24).
-      # --no-uninstall keeps the permissions granted by `adb install -g` for the next attempt.
+      # API 29 and lower need the storage permissions, granted by `adb install -g` before the tests run.
+      # --no-uninstall keeps them for the next attempt.
       - name: Run integration tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -61,6 +60,8 @@ jobs:
           disk-size: 4GB
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
           emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
-          script: |
-            if [ ${{ matrix.api-level }} -le 29 ]; then flutter build apk --debug; adb install -r -g build/app/outputs/flutter-apk/app-debug.apk; fi
-            for i in 1 2 3; do timeout 10m flutter test --no-uninstall integration_test/integration_test.dart && exit 0; done; exit 1
+          script: >-
+            for i in 1 2 3; do
+            if ${{ matrix.api-level <= 29 }}; then flutter build apk --debug && adb install -r -g build/app/outputs/flutter-apk/app-debug.apk || continue; fi;
+            timeout 10m flutter test --no-uninstall integration_test/integration_test.dart && exit 0;
+            done; exit 1
