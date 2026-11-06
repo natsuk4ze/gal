@@ -49,13 +49,21 @@ jobs:
             flutter config --enable-swift-package-manager
           fi
 
-      # The tests sometimes hang after the Xcode build, before any test runs.
-      # gtimeout stops such an attempt, and the next one runs on the same simulator.
+      # On a freshly booted iOS 26 simulator, Flutter never sees the VM Service line of the first app launch,
+      # and the first attempt hangs until it times out. Launching an app and streaming the logs once avoids it.
+      - name: Warm up simulator
+        run: |
+          xcrun simctl launch booted com.apple.Preferences
+          gtimeout 30 xcrun simctl spawn booted log stream > /dev/null || true
+          xcrun simctl terminate booted com.apple.Preferences || true
+
+      # gtimeout stops an attempt that hangs, and the next one runs on the same simulator.
+      # --no-uninstall keeps the photos permission for the next attempt.
       - name: Run integration tests
         run: |
           cd example
           for i in 1 2 3; do
-            gtimeout -s INT -k 1m 10m flutter test integration_test/integration_test.dart && exit 0
+            gtimeout -s INT -k 1m 10m flutter test --no-uninstall integration_test/integration_test.dart && exit 0
             xcrun simctl terminate booted studio.midoridesign.galExample || true
           done
           exit 1
