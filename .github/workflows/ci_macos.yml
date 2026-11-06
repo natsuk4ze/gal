@@ -10,8 +10,8 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        # macOS 13 is excluded because GitHub retired the macos-13 runner image
-        macos-version: [14, 15]
+        # macos-14 is deprecated and about to be retired
+        macos-version: [15, 26]
         package_manager: [cocoapods, swiftpm]
       fail-fast: false
     steps:
