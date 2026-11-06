@@ -24,6 +24,18 @@ jobs:
           channel: beta
           cache: true
 
+      # `flutter test` can launch the app before its simulator log reader is ready, miss the VM Service URL,
+      # and wait until it times out (flutter/flutter#181771). Until the fix (flutter/flutter#193142) reaches beta,
+      # apply it to the Flutter tool. The check skips it once beta has the fix.
+      - name: Patch the Flutter tool
+        run: |
+          cd "$FLUTTER_ROOT"
+          if ! grep -q '_ready' packages/flutter_tools/lib/src/ios/simulators.dart; then
+            curl -sfL https://github.com/flutter/flutter/commit/c3ed85ef987759ee54a6bce275490cde2a238dc1.diff | git apply --include='packages/flutter_tools/lib/*'
+            rm -f bin/cache/flutter_tools.stamp
+          fi
+          flutter --version
+
       - name: Boot iOS simulator
         uses: futureware-tech/simulator-action@v6
         with:
@@ -49,25 +61,14 @@ jobs:
             flutter config --enable-swift-package-manager
           fi
 
-      # `flutter test` sometimes launches the app before its simulator log reader is ready, misses the VM Service URL,
-      # and waits until it times out (flutter/flutter#181771, fixed on master but not yet on beta).
-      # Launching the app once beforehand makes it much rarer.
-      - name: Launch the app once
-        run: |
-          cd example
-          flutter build ios --simulator --debug -t integration_test/integration_test.dart
-          xcrun simctl install booted build/ios/iphonesimulator/Runner.app
-          xcrun simctl launch booted studio.midoridesign.galExample
-          sleep 20
-          xcrun simctl terminate booted studio.midoridesign.galExample || true
-
-      # gtimeout stops an attempt that hangs (a healthy one takes up to 4 minutes), and the next one runs on the same simulator.
+      # gtimeout stops an attempt that hangs, and the next one runs on the same simulator.
+      # Retries also cover short network failures, such as a socket error from pub.dev.
       # --no-uninstall keeps the photos permission for the next attempt.
       - name: Run integration tests
         run: |
           cd example
           for i in 1 2 3; do
-            gtimeout -s INT -k 1m 6m flutter test --no-uninstall integration_test/integration_test.dart && exit 0
+            gtimeout -s INT -k 1m 10m flutter test --no-uninstall integration_test/integration_test.dart && exit 0
             xcrun simctl terminate booted studio.midoridesign.galExample || true
           done
           exit 1
