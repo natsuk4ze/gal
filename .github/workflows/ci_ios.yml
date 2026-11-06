@@ -6,11 +6,12 @@ on:
 
 jobs:
   ios:
-    runs-on: macos-15
+    # iOS 18 runs on macOS 15 (Xcode 16), and iOS 26 on macOS 26 (Xcode 26)
+    runs-on: macos-${{ matrix.ios-version == 18 && 15 || 26 }}
     timeout-minutes: 60
     strategy:
       matrix:
-        ios-version: [18]
+        ios-version: [18, 26]
         package_manager: [cocoapods, swiftpm]
       fail-fast: false
     steps:
@@ -22,6 +23,18 @@ jobs:
         with:
           channel: beta
           cache: true
+
+      # `flutter test` can launch the app before its simulator log reader is ready, miss the VM Service URL,
+      # and wait until it times out (flutter/flutter#181771). Until the fix (flutter/flutter#193142) reaches beta,
+      # apply it to the Flutter tool. The check skips it once beta has the fix.
+      - name: Patch the Flutter tool
+        run: |
+          cd "$FLUTTER_ROOT"
+          if ! grep -q '_ready' packages/flutter_tools/lib/src/ios/simulators.dart; then
+            curl -sfL https://github.com/flutter/flutter/commit/c3ed85ef987759ee54a6bce275490cde2a238dc1.diff | git apply --include='packages/flutter_tools/lib/*'
+            rm -f bin/cache/flutter_tools.stamp
+          fi
+          flutter --version
 
       - name: Boot iOS simulator
         uses: futureware-tech/simulator-action@v6
@@ -36,7 +49,7 @@ jobs:
           brew tap wix/brew
           # Homebrew 6.0 requires explicit trust for third-party taps
           brew trust wix/brew
-          brew install applesimutils
+          brew install applesimutils coreutils
           cd example
           applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
 
@@ -48,22 +61,17 @@ jobs:
             flutter config --enable-swift-package-manager
           fi
 
+      # gtimeout stops an attempt that hangs, and the next one runs on the same simulator.
+      # Retries also cover short network failures, such as a socket error from pub.dev.
+      # --no-uninstall keeps the photos permission for the next attempt.
       - name: Run integration tests
-        id: Run-integration-tests
-        timeout-minutes: 15
-        continue-on-error: true
         run: |
           cd example
-          flutter test integration_test/integration_test.dart
-
-      - name: Retry integration tests
-        if: steps.Run-integration-tests.outcome == 'failure'
-        timeout-minutes: 15
-        run: |
-          flutter clean && flutter pub get
-          cd example
-          flutter clean && flutter pub get
-          flutter test integration_test/integration_test.dart
+          for i in 1 2 3; do
+            gtimeout -s INT -k 1m 10m flutter test --no-uninstall integration_test/integration_test.dart && exit 0
+            xcrun simctl terminate booted studio.midoridesign.galExample || true
+          done
+          exit 1
 
       - name: Validate Podspec in CocoaPods
         if: matrix.package_manager == 'cocoapods'
