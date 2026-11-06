@@ -45,11 +45,17 @@ Future<void> main() async {
     }, skip: Platform.isMacOS);
   }
   test('putImageBytes(unsupported format)', () async {
-    await expectLater(
-      Gal.putImageBytes(Uint8List.fromList([0, 1, 2, 3])),
-      throwsA(isA<GalException>()
-          .having((e) => e.type, 'type', GalExceptionType.notSupportedFormat)),
-    );
+    // [0, 0, 1, 1] looks like a 1x1 WBMP, which has no signature.
+    for (final bytes in [
+      [0, 1, 2, 3],
+      [0, 0, 1, 1],
+    ]) {
+      await expectLater(
+        Gal.putImageBytes(Uint8List.fromList(bytes)),
+        throwsA(isA<GalException>().having(
+            (e) => e.type, 'type', GalExceptionType.notSupportedFormat)),
+      );
+    }
   }, skip: !Platform.isAndroid);
   await run('open', () async => Gal.open());
 }

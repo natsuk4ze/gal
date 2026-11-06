@@ -134,7 +134,12 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         // BitmapFactory reports HEIC as image/heif, which MimeTypeMap does not know on API 28.
         String extension = "image/heif".equals(options.outMimeType) ? "heic"
                 : MimeTypeMap.getSingleton().getExtensionFromMimeType(options.outMimeType);
-        if (extension == null) throw new FileNotFoundException("Unsupported image format.");
+        // Skia reads WBMP, which has no signature, and camera RAW, whose embedded preview it
+        // reports as JPEG, so neither says what the bytes are. A real JPEG starts with 0xFF.
+        if (extension == null || extension.equals("wbmp")
+                || (extension.equals("jpg") && bytes[0] != (byte) 0xFF)) {
+            throw new FileNotFoundException("Unsupported image format.");
+        }
         try (InputStream in = new ByteArrayInputStream(bytes)) {
             writeData(in, true, name, "." + extension, album);
         }
