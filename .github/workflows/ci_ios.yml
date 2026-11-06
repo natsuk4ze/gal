@@ -49,13 +49,17 @@ jobs:
             flutter config --enable-swift-package-manager
           fi
 
-      # On a freshly booted iOS 26 simulator, Flutter never sees the VM Service line of the first app launch,
-      # and the first attempt hangs until it times out. Launching an app and streaming the logs once avoids it.
-      - name: Warm up simulator
+      # On the first launch of the newly installed app, the app prints its VM Service URL,
+      # but Flutter's log reader often misses it, and `flutter test` waits until it times out
+      # (most runs on iOS 26, some on iOS 18). Launching the app once beforehand avoids it.
+      - name: Launch the app once
         run: |
-          xcrun simctl launch booted com.apple.Preferences
-          gtimeout 30 xcrun simctl spawn booted log stream > /dev/null || true
-          xcrun simctl terminate booted com.apple.Preferences || true
+          cd example
+          flutter build ios --simulator --debug -t integration_test/integration_test.dart
+          xcrun simctl install booted build/ios/iphonesimulator/Runner.app
+          xcrun simctl launch booted studio.midoridesign.galExample
+          sleep 20
+          xcrun simctl terminate booted studio.midoridesign.galExample || true
 
       # gtimeout stops an attempt that hangs, and the next one runs on the same simulator.
       # --no-uninstall keeps the photos permission for the next attempt.
