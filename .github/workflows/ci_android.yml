@@ -56,10 +56,11 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
-          # API 37 does not finish a cold boot within 200 seconds on 2 cores
+          # API 37 does not finish a cold boot within 200 seconds on 2 cores,
+          # but API 24 and 25 hang right after booting with 4 cores and 4 GB
           emulator-boot-timeout: 600
-          cores: 4
-          ram-size: 4096M
+          cores: ${{ matrix.api-level >= 37 && 4 || 2 }}
+          ram-size: ${{ matrix.api-level >= 37 && '4096M' || '' }}
           disable-spellchecker: true
           disk-size: 4GB
           sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
