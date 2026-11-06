@@ -18,6 +18,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Build;
@@ -35,9 +36,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
-
-import org.apache.commons.imaging.ImageFormat;
-import org.apache.commons.imaging.Imaging;
 
 public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware,
         PluginRegistry.RequestPermissionsResultListener {
@@ -123,16 +121,40 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         if (dotIndex == -1) throw new FileNotFoundException("Extension not found.");
 
         try (InputStream in = new FileInputStream(file)) {
-            writeData(in, isImage, name.substring(0, dotIndex), name.substring(dotIndex), album);
+            writeData(in, isImage, name.substring(0, dotIndex), name.substring(dotIndex + 1),
+                    album);
         }
     }
 
     private void putMediaBytes(byte[] bytes, String album, String name)
             throws IOException, SecurityException {
-        ImageFormat imageFormat = Imaging.guessFormat(bytes);
-        String extension = "." + imageFormat.getDefaultExtension().toLowerCase();
+        // Only formats that the device can decode are saved.
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+        String extension = getImageExtension(options.outMimeType, bytes);
+        if (extension == null) throw new FileNotFoundException("Unsupported image format.");
         try (InputStream in = new ByteArrayInputStream(bytes)) {
             writeData(in, true, name, extension, album);
+        }
+    }
+
+    // Covers every MIME type that BitmapFactory reports, except WBMP: it has no signature, so
+    // other data can look like it.
+    private static String getImageExtension(String mimeType, byte[] bytes) {
+        switch (String.valueOf(mimeType)) {
+            // Camera RAW is reported as JPEG from its embedded preview. A real JPEG starts with FF.
+            case "image/jpeg": return bytes[0] == (byte) 0xFF ? "jpg" : null;
+            case "image/png": return "png";
+            case "image/gif": return "gif";
+            case "image/webp": return "webp";
+            case "image/bmp": return "bmp";
+            case "image/x-ico": return "ico";
+            // HEIC and every other HEIF image are reported as image/heif.
+            case "image/heif": return "heic";
+            case "image/avif": return "avif";
+            case "image/x-adobe-dng": return "dng";
+            default: return null;
         }
     }
 
@@ -158,7 +180,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         for (int suffix = 0;; suffix++) {
             try {
                 values.put(MediaStore.MediaColumns.DISPLAY_NAME,
-                        name + (suffix > 0 ? suffix : "") + extension);
+                        name + (suffix > 0 ? suffix : "") + "." + extension);
                 return resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
             } catch (IllegalStateException e) {
                 if (!e.getMessage().contains("Failed to build unique file")) throw e;
@@ -179,7 +201,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             if (!dir.exists()) dir.mkdirs();
             String path;
             String n = dir.getPath() + File.separator + name;
-            for (int i = 0; new File(path = n + (i == 0 ? "" : i) + extension).exists(); i++);
+            for (int i = 0; new File(path = n + (i == 0 ? "" : i) + "." + extension).exists(); i++);
 
             values.put(MediaStore.MediaColumns.DATA, path);
         } else {
@@ -187,11 +209,11 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             values.put(isImage ? MediaStore.Images.Media.RELATIVE_PATH
                     : MediaStore.Video.Media.RELATIVE_PATH, path);
         }
-        values.put(MediaStore.MediaColumns.DISPLAY_NAME, name + extension);
         // Without MIME_TYPE, Android 10 assigns a default MIME type (image/jpeg for images) and
-        // appends its extension to DISPLAY_NAME, e.g. "image.png" becomes "image.png.jpg".
+        // appends its extension to DISPLAY_NAME, e.g. "image.png" becomes "image.png.jpg". It is
+        // taken from MimeTypeMap, which MediaStore also uses, so that the two always match.
         String mimeType = MimeTypeMap.getSingleton()
-                .getMimeTypeFromExtension(extension.substring(1).toLowerCase());
+                .getMimeTypeFromExtension(extension.toLowerCase());
         if (mimeType != null) values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
         return values;
     }
