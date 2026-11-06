@@ -12,7 +12,7 @@ jobs:
       matrix:
         # Flutter beta channel default minSdkVersion is 24 (Android 7.0)
         # Source: https://github.com/flutter/flutter/blob/beta/packages/flutter_tools/gradle/src/main/kotlin/FlutterExtension.kt
-        api-level: ['37.0', 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24]
+        api-level: [37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24]
       fail-fast: false
     steps:
       - name: Check out
@@ -53,7 +53,8 @@ jobs:
       - name: Run integration tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: ${{ matrix.api-level }}
+          # From API 37 on, the SDK packages have a minor version, such as android-37.0
+          api-level: ${{ matrix.api-level }}${{ matrix.api-level >= 37 && '.0' || '' }}
           working-directory: ./example
           arch: x86_64
           # API 37 does not finish a cold boot within 200 seconds on 2 cores,
