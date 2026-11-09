@@ -79,6 +79,9 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
+          # On the default API 29 image, the debug app sometimes crashes in malloc or never draws its first frame
+          # (23 of 521 launches), with Impeller or Skia and with -gpu guest. The google_apis image did so in 1 of 418.
+          target: ${{ matrix.api-level == 29 && 'google_apis' || 'default' }}
           # API 37 does not finish a cold boot within 200 seconds on 2 cores,
           # but API 24 and 25 hang right after booting with 4 cores and 4 GB
           emulator-boot-timeout: 600
