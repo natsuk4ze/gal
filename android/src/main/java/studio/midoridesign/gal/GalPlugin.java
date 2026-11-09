@@ -220,7 +220,9 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             intent.setType("*/*");
             intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
         } else {
-            intent.setData(IMAGE_URI);
+            // Without the type, Samsung Gallery opens the URI as a single missing image.
+            // See: https://github.com/natsuk4ze/gal/issues/223
+            intent.setDataAndType(IMAGE_URI, MediaStore.Images.Media.CONTENT_TYPE);
         }
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         pluginBinding.getApplicationContext().startActivity(intent);
