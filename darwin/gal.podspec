@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.resource_bundles = {'gal_privacy' => ['gal/Sources/gal/PrivacyInfo.xcprivacy']}
   s.ios.dependency 'Flutter'
   s.osx.dependency 'FlutterMacOS'
-  s.ios.deployment_target = '11.0'
+  s.ios.deployment_target = '13.0'
   s.osx.deployment_target = '11.0'
 
   # Flutter.framework does not contain a i386 slice.

@@ -216,20 +216,15 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private void open() {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
-        if (Build.VERSION.SDK_INT <= 23) {
-            intent.setType("*/*");
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
-        } else {
-            // Without the type, Samsung Gallery opens the URI as a single missing image.
-            // See: https://github.com/natsuk4ze/gal/issues/223
-            intent.setDataAndType(IMAGE_URI, MediaStore.Images.Media.CONTENT_TYPE);
-        }
+        // Without the type, Samsung Gallery opens the URI as a single missing image.
+        // See: https://github.com/natsuk4ze/gal/issues/223
+        intent.setDataAndType(IMAGE_URI, MediaStore.Images.Media.CONTENT_TYPE);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         pluginBinding.getApplicationContext().startActivity(intent);
     }
 
     private boolean hasAccess(boolean toAlbum) {
-        if (Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT > 29) return true;
+        if (Build.VERSION.SDK_INT > 29) return true;
         if (Build.VERSION.SDK_INT == 29 && !toAlbum) return true;
         Context context = pluginBinding.getApplicationContext();
         int status = ContextCompat.checkSelfPermission(context, PERMISSION);

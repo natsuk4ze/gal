@@ -17,12 +17,16 @@ Future<void> main() async {
     final toAlbum = testCase.toAlbum;
     final album = testCase.album;
 
-    await run('hasAccess(toAlbum: $toAlbum)',
-        () async => Gal.hasAccess(toAlbum: toAlbum));
+    await run(
+      'hasAccess(toAlbum: $toAlbum)',
+      () async => Gal.hasAccess(toAlbum: toAlbum),
+    );
 
-    await run('requestAccess(toAlbum: $toAlbum)',
-        () async => Gal.requestAccess(toAlbum: toAlbum),
-        skip: Platform.isMacOS);
+    await run(
+      'requestAccess(toAlbum: $toAlbum)',
+      () async => Gal.requestAccess(toAlbum: toAlbum),
+      skip: Platform.isMacOS,
+    );
 
     await run('putImage(album: $album)', () async {
       final path = await getFilePath('assets/done.jpg');
@@ -52,8 +56,13 @@ Future<void> main() async {
     ]) {
       await expectLater(
         Gal.putImageBytes(Uint8List.fromList(bytes)),
-        throwsA(isA<GalException>().having(
-            (e) => e.type, 'type', GalExceptionType.notSupportedFormat)),
+        throwsA(
+          isA<GalException>().having(
+            (e) => e.type,
+            'type',
+            GalExceptionType.notSupportedFormat,
+          ),
+        ),
       );
     }
   }, skip: !Platform.isAndroid);
@@ -64,33 +73,35 @@ Future<void> run(
   String title,
   Future<dynamic> Function() function, {
   bool skip = false,
-}) async =>
-    test(title, () async {
-      try {
-        final value = await function();
-        if (value != null) debugPrint('returned: $value');
-      } on GalException catch (e, st) {
-        fail("""
+}) async => test(title, () async {
+  try {
+    final value = await function();
+    if (value != null) debugPrint('returned: $value');
+  } on GalException catch (e, st) {
+    fail("""
 ${e.runtimeType}: $e\n
 StackTrace: $st
 PlatformException: ${e.platformException}""");
-      }
-    }, skip: skip);
+  }
+}, skip: skip);
 
 Future<String> getFilePath(String path) async {
   final byteData = await rootBundle.load(path);
-  final file =
-      await File('${Directory.systemTemp.path}${path.replaceAll('assets', '')}')
-          .create();
-  await file.writeAsBytes(byteData.buffer
-      .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+  final file = await File(
+    '${Directory.systemTemp.path}${path.replaceAll('assets', '')}',
+  ).create();
+  await file.writeAsBytes(
+    byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
+  );
   return file.path;
 }
 
 Future<Uint8List> getBytesData(String path) async {
   final byteData = await rootBundle.load(path);
-  final uint8List = byteData.buffer
-      .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
+  final uint8List = byteData.buffer.asUint8List(
+    byteData.offsetInBytes,
+    byteData.lengthInBytes,
+  );
   return Uint8List.fromList(uint8List);
 }
 

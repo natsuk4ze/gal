@@ -68,16 +68,16 @@ enum GalExceptionType {
   unexpected;
 
   String get code => switch (this) {
-        accessDenied => 'ACCESS_DENIED',
-        notEnoughSpace => 'NOT_ENOUGH_SPACE',
-        notSupportedFormat => 'NOT_SUPPORTED_FORMAT',
-        unexpected => 'UNEXPECTED',
-      };
+    accessDenied => 'ACCESS_DENIED',
+    notEnoughSpace => 'NOT_ENOUGH_SPACE',
+    notSupportedFormat => 'NOT_SUPPORTED_FORMAT',
+    unexpected => 'UNEXPECTED',
+  };
 
   String get message => switch (this) {
-        accessDenied => 'Permission to access the gallery is denied.',
-        notEnoughSpace => 'Not enough space for storage.',
-        notSupportedFormat => 'Unsupported file formats.',
-        unexpected => 'An unexpected error has occurred.',
-      };
+    accessDenied => 'Permission to access the gallery is denied.',
+    notEnoughSpace => 'Not enough space for storage.',
+    notSupportedFormat => 'Unsupported file formats.',
+    unexpected => 'An unexpected error has occurred.',
+  };
 }
