@@ -45,9 +45,8 @@ final class Gal {
   /// Specify the album with [album]. If it does not exist, it will be created.
   /// Specify the file name with [name]. Do not include the extension.
   /// The extension is detected from [bytes], so it may differ from
-  /// the original file. Use [putImage] to keep the original extension.
-  /// On Android, camera RAW cannot be detected from [bytes], so use [putImage]
-  /// for it.
+  /// the original file. Prefer [putImage] for uncommon formats such as
+  /// camera RAW.
   /// ```dart
   /// await Gal.putImageBytes(bytes, name: 'photo');
   /// ```
