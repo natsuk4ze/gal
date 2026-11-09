@@ -27,19 +27,11 @@ jobs:
       # `flutter test` can launch the app before its simulator log reader is ready, miss the VM Service URL,
       # and wait until it times out (flutter/flutter#181771). Until the fix (flutter/flutter#193142) reaches beta,
       # apply it to the Flutter tool. The check skips it once beta has the fix.
-      # The diff comes from the GitHub API with the workflow token, and with retries,
-      # because the download from github.com without a token sometimes came back empty.
       - name: Patch the Flutter tool
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           cd "$FLUTTER_ROOT"
           if ! grep -q '_ready' packages/flutter_tools/lib/src/ios/simulators.dart; then
-            for i in 1 2 3; do
-              [ $i -eq 1 ] || sleep 10
-              gh api -H 'Accept: application/vnd.github.diff' repos/flutter/flutter/commits/c3ed85ef987759ee54a6bce275490cde2a238dc1 > "$RUNNER_TEMP/fix.diff" && break
-            done
-            git apply --include='packages/flutter_tools/lib/*' "$RUNNER_TEMP/fix.diff"
+            curl -sfL https://github.com/flutter/flutter/commit/c3ed85ef987759ee54a6bce275490cde2a238dc1.diff | git apply --include='packages/flutter_tools/lib/*'
             rm -f bin/cache/flutter_tools.stamp
           fi
           flutter --version
