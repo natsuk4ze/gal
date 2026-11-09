@@ -52,14 +52,16 @@ class GalException implements Exception {
 /// and [GalException.stackTrace].
 enum GalExceptionType {
   /// When has no permission to access gallery app.
-  /// See: https://github.com/natsuk4ze/gal/wiki/Permissions
+  /// See: [Gal.hasAccess] and [Gal.requestAccess]
   accessDenied,
 
   /// When insufficient device storage.
   notEnoughSpace,
 
   /// When trying to save a file in an unsupported format.
-  /// See: https://github.com/natsuk4ze/gal/wiki/Formats
+  ///
+  /// The file name must include the extension. For videos, the OS must also
+  /// support the video codec. Re-encode the video if the codec is not supported.
   notSupportedFormat,
 
   /// When an error occurs with unexpected.

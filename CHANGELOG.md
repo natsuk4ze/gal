@@ -1,3 +1,7 @@
+## 2.3.3
+
+* Fix Windows build on latest MSVC by removing /await flag #324
+
 ## 2.3.2
 
 * Reduce package size by optimizing assets (.pubignore) #296
