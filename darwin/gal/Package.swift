@@ -7,7 +7,7 @@ let package = Package(
     name: "gal",
     platforms: [
         .iOS("11.0"),
-        .macOS("11.0")
+        .macOS("10.15")
     ],
     products: [
         .library(name: "gal", targets: ["gal"])
