@@ -79,7 +79,7 @@ final class Gal {
   /// Use the [toAlbum] for additional permissions to save to an album.
   /// On iOS and macOS, the dialog is shown only once. If the user denies it,
   /// access can only be changed in the Settings app.
-  /// On Android API 23 to 29, the dialog is shown each time until
+  /// On Android API 24 to 29, the dialog is shown each time until
   /// the user selects "Don't ask again".
   /// See [hasAccess] for limited access on iOS and macOS.
   static Future<bool> requestAccess({bool toAlbum = false}) async =>
