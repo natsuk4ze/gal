@@ -57,7 +57,13 @@ jobs:
           brew tap wix/brew
           # Homebrew 6.0 requires explicit trust for third-party taps
           brew trust wix/brew
-          brew install applesimutils coreutils
+          # The bottle download from GitHub releases sometimes fails with HTTP 504 for a while,
+          # longer than the retries that brew makes in a few seconds
+          for i in 1 2 3; do
+            [ $i -eq 1 ] || sleep 60
+            brew install applesimutils coreutils && break
+            [ $i -lt 3 ] || exit 1
+          done
           cd example
           applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
 
