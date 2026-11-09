@@ -139,22 +139,18 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         }
     }
 
-    // Covers every MIME type that BitmapFactory reports, except WBMP: it has no signature, so
-    // other data can look like it.
+    // Formats that BitmapFactory learns in the future are saved through MimeTypeMap.
     private static String getImageExtension(String mimeType, byte[] bytes) {
         switch (String.valueOf(mimeType)) {
+            // WBMP has no signature, so other data can look like it.
+            case "image/vnd.wap.wbmp": return null;
             // Camera RAW is reported as JPEG from its embedded preview. A real JPEG starts with FF.
             case "image/jpeg": return bytes[0] == (byte) 0xFF ? "jpg" : null;
-            case "image/png": return "png";
-            case "image/gif": return "gif";
-            case "image/webp": return "webp";
-            case "image/bmp": return "bmp";
-            case "image/x-ico": return "ico";
+            // MimeTypeMap does not know these: image/heif on API 28 and image/x-ico at all.
             // HEIC and every other HEIF image are reported as image/heif.
             case "image/heif": return "heic";
-            case "image/avif": return "avif";
-            case "image/x-adobe-dng": return "dng";
-            default: return null;
+            case "image/x-ico": return "ico";
+            default: return MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
         }
     }
 
