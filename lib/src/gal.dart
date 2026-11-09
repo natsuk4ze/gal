@@ -53,8 +53,11 @@ final class Gal {
   /// if an error occurs during saving.
   /// The OS must support the image format,
   /// or [GalExceptionType.notSupportedFormat] is thrown.
-  static Future<void> putImageBytes(Uint8List bytes,
-          {String? album, String name = 'image'}) async =>
+  static Future<void> putImageBytes(
+    Uint8List bytes, {
+    String? album,
+    String name = 'image',
+  }) async =>
       GalPlatform.instance.putImageBytes(bytes, album: album, name: name);
 
   /// Open gallery app.
