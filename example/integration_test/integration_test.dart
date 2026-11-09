@@ -38,11 +38,34 @@ Future<void> main() async {
       await Gal.putImageBytes(bytes, album: album);
     }, skip: Platform.isMacOS);
 
+    await run('putImageBytes(webp, album: $album)', () async {
+      final bytes = await getBytesData('assets/done.webp');
+      await Gal.putImageBytes(bytes, album: album);
+    }, skip: !Platform.isAndroid);
+
     await run('putVideo(album: $album)', () async {
       final path = await getFilePath('assets/done.mp4');
       await Gal.putVideo(path, album: album);
     }, skip: Platform.isMacOS);
   }
+  test('putImageBytes(unsupported format)', () async {
+    // [0, 0, 1, 1] looks like a 1x1 WBMP, which has no signature.
+    for (final bytes in [
+      [0, 1, 2, 3],
+      [0, 0, 1, 1],
+    ]) {
+      await expectLater(
+        Gal.putImageBytes(Uint8List.fromList(bytes)),
+        throwsA(
+          isA<GalException>().having(
+            (e) => e.type,
+            'type',
+            GalExceptionType.notSupportedFormat,
+          ),
+        ),
+      );
+    }
+  }, skip: !Platform.isAndroid);
   await run('open', () async => Gal.open());
 }
 
