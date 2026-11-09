@@ -146,10 +146,9 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             case "image/vnd.wap.wbmp": return null;
             // Camera RAW is reported as JPEG from its embedded preview. A real JPEG starts with FF.
             case "image/jpeg": return bytes[0] == (byte) 0xFF ? "jpg" : null;
-            // MimeTypeMap does not know these: image/heif on API 28 and image/x-ico at all.
-            // HEIC and every other HEIF image are reported as image/heif.
+            // MimeTypeMap does not know image/heif on API 28. HEIC and every other HEIF image are
+            // reported as image/heif.
             case "image/heif": return "heic";
-            case "image/x-ico": return "ico";
             default: return MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
         }
     }
