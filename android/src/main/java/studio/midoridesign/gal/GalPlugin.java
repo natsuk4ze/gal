@@ -210,7 +210,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     private boolean hasAccess(boolean toAlbum) {
-        if (Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT > 29) return true;
+        if (Build.VERSION.SDK_INT > 29) return true;
         if (Build.VERSION.SDK_INT == 29 && !toAlbum) return true;
         Context context = pluginBinding.getApplicationContext();
         int status = ContextCompat.checkSelfPermission(context, PERMISSION);
