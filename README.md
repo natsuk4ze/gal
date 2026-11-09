@@ -40,7 +40,7 @@ Please support our volunteer efforts by giving us a [LIKE👍](https://pub.dev/p
 
 |             | Android | iOS | macOS | Windows | Linux |
 |-------------|---------|-----|-------|---------|-------|
-| **Support** | SDK 21+ | 11+ |  11+  |   10+   | See: [gal_linux](https://pub.dev/packages/gal_linux) |
+| **Support** | SDK 24+ | 13+ |  11+  |   10+   | See: [gal_linux](https://pub.dev/packages/gal_linux) |
 
 **Support** means that all functions have been tested manually or [automatically](https://github.com/natsuk4ze/gal/actions/runs/7517751549) whenever possible.
 
