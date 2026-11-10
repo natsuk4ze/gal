@@ -34,13 +34,13 @@ Please support our volunteer efforts by giving us a [LIKE👍](https://pub.dev/p
 
 ## 🧠 DeepWiki Documentation
 
-[![DeepWiki](https://img.shields.io/badge/DeepWiki-Documentation-2E8B57?style=for-the-badge&logo=read-the-docs&logoColor=white)](https://deepwiki.com/natsuk4ze/gal/1-overview)
+[![DeepWiki](https://img.shields.io/badge/DeepWiki-Documentation-2E8B57?style=for-the-badge&logo=read-the-docs&logoColor=white)](https://deepwiki.com/natsuk4ze/gal)
 
 ## 📱 Supported Platforms
 
 |             | Android | iOS | macOS | Windows | Linux |
 |-------------|---------|-----|-------|---------|-------|
-| **Support** | SDK 21+ | 11+ |  11+  |   10+   | See: [gal_linux](https://pub.dev/packages/gal_linux) |
+| **Support** | SDK 24+ | 13+ |  11+  |   10+   | See: [gal_linux](https://pub.dev/packages/gal_linux) |
 
 **Support** means that all functions have been tested manually or [automatically](https://github.com/natsuk4ze/gal/actions/runs/7517751549) whenever possible.
 
@@ -59,7 +59,7 @@ Please support our volunteer efforts by giving us a [LIKE👍](https://pub.dev/p
 * Save with metadata
 * Handle permission
 * Handle errors
-* Comprehensive documentation and wiki
+* Comprehensive documentation
 
 ## 🚀 Getting Started
 
@@ -182,15 +182,15 @@ await Gal.putVideo(video.path);
 ### Handle Permissions
 
 ```dart
-// Check Access Permission
-final hasAccess = await Gal.hasAccess();
+// Check Permission
+final hasPermission = await Gal.hasPermission();
 
-// Request Access Permission
-await Gal.requestAccess();
+// Request Permission
+await Gal.requestPermission();
 
 // ... for saving to album
-final hasAccess = await Gal.hasAccess(toAlbum: true);
-await Gal.requestAccess(toAlbum: true);
+final hasPermission = await Gal.hasPermission(toAlbum: true);
+await Gal.requestPermission(toAlbum: true);
 ```
 
 ### Handle Errors
@@ -205,13 +205,13 @@ try {
 
 // Exception Type
 enum GalExceptionType {
-  accessDenied,
+  permissionDenied,
   notEnoughSpace,
   notSupportedFormat,
   unexpected;
 
   String get message => switch (this) {
-        accessDenied => 'Permission to access the gallery is denied.',
+        permissionDenied => 'Permission to access the gallery is denied.',
         notEnoughSpace => 'Not enough space for storage.',
         notSupportedFormat => 'Unsupported file format.',
         unexpected => 'An unexpected error has occurred.',
@@ -221,13 +221,13 @@ enum GalExceptionType {
 
 ## 📚 Documentation
 
-If you write an article about Gal, let us know in the discussion and we'll post the URL in the wiki or readme 🤝
+If you write an article about Gal, let us know in the discussion and we'll post the URL in the readme 🤝
 
 * ### [🎯 Example](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart)
 
-* ### [👌 Best Practices](https://github.com/natsuk4ze/gal/wiki/Best-Practice)
+* ### [📖 API Reference](https://pub.dev/documentation/gal/latest/)
 
-* ### [🏠 Official Wiki](https://github.com/natsuk4ze/gal/wiki)
+* ### [🧠 DeepWiki](https://deepwiki.com/natsuk4ze/gal)
 
 * ### [💚 Contributing](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md)
 

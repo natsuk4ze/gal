@@ -19,12 +19,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Build;
 import android.os.Environment;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.webkit.MimeTypeMap;
 import android.Manifest;
 import android.app.Activity;
 
@@ -35,9 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
-
-import org.apache.commons.imaging.ImageFormat;
-import org.apache.commons.imaging.Imaging;
 
 public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware,
         PluginRegistry.RequestPermissionsResultListener {
@@ -50,7 +49,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private MethodChannel channel;
     private FlutterPluginBinding pluginBinding;
     private Activity activity;
-    private Runnable requestAccessCallback;
+    private Result pendingResult;
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -92,22 +91,18 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                 new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                 break;
             }
-            case "hasAccess": {
-                result.success(hasAccess(call.argument("toAlbum")));
+            case "hasPermission": {
+                result.success(hasPermission(call.argument("toAlbum")));
                 break;
             }
-            case "requestAccess": {
-                if (hasAccess(call.argument("toAlbum"))) {
+            case "requestPermission": {
+                boolean toAlbum = call.argument("toAlbum");
+                if (hasPermission(toAlbum)) {
                     result.success(true);
                     return;
                 }
-                requestAccessCallback = new Runnable() {
-                    @Override
-                    public void run() {
-                        result.success(hasAccess(call.argument("toAlbum")));
-                    }
-                };
-                requestAccess();
+                pendingResult = result;
+                requestPermission();
                 break;
             }
             default:
@@ -123,17 +118,35 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         if (dotIndex == -1) throw new FileNotFoundException("Extension not found.");
 
         try (InputStream in = new FileInputStream(file)) {
-            writeData(in, isImage, name.substring(0, dotIndex), name.substring(dotIndex), album,
-                    file.lastModified());
+            writeData(in, isImage, name.substring(0, dotIndex), name.substring(dotIndex + 1),
+                    album, file.lastModified());
         }
     }
 
     private void putMediaBytes(byte[] bytes, String album, String name)
             throws IOException, SecurityException {
-        ImageFormat imageFormat = Imaging.guessFormat(bytes);
-        String extension = "." + imageFormat.getDefaultExtension().toLowerCase();
+        // Only formats that the device can decode are saved.
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+        String extension = getImageExtension(options.outMimeType, bytes);
+        if (extension == null) throw new FileNotFoundException("Unsupported image format.");
         try (InputStream in = new ByteArrayInputStream(bytes)) {
             writeData(in, true, name, extension, album, 0);
+        }
+    }
+
+    // Formats that BitmapFactory learns in the future are saved through MimeTypeMap.
+    private static String getImageExtension(String mimeType, byte[] bytes) {
+        switch (String.valueOf(mimeType)) {
+            // WBMP has no signature, so other data can look like it.
+            case "image/vnd.wap.wbmp": return null;
+            // Camera RAW is reported as JPEG from its embedded preview. A real JPEG starts with FF.
+            case "image/jpeg": return bytes[0] == (byte) 0xFF ? "jpg" : null;
+            // MimeTypeMap does not know image/heif on API 28. HEIC and every other HEIF image are
+            // reported as image/heif.
+            case "image/heif": return "heic";
+            default: return MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
         }
     }
 
@@ -174,7 +187,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         for (int suffix = 0;; suffix++) {
             try {
                 values.put(MediaStore.MediaColumns.DISPLAY_NAME,
-                        name + (suffix > 0 ? suffix : "") + extension);
+                        name + (suffix > 0 ? suffix : "") + "." + extension);
                 return resolver.insert(isImage ? IMAGE_URI : VIDEO_URI, values);
             } catch (IllegalStateException e) {
                 if (!e.getMessage().contains("Failed to build unique file")) throw e;
@@ -182,7 +195,6 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         }
     }
 
-    @SuppressWarnings("EmptyStatementCheck")
     private ContentValues createContentValues(boolean isImage, String name, String extension,
             String album) {
         ContentValues values = new ContentValues();
@@ -193,42 +205,45 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             File dir = new File(Environment.getExternalStoragePublicDirectory(dirPath),
                     album != null ? album : "");
             if (!dir.exists()) dir.mkdirs();
-            String path;
-            String n = dir.getPath() + File.separator + name;
-            for (int i = 0; new File(path = n + (i == 0 ? "" : i) + extension).exists(); i++);
-
+            String basePath = dir.getPath() + File.separator + name;
+            String path = basePath + "." + extension;
+            for (int i = 1; new File(path).exists(); i++) {
+                path = basePath + i + "." + extension;
+            }
             values.put(MediaStore.MediaColumns.DATA, path);
         } else {
             String path = dirPath + (album != null ? File.separator + album : "");
             values.put(isImage ? MediaStore.Images.Media.RELATIVE_PATH
                     : MediaStore.Video.Media.RELATIVE_PATH, path);
         }
-        values.put(MediaStore.MediaColumns.DISPLAY_NAME, name + extension);
+        // Without MIME_TYPE, Android 10 assigns a default MIME type (image/jpeg for images) and
+        // appends its extension to DISPLAY_NAME, e.g. "image.png" becomes "image.png.jpg". It is
+        // taken from MimeTypeMap, which MediaStore also uses, so that the two always match.
+        String mimeType = MimeTypeMap.getSingleton()
+                .getMimeTypeFromExtension(extension.toLowerCase());
+        if (mimeType != null) values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
         return values;
     }
 
     private void open() {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
-        if (Build.VERSION.SDK_INT <= 23) {
-            intent.setType("*/*");
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
-        } else {
-            intent.setData(IMAGE_URI);
-        }
+        // Without the type, Samsung Gallery opens the URI as a single missing image.
+        // See: https://github.com/natsuk4ze/gal/issues/223
+        intent.setDataAndType(IMAGE_URI, MediaStore.Images.Media.CONTENT_TYPE);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         pluginBinding.getApplicationContext().startActivity(intent);
     }
 
-    private boolean hasAccess(boolean toAlbum) {
-        if (Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT > 29) return true;
+    private boolean hasPermission(boolean toAlbum) {
+        if (Build.VERSION.SDK_INT > 29) return true;
         if (Build.VERSION.SDK_INT == 29 && !toAlbum) return true;
         Context context = pluginBinding.getApplicationContext();
         int status = ContextCompat.checkSelfPermission(context, PERMISSION);
         return status == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void requestAccess() {
+    private void requestPermission() {
         ActivityCompat.requestPermissions(activity, new String[] {PERMISSION},
                 PERMISSION_REQUEST_CODE);
     }
@@ -247,7 +262,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private void handleError(Exception e, Result result) {
         String errorCode;
         if (e instanceof SecurityException || e.toString().contains("Permission denied")) {
-            errorCode = "ACCESS_DENIED";
+            errorCode = "PERMISSION_DENIED";
         } else if (e instanceof FileNotFoundException) {
             errorCode = "NOT_SUPPORTED_FORMAT";
         } else if (e instanceof IOException && e.toString().contains("No space left on device")) {
@@ -284,9 +299,9 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     @Override
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions,
             int[] grantResults) {
-        if (requestCode != PERMISSION_REQUEST_CODE || grantResults.length == 0) return false;
-        new Handler(Looper.getMainLooper()).post(requestAccessCallback);
-        requestAccessCallback = null;
+        if (requestCode != PERMISSION_REQUEST_CODE || grantResults.length == 0 || pendingResult == null) return false;
+        pendingResult.success(grantResults[0] == PackageManager.PERMISSION_GRANTED);
+        pendingResult = null;
         return true;
     }
 

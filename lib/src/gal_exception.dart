@@ -23,21 +23,18 @@ class GalException implements Exception {
   /// The native code StackTrace is stored in [PlatformException.stacktrace].
   final StackTrace stackTrace;
 
-  factory GalException.fromCode({
-    required String code,
-    required PlatformException platformException,
-    required StackTrace stackTrace,
-  }) {
-    final type = GalExceptionType.values.firstWhere(
-      (type) => type.code == code,
+  /// Creates a [GalException] whose [type] matches [PlatformException.code].
+  factory GalException.fromPlatformException(
+    PlatformException exception,
+    StackTrace stackTrace,
+  ) => GalException(
+    type: GalExceptionType.values.firstWhere(
+      (type) => type.code == exception.code,
       orElse: () => GalExceptionType.unexpected,
-    );
-    return GalException(
-      type: type,
-      platformException: platformException,
-      stackTrace: stackTrace,
-    );
-  }
+    ),
+    platformException: exception,
+    stackTrace: stackTrace,
+  );
 
   @override
   String toString() => "[GalException/${type.code}]: ${type.message}";
@@ -52,30 +49,32 @@ class GalException implements Exception {
 /// and [GalException.stackTrace].
 enum GalExceptionType {
   /// When has no permission to access gallery app.
-  /// See: https://github.com/natsuk4ze/gal/wiki/Permissions
-  accessDenied,
+  /// See: [Gal.hasPermission] and [Gal.requestPermission]
+  permissionDenied,
 
   /// When insufficient device storage.
   notEnoughSpace,
 
   /// When trying to save a file in an unsupported format.
-  /// See: https://github.com/natsuk4ze/gal/wiki/Formats
+  ///
+  /// The file name must include the extension. For videos, the OS must also
+  /// support the video codec. Re-encode the video if the codec is not supported.
   notSupportedFormat,
 
   /// When an error occurs with unexpected.
   unexpected;
 
   String get code => switch (this) {
-        accessDenied => 'ACCESS_DENIED',
-        notEnoughSpace => 'NOT_ENOUGH_SPACE',
-        notSupportedFormat => 'NOT_SUPPORTED_FORMAT',
-        unexpected => 'UNEXPECTED',
-      };
+    permissionDenied => 'PERMISSION_DENIED',
+    notEnoughSpace => 'NOT_ENOUGH_SPACE',
+    notSupportedFormat => 'NOT_SUPPORTED_FORMAT',
+    unexpected => 'UNEXPECTED',
+  };
 
   String get message => switch (this) {
-        accessDenied => 'Permission to access the gallery is denied.',
-        notEnoughSpace => 'Not enough space for storage.',
-        notSupportedFormat => 'Unsupported file formats.',
-        unexpected => 'An unexpected error has occurred.',
-      };
+    permissionDenied => 'Permission to access the gallery is denied.',
+    notEnoughSpace => 'Not enough space for storage.',
+    notSupportedFormat => 'Unsupported file formats.',
+    unexpected => 'An unexpected error has occurred.',
+  };
 }

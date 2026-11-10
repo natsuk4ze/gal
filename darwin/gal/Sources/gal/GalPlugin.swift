@@ -42,16 +42,16 @@ public class GalPlugin: NSObject, FlutterPlugin {
       }
     case "open":
       open { result(nil) }
-    case "hasAccess":
+    case "hasPermission":
       let args = call.arguments as! [String: Bool]
-      result(hasAccess(toAlbum: args["toAlbum"]!))
-    case "requestAccess":
+      result(hasPermission(toAlbum: args["toAlbum"]!))
+    case "requestPermission":
       let args = call.arguments as! [String: Bool]
       let toAlbum = args["toAlbum"]!
 
-      hasAccess(toAlbum: toAlbum)
+      hasPermission(toAlbum: toAlbum)
         ? result(true)
-        : requestAccess(
+        : requestPermission(
           toAlbum: toAlbum,
           completion: { granted in
             result(granted)
@@ -141,7 +141,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
     #endif
   }
 
-  private func hasAccess(toAlbum: Bool) -> Bool {
+  private func hasPermission(toAlbum: Bool) -> Bool {
     if #available(iOS 14, macOS 11, *) {
       return toAlbum
         ? PHPhotoLibrary.authorizationStatus(for: .readWrite) == .authorized
@@ -154,10 +154,10 @@ public class GalPlugin: NSObject, FlutterPlugin {
   /// If permissions have already been granted or denied by the user,
   /// returns the result immediately, without displaying a dialog.
   /// See: https://qiita.com/fuziki/items/87a3a1a8e481a1546b38
-  private func requestAccess(toAlbum: Bool, completion: @escaping (Bool) -> Void) {
+  private func requestPermission(toAlbum: Bool, completion: @escaping (Bool) -> Void) {
     if #available(iOS 14, macOS 11, *) {
       PHPhotoLibrary.requestAuthorization(for: toAlbum ? .readWrite : .addOnly) { _ in
-        completion(self.hasAccess(toAlbum: toAlbum))
+        completion(self.hasPermission(toAlbum: toAlbum))
       }
       return
     }
@@ -173,7 +173,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
 
     switch PHErrorCode(rawValue: error.code) {
     case .accessRestricted, .accessUserDenied:
-      return FlutterError(code: "ACCESS_DENIED", message: message, details: details)
+      return FlutterError(code: "PERMISSION_DENIED", message: message, details: details)
     case .identifierNotFound, .multipleIdentifiersFound, .requestNotSupportedForAsset,
          .videoConversionFailed, .unsupportedVideoCodec:
       return FlutterError(code: "NOT_SUPPORTED_FORMAT", message: message, details: details)
