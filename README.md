@@ -219,6 +219,37 @@ enum GalExceptionType {
 }
 ```
 
+### Testing
+
+Gal calls native code, which does not run in unit tests or widget tests.
+In most cases, wrap Gal in your own class and mock that class.
+To mock Gal itself, implement `GalTestPlatform` from `package:gal/testing.dart`
+and install it. This example uses [mocktail](https://pub.dev/packages/mocktail).
+
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:gal/gal.dart';
+import 'package:gal/testing.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockGal extends Mock implements GalTestPlatform {}
+
+void main() {
+  late MockGal gal;
+
+  setUp(() => GalTestPlatform.install(gal = MockGal()));
+
+  test('saves the image', () async {
+    when(() => gal.putImage(any(), album: any(named: 'album')))
+        .thenAnswer((_) async {});
+
+    await Gal.putImage('$filePath');
+
+    verify(() => gal.putImage('$filePath', album: null)).called(1);
+  });
+}
+```
+
 ## 📚 Documentation
 
 If you write an article about Gal, let us know in the discussion and we'll post the URL in the readme 🤝
