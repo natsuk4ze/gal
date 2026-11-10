@@ -9,15 +9,11 @@ import 'package:gal/src/gal_platform_interface.dart';
 ///
 /// ```dart
 /// class FakeGal extends Fake implements GalTestPlatform {
-///   final images = <String>[];
-///
 ///   @override
-///   Future<void> putImage(String path, {String? album}) async =>
-///       images.add(path);
+///   Future<void> putImage(String path, {String? album}) async {}
 /// }
 ///
-/// late FakeGal gal;
-/// setUp(() => GalTestPlatform.install(gal = FakeGal()));
+/// setUp(() => GalTestPlatform.install(FakeGal()));
 /// ```
 ///
 /// Methods may be added in minor versions. A fake that implements this

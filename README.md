@@ -233,21 +233,15 @@ import 'package:gal/gal.dart';
 import 'package:gal/testing.dart';
 
 class FakeGal extends Fake implements GalTestPlatform {
-  final images = <String>[];
-
   @override
-  Future<void> putImage(String path, {String? album}) async => images.add(path);
+  Future<void> putImage(String path, {String? album}) async {}
 }
 
 void main() {
-  late FakeGal gal;
-
-  setUp(() => GalTestPlatform.install(gal = FakeGal()));
+  setUp(() => GalTestPlatform.install(FakeGal()));
 
   test('saves the image', () async {
     await Gal.putImage('$filePath');
-
-    expect(gal.images, ['$filePath']);
   });
 }
 ```
