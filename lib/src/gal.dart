@@ -17,7 +17,7 @@ final class Gal {
   /// ```dart
   /// await Gal.putVideo('${Directory.systemTemp.path}/video.mp4');
   /// ```
-  /// Throws an [GalException] If you do not have access premission or
+  /// Throws a [GalException] if the app does not have permission or
   /// if an error occurs during saving.
   /// The OS must support both the file type and the video codec,
   /// or [GalExceptionType.notSupportedFormat] is thrown.
@@ -32,7 +32,7 @@ final class Gal {
   /// ```dart
   /// await Gal.putImage('${Directory.systemTemp.path}/image.jpg');
   /// ```
-  /// Throws an [GalException] If you do not have access premission or
+  /// Throws a [GalException] if the app does not have permission or
   /// if an error occurs during saving.
   /// The OS must support the file type,
   /// or [GalExceptionType.notSupportedFormat] is thrown.
@@ -50,7 +50,7 @@ final class Gal {
   /// ```dart
   /// await Gal.putImageBytes(bytes, name: 'photo');
   /// ```
-  /// Throws an [GalException] If you do not have access premission or
+  /// Throws a [GalException] if the app does not have permission or
   /// if an error occurs during saving.
   /// The OS must support the image format,
   /// or [GalExceptionType.notSupportedFormat] is thrown.
