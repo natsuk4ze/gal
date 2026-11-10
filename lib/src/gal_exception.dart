@@ -50,7 +50,7 @@ class GalException implements Exception {
 enum GalExceptionType {
   /// When has no permission to access gallery app.
   /// See: [Gal.hasPermission] and [Gal.requestPermission]
-  accessDenied,
+  permissionDenied,
 
   /// When insufficient device storage.
   notEnoughSpace,
@@ -65,14 +65,14 @@ enum GalExceptionType {
   unexpected;
 
   String get code => switch (this) {
-    accessDenied => 'ACCESS_DENIED',
+    permissionDenied => 'PERMISSION_DENIED',
     notEnoughSpace => 'NOT_ENOUGH_SPACE',
     notSupportedFormat => 'NOT_SUPPORTED_FORMAT',
     unexpected => 'UNEXPECTED',
   };
 
   String get message => switch (this) {
-    accessDenied => 'Permission to access the gallery is denied.',
+    permissionDenied => 'Permission to access the gallery is denied.',
     notEnoughSpace => 'Not enough space for storage.',
     notSupportedFormat => 'Unsupported file formats.',
     unexpected => 'An unexpected error has occurred.',

@@ -246,7 +246,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private void handleError(Exception e, Result result) {
         String errorCode;
         if (e instanceof SecurityException || e.toString().contains("Permission denied")) {
-            errorCode = "ACCESS_DENIED";
+            errorCode = "PERMISSION_DENIED";
         } else if (e instanceof FileNotFoundException) {
             errorCode = "NOT_SUPPORTED_FORMAT";
         } else if (e instanceof IOException && e.toString().contains("No space left on device")) {
