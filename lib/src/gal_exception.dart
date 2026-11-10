@@ -23,21 +23,18 @@ class GalException implements Exception {
   /// The native code StackTrace is stored in [PlatformException.stacktrace].
   final StackTrace stackTrace;
 
-  factory GalException.fromCode({
-    required String code,
-    required PlatformException platformException,
-    required StackTrace stackTrace,
-  }) {
-    final type = GalExceptionType.values.firstWhere(
-      (type) => type.code == code,
+  /// Creates a [GalException] whose [type] matches [PlatformException.code].
+  factory GalException.fromPlatformException(
+    PlatformException exception,
+    StackTrace stackTrace,
+  ) => GalException(
+    type: GalExceptionType.values.firstWhere(
+      (type) => type.code == exception.code,
       orElse: () => GalExceptionType.unexpected,
-    );
-    return GalException(
-      type: type,
-      platformException: platformException,
-      stackTrace: stackTrace,
-    );
-  }
+    ),
+    platformException: exception,
+    stackTrace: stackTrace,
+  );
 
   @override
   String toString() => "[GalException/${type.code}]: ${type.message}";
@@ -52,7 +49,7 @@ class GalException implements Exception {
 /// and [GalException.stackTrace].
 enum GalExceptionType {
   /// When has no permission to access gallery app.
-  /// See: [Gal.hasAccess] and [Gal.requestAccess]
+  /// See: [Gal.hasPermission] and [Gal.requestPermission]
   accessDenied,
 
   /// When insufficient device storage.

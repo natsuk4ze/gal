@@ -48,7 +48,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private MethodChannel channel;
     private FlutterPluginBinding pluginBinding;
     private Activity activity;
-    private Runnable requestAccessCallback;
+    private Result pendingResult;
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -90,22 +90,18 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                 new Handler(Looper.getMainLooper()).post(() -> result.success(null));
                 break;
             }
-            case "hasAccess": {
-                result.success(hasAccess(call.argument("toAlbum")));
+            case "hasPermission": {
+                result.success(hasPermission(call.argument("toAlbum")));
                 break;
             }
-            case "requestAccess": {
-                if (hasAccess(call.argument("toAlbum"))) {
+            case "requestPermission": {
+                boolean toAlbum = call.argument("toAlbum");
+                if (hasPermission(toAlbum)) {
                     result.success(true);
                     return;
                 }
-                requestAccessCallback = new Runnable() {
-                    @Override
-                    public void run() {
-                        result.success(hasAccess(call.argument("toAlbum")));
-                    }
-                };
-                requestAccess();
+                pendingResult = result;
+                requestPermission();
                 break;
             }
             default:
@@ -183,7 +179,6 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         }
     }
 
-    @SuppressWarnings("EmptyStatementCheck")
     private ContentValues createContentValues(boolean isImage, String name, String extension,
             String album) {
         ContentValues values = new ContentValues();
@@ -194,10 +189,11 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             File dir = new File(Environment.getExternalStoragePublicDirectory(dirPath),
                     album != null ? album : "");
             if (!dir.exists()) dir.mkdirs();
-            String path;
-            String n = dir.getPath() + File.separator + name;
-            for (int i = 0; new File(path = n + (i == 0 ? "" : i) + "." + extension).exists(); i++);
-
+            String basePath = dir.getPath() + File.separator + name;
+            String path = basePath + "." + extension;
+            for (int i = 1; new File(path).exists(); i++) {
+                path = basePath + i + "." + extension;
+            }
             values.put(MediaStore.MediaColumns.DATA, path);
         } else {
             String path = dirPath + (album != null ? File.separator + album : "");
@@ -223,7 +219,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         pluginBinding.getApplicationContext().startActivity(intent);
     }
 
-    private boolean hasAccess(boolean toAlbum) {
+    private boolean hasPermission(boolean toAlbum) {
         if (Build.VERSION.SDK_INT > 29) return true;
         if (Build.VERSION.SDK_INT == 29 && !toAlbum) return true;
         Context context = pluginBinding.getApplicationContext();
@@ -231,7 +227,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         return status == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void requestAccess() {
+    private void requestPermission() {
         ActivityCompat.requestPermissions(activity, new String[] {PERMISSION},
                 PERMISSION_REQUEST_CODE);
     }
@@ -287,9 +283,9 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     @Override
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions,
             int[] grantResults) {
-        if (requestCode != PERMISSION_REQUEST_CODE || grantResults.length == 0) return false;
-        new Handler(Looper.getMainLooper()).post(requestAccessCallback);
-        requestAccessCallback = null;
+        if (requestCode != PERMISSION_REQUEST_CODE || grantResults.length == 0 || pendingResult == null) return false;
+        pendingResult.success(grantResults[0] == PackageManager.PERMISSION_GRANTED);
+        pendingResult = null;
         return true;
     }
 

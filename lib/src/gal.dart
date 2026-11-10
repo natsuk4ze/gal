@@ -73,8 +73,8 @@ final class Gal {
   /// access. With limited access, albums created by the user or other apps
   /// cannot be found, so saving to one of them creates a new album
   /// with the same name.
-  static Future<bool> hasAccess({bool toAlbum = false}) async =>
-      GalPlatform.instance.hasAccess(toAlbum: toAlbum);
+  static Future<bool> hasPermission({bool toAlbum = false}) async =>
+      GalPlatform.instance.hasPermission(toAlbum: toAlbum);
 
   /// Request access permissions.
   ///
@@ -85,7 +85,7 @@ final class Gal {
   /// access can only be changed in the Settings app.
   /// On Android API 24 to 29, the dialog is shown each time until
   /// the user selects "Don't ask again".
-  /// See [hasAccess] for limited access on iOS and macOS.
-  static Future<bool> requestAccess({bool toAlbum = false}) async =>
-      GalPlatform.instance.requestAccess(toAlbum: toAlbum);
+  /// See [hasPermission] for limited access on iOS and macOS.
+  static Future<bool> requestPermission({bool toAlbum = false}) async =>
+      GalPlatform.instance.requestPermission(toAlbum: toAlbum);
 }
