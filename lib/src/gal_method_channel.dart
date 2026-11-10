@@ -13,11 +13,7 @@ final class MethodChannelGal extends GalPlatform {
     try {
       return await _methodChannel.invokeMethod<T>(method, args);
     } on PlatformException catch (error, stackTrace) {
-      throw GalException.fromPlatformException(
-        code: error.code,
-        platformException: error,
-        stackTrace: stackTrace,
-      );
+      throw GalException.fromPlatformException(error, stackTrace);
     }
   }
 
