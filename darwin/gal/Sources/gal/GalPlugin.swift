@@ -173,7 +173,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
 
     switch PHErrorCode(rawValue: error.code) {
     case .accessRestricted, .accessUserDenied:
-      return FlutterError(code: "ACCESS_DENIED", message: message, details: details)
+      return FlutterError(code: "PERMISSION_DENIED", message: message, details: details)
     case .identifierNotFound, .multipleIdentifiersFound, .requestNotSupportedForAsset,
          .videoConversionFailed, .unsupportedVideoCodec:
       return FlutterError(code: "NOT_SUPPORTED_FORMAT", message: message, details: details)

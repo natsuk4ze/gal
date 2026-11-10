@@ -66,7 +66,7 @@ final class Gal {
   /// If there are multiple gallery apps, App selection sheet may be displayed.
   static Future<void> open() async => GalPlatform.instance.open();
 
-  /// Check if the app has access permissions.
+  /// Check if the app has permission to save to the gallery.
   ///
   /// Use the [toAlbum] for additional permissions to save to an album.
   /// On iOS and macOS, it also returns true when the user allows only limited
@@ -76,13 +76,14 @@ final class Gal {
   static Future<bool> hasPermission({bool toAlbum = false}) async =>
       GalPlatform.instance.hasPermission(toAlbum: toAlbum);
 
-  /// Request access permissions.
+  /// Request permission to save to the gallery.
   ///
-  /// Returns [true] if access is granted, [false] if denied.
-  /// If access was already granted, the dialog is not displayed and returns true.
+  /// Returns true if permission is granted, false if denied.
+  /// If permission was already granted, the dialog is not displayed
+  /// and returns true.
   /// Use the [toAlbum] for additional permissions to save to an album.
   /// On iOS and macOS, the dialog is shown only once. If the user denies it,
-  /// access can only be changed in the Settings app.
+  /// permission can only be changed in the Settings app.
   /// On Android API 24 to 29, the dialog is shown each time until
   /// the user selects "Don't ask again".
   /// See [hasPermission] for limited access on iOS and macOS.

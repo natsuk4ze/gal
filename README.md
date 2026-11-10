@@ -205,13 +205,13 @@ try {
 
 // Exception Type
 enum GalExceptionType {
-  accessDenied,
+  permissionDenied,
   notEnoughSpace,
   notSupportedFormat,
   unexpected;
 
   String get message => switch (this) {
-        accessDenied => 'Permission to access the gallery is denied.',
+        permissionDenied => 'Permission to access the gallery is denied.',
         notEnoughSpace => 'Not enough space for storage.',
         notSupportedFormat => 'Unsupported file format.',
         unexpected => 'An unexpected error has occurred.',
