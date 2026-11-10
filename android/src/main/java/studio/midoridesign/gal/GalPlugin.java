@@ -150,16 +150,20 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);
             }
+            // Set before closing, because Android 10 and later scan the file when it is closed.
             if (lastModified > 0) setLastModified(resolver, uri, lastModified);
         }
     }
 
+    // Galleries date media that has no date of its own (EXIF, video metadata) by the file's
+    // last-modified time, so it is kept from the source like a file copy, as iOS does.
+    // Best effort: Android 9 and earlier may not allow it, and the media is saved either way.
     private void setLastModified(ContentResolver resolver, Uri uri, long time) {
-        try (Cursor cursor = resolver.query(uri,
-                new String[] {MediaStore.MediaColumns.DATA}, null, null, null)) {
-            if (cursor != null && cursor.moveToFirst()) {
-                new File(cursor.getString(0)).setLastModified(time);
-            }
+        String[] projection = {MediaStore.MediaColumns.DATA};
+        try (Cursor cursor = resolver.query(uri, projection, null, null, null)) {
+            String path = cursor != null && cursor.moveToFirst() ? cursor.getString(0) : null;
+            if (path != null) new File(path).setLastModified(time);
+        } catch (RuntimeException ignored) {
         }
     }
 
