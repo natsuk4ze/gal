@@ -17,12 +17,16 @@ Future<void> main() async {
     final toAlbum = testCase.toAlbum;
     final album = testCase.album;
 
-    await run('hasPermission(toAlbum: $toAlbum)',
-        () async => Gal.hasPermission(toAlbum: toAlbum));
+    await run(
+      'hasPermission(toAlbum: $toAlbum)',
+      () async => Gal.hasPermission(toAlbum: toAlbum),
+    );
 
-    await run('requestPermission(toAlbum: $toAlbum)',
-        () async => Gal.requestPermission(toAlbum: toAlbum),
-        skip: Platform.isMacOS);
+    await run(
+      'requestPermission(toAlbum: $toAlbum)',
+      () async => Gal.requestPermission(toAlbum: toAlbum),
+      skip: Platform.isMacOS,
+    );
 
     await run('putImage(album: $album)', () async {
       final path = await getFilePath('assets/done.jpg');
@@ -34,11 +38,34 @@ Future<void> main() async {
       await Gal.putImageBytes(bytes, album: album);
     }, skip: Platform.isMacOS);
 
+    await run('putImageBytes(webp, album: $album)', () async {
+      final bytes = await getBytesData('assets/done.webp');
+      await Gal.putImageBytes(bytes, album: album);
+    }, skip: !Platform.isAndroid);
+
     await run('putVideo(album: $album)', () async {
       final path = await getFilePath('assets/done.mp4');
       await Gal.putVideo(path, album: album);
     }, skip: Platform.isMacOS);
   }
+  test('putImageBytes(unsupported format)', () async {
+    // [0, 0, 1, 1] looks like a 1x1 WBMP, which has no signature.
+    for (final bytes in [
+      [0, 1, 2, 3],
+      [0, 0, 1, 1],
+    ]) {
+      await expectLater(
+        Gal.putImageBytes(Uint8List.fromList(bytes)),
+        throwsA(
+          isA<GalException>().having(
+            (e) => e.type,
+            'type',
+            GalExceptionType.notSupportedFormat,
+          ),
+        ),
+      );
+    }
+  }, skip: !Platform.isAndroid);
   await run('open', () async => Gal.open());
 }
 
@@ -46,33 +73,35 @@ Future<void> run(
   String title,
   Future<dynamic> Function() function, {
   bool skip = false,
-}) async =>
-    test(title, () async {
-      try {
-        final value = await function();
-        if (value != null) debugPrint('returned: $value');
-      } on GalException catch (e, st) {
-        fail("""
+}) async => test(title, () async {
+  try {
+    final value = await function();
+    if (value != null) debugPrint('returned: $value');
+  } on GalException catch (e, st) {
+    fail("""
 ${e.runtimeType}: $e\n
 StackTrace: $st
 PlatformException: ${e.platformException}""");
-      }
-    }, skip: skip);
+  }
+}, skip: skip);
 
 Future<String> getFilePath(String path) async {
   final byteData = await rootBundle.load(path);
-  final file =
-      await File('${Directory.systemTemp.path}${path.replaceAll('assets', '')}')
-          .create();
-  await file.writeAsBytes(byteData.buffer
-      .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+  final file = await File(
+    '${Directory.systemTemp.path}${path.replaceAll('assets', '')}',
+  ).create();
+  await file.writeAsBytes(
+    byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
+  );
   return file.path;
 }
 
 Future<Uint8List> getBytesData(String path) async {
   final byteData = await rootBundle.load(path);
-  final uint8List = byteData.buffer
-      .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
+  final uint8List = byteData.buffer.asUint8List(
+    byteData.offsetInBytes,
+    byteData.lengthInBytes,
+  );
   return Uint8List.fromList(uint8List);
 }
 

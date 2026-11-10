@@ -34,11 +34,17 @@ final class MethodChannelGal extends GalPlatform {
   }
 
   @override
-  Future<void> putImageBytes(Uint8List bytes,
-      {String? album, required String name}) async {
+  Future<void> putImageBytes(
+    Uint8List bytes, {
+    String? album,
+    required String name,
+  }) async {
     await requestPermission(toAlbum: album != null);
-    await _invokeMethod<void>(
-        'putImageBytes', {'bytes': bytes, 'album': album, 'name': name});
+    await _invokeMethod<void>('putImageBytes', {
+      'bytes': bytes,
+      'album': album,
+      'name': name,
+    });
   }
 
   @override
@@ -46,15 +52,17 @@ final class MethodChannelGal extends GalPlatform {
 
   @override
   Future<bool> hasPermission({bool toAlbum = false}) async {
-    final hasPermission =
-        await _invokeMethod<bool>('hasPermission', {'toAlbum': toAlbum});
+    final hasPermission = await _invokeMethod<bool>('hasPermission', {
+      'toAlbum': toAlbum,
+    });
     return hasPermission ?? false;
   }
 
   @override
   Future<bool> requestPermission({bool toAlbum = false}) async {
-    final granted =
-        await _invokeMethod<bool>('requestPermission', {'toAlbum': toAlbum});
+    final granted = await _invokeMethod<bool>('requestPermission', {
+      'toAlbum': toAlbum,
+    });
     return granted ?? false;
   }
 }

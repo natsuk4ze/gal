@@ -31,8 +31,9 @@ class _AppState extends State<App> {
               children: [
                 const Text('toAlbum'),
                 Switch(
-                    value: toAlbum,
-                    onChanged: (_) => setState(() => toAlbum = !toAlbum)),
+                  value: toAlbum,
+                  onChanged: (_) => setState(() => toAlbum = !toAlbum),
+                ),
                 FilledButton(
                   onPressed: () async => Gal.open(),
                   child: const Text('Open Gallery'),
@@ -87,15 +88,18 @@ class _AppState extends State<App> {
                 ),
                 FilledButton(
                   onPressed: () async {
-                    final hasPermission = await Gal.hasPermission(toAlbum: toAlbum);
+                    final hasPermission = await Gal.hasPermission(
+                      toAlbum: toAlbum,
+                    );
                     log('Has Permission:${hasPermission.toString()}');
                   },
                   child: const Text('Has Permission'),
                 ),
                 FilledButton(
                   onPressed: () async {
-                    final requestGranted =
-                        await Gal.requestPermission(toAlbum: toAlbum);
+                    final requestGranted = await Gal.requestPermission(
+                      toAlbum: toAlbum,
+                    );
                     log('Request Granted:${requestGranted.toString()}');
                   },
                   child: const Text('Request Permission'),
@@ -113,29 +117,37 @@ class _AppState extends State<App> {
   void showSnackbar() {
     final context = navigatorKey.currentContext;
     if (context == null || !context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: const Text('Saved! ✅'),
-      action: SnackBarAction(
-        label: 'Gallery ->',
-        onPressed: () async => Gal.open(),
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Saved! ✅'),
+        action: SnackBarAction(
+          label: 'Gallery ->',
+          onPressed: () async => Gal.open(),
+        ),
       ),
-    ));
+    );
   }
 
   Future<String> getFilePath(String path) async {
     final byteData = await rootBundle.load(path);
     final file = await File(
-            '${Directory.systemTemp.path}${path.replaceAll('assets', '')}')
-        .create();
-    await file.writeAsBytes(byteData.buffer
-        .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+      '${Directory.systemTemp.path}${path.replaceAll('assets', '')}',
+    ).create();
+    await file.writeAsBytes(
+      byteData.buffer.asUint8List(
+        byteData.offsetInBytes,
+        byteData.lengthInBytes,
+      ),
+    );
     return file.path;
   }
 
   Future<Uint8List> getBytesData(String path) async {
     final byteData = await rootBundle.load(path);
-    final uint8List = byteData.buffer
-        .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes);
+    final uint8List = byteData.buffer.asUint8List(
+      byteData.offsetInBytes,
+      byteData.lengthInBytes,
+    );
     return Uint8List.fromList(uint8List);
   }
 }
