@@ -5,7 +5,7 @@ import 'package:gal/gal.dart';
 import 'package:gal/testing.dart';
 
 /// Records every call so that the tests can check what `Gal` passed.
-class _FakeGal implements GalTestPlatform {
+class _FakeGal implements TestGal {
   final calls = <List<Object?>>[];
 
   @override
@@ -42,7 +42,7 @@ class _FakeGal implements GalTestPlatform {
 void main() {
   late _FakeGal gal;
 
-  setUp(() => GalTestPlatform.install(gal = _FakeGal()));
+  setUp(() => TestGal.install(gal = _FakeGal()));
 
   test('passes the put calls with their arguments', () async {
     await Gal.putVideo('video.mp4', album: 'Album');

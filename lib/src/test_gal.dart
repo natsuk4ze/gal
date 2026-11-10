@@ -1,29 +1,29 @@
 import 'package:flutter/foundation.dart';
 import 'package:gal/src/gal_platform_interface.dart';
 
-/// The platform that `Gal` calls, for mocking `Gal` in tests.
+/// Stands in for `Gal` in tests.
 ///
-/// Implement it with a mock or a fake, and pass it to [install].
+/// Implement it with a fake or a mock, and pass it to [install].
 /// After that, the static methods of `Gal` call it instead of the real
 /// platform.
 ///
 /// ```dart
-/// class FakeGal extends Fake implements GalTestPlatform {
+/// class FakeGal extends Fake implements TestGal {
 ///   @override
 ///   Future<void> putImage(String path, {String? album}) async {}
 /// }
 ///
-/// setUp(() => GalTestPlatform.install(FakeGal()));
+/// setUp(() => TestGal.install(FakeGal()));
 /// ```
 ///
 /// Methods may be added in minor versions. A fake that implements this
 /// class may need to add them, but mocks do not.
 @visibleForTesting
-abstract interface class GalTestPlatform {
+abstract interface class TestGal {
   /// Makes `Gal` call [platform] instead of the real platform.
   @visibleForTesting
-  static void install(GalTestPlatform platform) =>
-      GalPlatform.instance = _GalTestPlatformAdapter(platform);
+  static void install(TestGal platform) =>
+      GalPlatform.instance = _TestGalAdapter(platform);
 
   /// Called by `Gal.putVideo`.
   Future<void> putVideo(String path, {String? album});
@@ -48,11 +48,11 @@ abstract interface class GalTestPlatform {
   Future<bool> requestPermission({bool toAlbum});
 }
 
-/// Passes the calls from `Gal` to a [GalTestPlatform].
-final class _GalTestPlatformAdapter extends GalPlatform {
-  const _GalTestPlatformAdapter(this._platform);
+/// Passes the calls from `Gal` to a [TestGal].
+final class _TestGalAdapter extends GalPlatform {
+  const _TestGalAdapter(this._platform);
 
-  final GalTestPlatform _platform;
+  final TestGal _platform;
 
   @override
   Future<void> putVideo(String path, {String? album}) =>

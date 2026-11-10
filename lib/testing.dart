@@ -3,4 +3,4 @@
 /// Use them only in tests.
 library;
 
-export 'src/gal_test_platform.dart';
+export 'src/test_gal.dart';
