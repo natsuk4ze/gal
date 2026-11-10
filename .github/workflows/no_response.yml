@@ -1,7 +1,7 @@
 name: No Response
 
 # Closes issues and pull requests that have been labeled
-# "💬 waiting for response" for 20 days without any activity.
+# "💬 waiting for response" for 30 days without any activity.
 # The label is only ever added manually; any comment or update removes it.
 on:
   schedule:
@@ -21,7 +21,7 @@ jobs:
       - uses: actions/stale@v11
         with:
           days-before-stale: -1
-          days-before-close: 20
+          days-before-close: 30
           stale-issue-label: "💬 waiting for response"
           stale-pr-label: "💬 waiting for response"
           close-issue-message: >
@@ -32,7 +32,7 @@ jobs:
             If you find this problem please file a new issue with the same description,
             Thanks for your contribution.
           close-pr-message: >
-            This pull request has been waiting for a response for 20 days, so we
+            This pull request has been waiting for a response for 30 days, so we
             are closing it for now.
 
             Feel free to reopen it or open a new one if you would like to continue.
