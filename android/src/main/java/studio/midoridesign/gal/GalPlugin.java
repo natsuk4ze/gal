@@ -26,6 +26,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.system.Os;
 import android.webkit.MimeTypeMap;
 import android.Manifest;
 import android.app.Activity;
@@ -119,7 +120,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
 
         try (InputStream in = new FileInputStream(file)) {
             writeData(in, isImage, name.substring(0, dotIndex), name.substring(dotIndex + 1),
-                    album, file.lastModified());
+                    album);
         }
     }
 
@@ -132,7 +133,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         String extension = getImageExtension(options.outMimeType, bytes);
         if (extension == null) throw new FileNotFoundException("Unsupported image format.");
         try (InputStream in = new ByteArrayInputStream(bytes)) {
-            writeData(in, true, name, extension, album, 0);
+            writeData(in, true, name, extension, album);
         }
     }
 
@@ -151,8 +152,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     private void writeData(InputStream in, boolean isImage, String name, String extension,
-            String album, long lastModified)
-            throws IOException, SecurityException, FileNotFoundException {
+            String album) throws IOException, SecurityException, FileNotFoundException {
         ContentResolver resolver = pluginBinding.getApplicationContext().getContentResolver();
         ContentValues values = createContentValues(isImage, name, extension, album);
         Uri uri = getUniqueFileUri(resolver, values, isImage, name, extension);
@@ -163,17 +163,19 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);
             }
-            if (lastModified > 0) setLastModified(resolver, uri, lastModified);
+            setLastModified(resolver, uri, in);
         }
     }
 
     // See: https://github.com/natsuk4ze/gal/issues/330
-    private void setLastModified(ContentResolver resolver, Uri uri, long time) {
+    private void setLastModified(ContentResolver resolver, Uri uri, InputStream in) {
+        if (!(in instanceof FileInputStream)) return;
         String[] projection = {MediaStore.MediaColumns.DATA};
         try (Cursor cursor = resolver.query(uri, projection, null, null, null)) {
             cursor.moveToFirst();
+            long time = Os.fstat(((FileInputStream) in).getFD()).st_mtime * 1000;
             new File(cursor.getString(0)).setLastModified(time);
-        } catch (RuntimeException ignored) {
+        } catch (Exception ignored) {
         }
     }
 
