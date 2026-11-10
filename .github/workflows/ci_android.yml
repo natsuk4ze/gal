@@ -43,10 +43,12 @@ jobs:
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v6.4.1
 
-      # adb install sometimes stalls while it streams the APK to the emulator (seen on API 24, 25 and 28),
-      # and another try right after works. Wrap adb so that every install, including the ones that
-      # flutter test runs, stops after a minute and tries again.
-      - name: Retry stalled adb installs
+      # On API 24 and 25, a streamed adb install sometimes never finishes. The APK reaches PackageManager
+      # through a pseudo-terminal, and its last bytes stay in the emulator kernel (PackageManager waits in
+      # n_tty_read after adb has sent the whole APK). --no-streaming pushes the APK as a file and then runs
+      # pm install, which avoids it. Wrap adb so that every install, including the ones that flutter test runs,
+      # uses it, and still stops after a minute and tries again.
+      - name: Install APKs without streaming
         run: |
           adb="$ANDROID_HOME/platform-tools/adb"
           mv "$adb" "$adb.real"
@@ -54,8 +56,10 @@ jobs:
           #!/bin/bash
           case " $* " in
             *" install "*)
+              args=()
+              for a in "$@"; do args+=("$a"); [ "$a" = install ] && args+=(--no-streaming); done
               for i in 1 2 3; do
-                timeout 1m "$0.real" "$@" && exit 0
+                timeout 1m "$0.real" "${args[@]}" && exit 0
                 echo "adb install did not finish, trying again" >&2
               done
               exit 1 ;;
@@ -75,6 +79,9 @@ jobs:
           api-level: ${{ matrix.api-level }}
           working-directory: ./example
           arch: x86_64
+          # On the default API 29 image, the debug app sometimes crashes in malloc or never draws its first frame
+          # (23 of 521 launches), with Impeller or Skia and with -gpu guest. The google_apis image did so in 1 of 418.
+          target: ${{ matrix.api-level == 29 && 'google_apis' || 'default' }}
           # API 37 does not finish a cold boot within 200 seconds on 2 cores,
           # but API 24 and 25 hang right after booting with 4 cores and 4 GB
           emulator-boot-timeout: 600
