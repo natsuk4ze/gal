@@ -8,11 +8,16 @@ import 'package:gal/src/gal_platform_interface.dart';
 /// platform.
 ///
 /// ```dart
-/// @GenerateNiceMocks([MockSpec<GalTestPlatform>(as: #MockGal)])
-/// void main() {
-///   late MockGal gal;
-///   setUp(() => GalTestPlatform.install(gal = MockGal()));
+/// class FakeGal extends Fake implements GalTestPlatform {
+///   final images = <String>[];
+///
+///   @override
+///   Future<void> putImage(String path, {String? album}) async =>
+///       images.add(path);
 /// }
+///
+/// late FakeGal gal;
+/// setUp(() => GalTestPlatform.install(gal = FakeGal()));
 /// ```
 ///
 /// Methods may be added in minor versions. A fake that implements this
