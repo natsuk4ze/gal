@@ -91,17 +91,17 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                 break;
             }
             case "hasPermission": {
-                result.success(hasAccess(call.argument("toAlbum")));
+                result.success(hasPermission(call.argument("toAlbum")));
                 break;
             }
             case "requestPermission": {
                 boolean toAlbum = call.argument("toAlbum");
-                if (hasAccess(toAlbum)) {
+                if (hasPermission(toAlbum)) {
                     result.success(true);
                     return;
                 }
                 pendingResult = result;
-                requestAccess();
+                requestPermission();
                 break;
             }
             default:
@@ -219,7 +219,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         pluginBinding.getApplicationContext().startActivity(intent);
     }
 
-    private boolean hasAccess(boolean toAlbum) {
+    private boolean hasPermission(boolean toAlbum) {
         if (Build.VERSION.SDK_INT > 29) return true;
         if (Build.VERSION.SDK_INT == 29 && !toAlbum) return true;
         Context context = pluginBinding.getApplicationContext();
@@ -227,7 +227,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         return status == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void requestAccess() {
+    private void requestPermission() {
         ActivityCompat.requestPermissions(activity, new String[] {PERMISSION},
                 PERMISSION_REQUEST_CODE);
     }
