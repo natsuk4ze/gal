@@ -3,7 +3,7 @@ import 'package:gal/src/gal_platform_interface.dart';
 
 /// Stands in for `Gal` in tests.
 ///
-/// Implement it with a fake or a mock, and pass it to [install].
+/// Implement it with a fake or a mock, and pass it to [setUp].
 /// After that, the static methods of `Gal` call it instead of the real
 /// platform.
 ///
@@ -13,7 +13,7 @@ import 'package:gal/src/gal_platform_interface.dart';
 ///   Future<void> putImage(String path, {String? album}) async {}
 /// }
 ///
-/// setUp(() => TestGal.install(FakeGal()));
+/// setUp(() => TestGal.setUp(FakeGal()));
 /// ```
 ///
 /// Methods may be added in minor versions. A fake that implements this
@@ -22,7 +22,7 @@ import 'package:gal/src/gal_platform_interface.dart';
 abstract interface class TestGal {
   /// Makes `Gal` call [platform] instead of the real platform.
   @visibleForTesting
-  static void install(TestGal platform) =>
+  static void setUp(TestGal platform) =>
       GalPlatform.instance = _TestGalAdapter(platform);
 
   /// Called by `Gal.putVideo`.

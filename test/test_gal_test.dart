@@ -42,7 +42,7 @@ class _FakeGal implements TestGal {
 void main() {
   late _FakeGal gal;
 
-  setUp(() => TestGal.install(gal = _FakeGal()));
+  setUp(() => TestGal.setUp(gal = _FakeGal()));
 
   test('passes the put calls with their arguments', () async {
     await Gal.putVideo('video.mp4', album: 'Album');
