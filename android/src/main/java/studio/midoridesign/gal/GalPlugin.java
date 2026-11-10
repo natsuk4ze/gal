@@ -169,12 +169,12 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
 
     // See: https://github.com/natsuk4ze/gal/issues/330
     private void setLastModified(ContentResolver resolver, Uri uri, InputStream in) {
-        if (!(in instanceof FileInputStream)) return;
+        if (Build.VERSION.SDK_INT < 29 || !(in instanceof FileInputStream)) return;
         String[] projection = {MediaStore.MediaColumns.DATA};
         try (Cursor cursor = resolver.query(uri, projection, null, null, null)) {
             cursor.moveToFirst();
             long time = Os.fstat(((FileInputStream) in).getFD()).st_mtime * 1000;
-            new File(cursor.getString(0)).setLastModified(time);
+            if (time > 0) new File(cursor.getString(0)).setLastModified(time);
         } catch (Exception ignored) {
         }
     }
