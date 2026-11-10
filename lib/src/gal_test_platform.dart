@@ -8,10 +8,11 @@ import 'package:gal/src/gal_platform_interface.dart';
 /// platform.
 ///
 /// ```dart
-/// class MockGal extends Mock implements GalTestPlatform {}
-///
-/// late MockGal gal;
-/// setUp(() => GalTestPlatform.install(gal = MockGal()));
+/// @GenerateNiceMocks([MockSpec<GalTestPlatform>(as: #MockGal)])
+/// void main() {
+///   late MockGal gal;
+///   setUp(() => GalTestPlatform.install(gal = MockGal()));
+/// }
 /// ```
 ///
 /// Methods may be added in minor versions. A fake that implements this
