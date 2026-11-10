@@ -284,11 +284,8 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions,
             int[] grantResults) {
         if (requestCode != PERMISSION_REQUEST_CODE || grantResults.length == 0 || pendingResult == null) return false;
-        boolean granted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-        new Handler(Looper.getMainLooper()).post(() -> {
-            pendingResult.success(granted);
-            pendingResult = null;
-        });
+        pendingResult.success(grantResults[0] == PackageManager.PERMISSION_GRANTED);
+        pendingResult = null;
         return true;
     }
 
