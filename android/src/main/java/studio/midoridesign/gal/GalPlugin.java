@@ -39,6 +39,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware,
         PluginRegistry.RequestPermissionsResultListener {
     private static final String PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -173,7 +175,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         String[] projection = {MediaStore.MediaColumns.DATA};
         try (Cursor cursor = resolver.query(uri, projection, null, null, null)) {
             cursor.moveToFirst();
-            long time = Os.fstat(((FileInputStream) in).getFD()).st_mtime * 1000;
+            long time = SECONDS.toMillis(Os.fstat(((FileInputStream) in).getFD()).st_mtime);
             if (time > 0) new File(cursor.getString(0)).setLastModified(time);
         } catch (Exception ignored) {
         }
