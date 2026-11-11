@@ -225,6 +225,7 @@ Gal calls native code, which does not run in unit tests or widget tests.
 In most cases, wrap Gal in your own class and mock that class.
 To replace Gal itself, extend `GalPlatform` from
 `package:gal/gal_platform_interface.dart` and set it to `GalPlatform.instance`.
+Methods that the fake does not override throw `UnimplementedError`.
 
 ```dart
 import 'package:flutter_test/flutter_test.dart';
@@ -239,11 +240,27 @@ final class FakeGalPlatform extends GalPlatform {
 void main() {
   setUp(() => GalPlatform.instance = FakeGalPlatform());
 
-  test('saves the image', () async {
-    await Gal.putImage('$filePath');
-  });
+  test('saves the image', () => Gal.putImage('image.jpg'));
 }
 ```
+
+The fake replaces all of Gal, including the permission request that
+`putImage`, `putVideo` and `putImageBytes` make before saving.
+To test errors, throw a `GalException` from the fake.
+
+```dart
+@override
+Future<void> putImage(String path, {String? album}) async =>
+    throw GalException(
+      type: GalExceptionType.permissionDenied,
+      platformException: PlatformException(
+        code: GalExceptionType.permissionDenied.code,
+      ),
+      stackTrace: StackTrace.current,
+    );
+```
+
+`PlatformException` is in `package:flutter/services.dart`.
 
 ## 📚 Documentation
 
