@@ -13,6 +13,7 @@
 * Save WebP, HEIC and AVIF with `putImageBytes` on Android, and remove the `commons-imaging` dependency #347
 * Fix PNG saved as `image.png.jpg` on Android 10 #338
 * Fix `Gal.open` showing a missing image on Samsung Gallery #259
+* Fix the `put-` methods never completing on Android 7 to 10 when they are called at the same time without permission, or when the permission dialog is canceled #365
 * Fix the Gradle 10 deprecation warning of Android `build.gradle` #334
 * Fix the AGP warning about the `package` attribute of the Android manifest #358
 * Show the code and message of `GalException.platformException` in `GalException.toString` #360
