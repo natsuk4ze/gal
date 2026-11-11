@@ -134,3 +134,7 @@ jobs:
 
       - name: Run unit tests
         run: flutter test
+
+      - name: Test dart fix
+        working-directory: test_fixes
+        run: dart fix --compare-to-golden

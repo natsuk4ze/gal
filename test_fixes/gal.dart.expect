@@ -1,0 +1,8 @@
+import 'package:gal/gal.dart';
+
+Future<void> main() async {
+  await Gal.hasPermission();
+  await Gal.hasPermission(toAlbum: true);
+  await Gal.requestPermission();
+  await Gal.requestPermission(toAlbum: true);
+}
