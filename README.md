@@ -246,21 +246,6 @@ void main() {
 
 The fake replaces all of Gal, including the permission request that
 `putImage`, `putVideo` and `putImageBytes` make before saving.
-To test errors, throw a `GalException` from the fake.
-
-```dart
-@override
-Future<void> putImage(String path, {String? album}) async =>
-    throw GalException(
-      type: GalExceptionType.permissionDenied,
-      platformException: PlatformException(
-        code: GalExceptionType.permissionDenied.code,
-      ),
-      stackTrace: StackTrace.current,
-    );
-```
-
-`PlatformException` is in `package:flutter/services.dart`.
 
 ## 📚 Documentation
 
