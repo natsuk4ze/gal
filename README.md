@@ -244,9 +244,6 @@ void main() {
 }
 ```
 
-The fake replaces all of Gal, including the permission request that
-`putImage`, `putVideo` and `putImageBytes` make before saving.
-
 ## 📚 Documentation
 
 If you write an article about Gal, let us know in the discussion and we'll post the URL in the readme 🤝
