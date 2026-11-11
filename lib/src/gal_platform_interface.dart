@@ -9,7 +9,7 @@ import 'gal_method_channel.dart';
 /// Methods that are not overridden throw [UnimplementedError].
 ///
 /// See: [PR](https://github.com/natsuk4ze/gal/pull/180)
-base class GalPlatform {
+abstract base class GalPlatform {
   const GalPlatform();
 
   /// The implementation that `Gal` calls. Defaults to the method channel.
