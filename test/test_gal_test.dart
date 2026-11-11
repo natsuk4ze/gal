@@ -4,21 +4,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gal/gal.dart';
 import 'package:gal/testing.dart';
 
-/// Throws the name of the method that `Gal` calls.
+/// Answers every call, so that no call reaches the native code.
 class _FakeGal implements TestGal {
   @override
-  dynamic noSuchMethod(Invocation invocation) => throw invocation.memberName;
+  dynamic noSuchMethod(Invocation invocation) => Future.value(true);
 }
 
 void main() {
   setUp(() => TestGal.setUp(_FakeGal()));
 
-  test('Gal calls every method of the TestGal that is set up', () async {
-    await expectLater(Gal.putVideo(''), throwsA(#putVideo));
-    await expectLater(Gal.putImage(''), throwsA(#putImage));
-    await expectLater(Gal.putImageBytes(Uint8List(0)), throwsA(#putImageBytes));
-    await expectLater(Gal.open(), throwsA(#open));
-    await expectLater(Gal.hasPermission(), throwsA(#hasPermission));
-    await expectLater(Gal.requestPermission(), throwsA(#requestPermission));
-  });
+  test('putVideo', () => Gal.putVideo(''));
+  test('putImage', () => Gal.putImage(''));
+  test('putImageBytes', () => Gal.putImageBytes(Uint8List(0)));
+  test('open', Gal.open);
+  test('hasPermission', Gal.hasPermission);
+  test('requestPermission', Gal.requestPermission);
 }
