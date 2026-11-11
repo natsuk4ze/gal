@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -31,9 +32,12 @@ class _FakeGal implements TestGal {
 void main() {
   setUp(() => TestGal.setUp(_FakeGal()));
 
-  test('putVideo', () => Gal.putVideo(''));
-  test('putImage', () => Gal.putImage(''));
-  test('putImageBytes', () => Gal.putImageBytes(Uint8List(0)));
+  test('putVideo', () => Gal.putVideo('example/assets/done.mp4'));
+  test('putImage', () => Gal.putImage('example/assets/done.jpg'));
+  test(
+    'putImageBytes',
+    () => Gal.putImageBytes(File('example/assets/done.jpg').readAsBytesSync()),
+  );
   test('open', Gal.open);
   test('hasPermission', Gal.hasPermission);
   test('requestPermission', Gal.requestPermission);
