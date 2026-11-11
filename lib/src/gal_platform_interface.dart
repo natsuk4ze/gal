@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'gal_method_channel.dart';
 
-/// Plugin Platform Interface to to allow Non-endorsed federated plugin
+/// Plugin Platform Interface to allow non-endorsed federated plugins.
 /// See: [PR](https://github.com/natsuk4ze/gal/pull/180)
 base class GalPlatform {
   const GalPlatform();

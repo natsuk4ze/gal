@@ -29,7 +29,7 @@ final class Gal {
   static Future<void> putVideo(String path, {String? album}) async =>
       GalPlatform.instance.putVideo(path, album: album);
 
-  /// Save a image to the gallery from file [path].
+  /// Save an image to the gallery from file [path].
   ///
   /// Specify the album with [album]. If it does not exist, it will be created.
   /// [path] must include the file extension.
@@ -45,7 +45,7 @@ final class Gal {
   static Future<void> putImage(String path, {String? album}) async =>
       GalPlatform.instance.putImage(path, album: album);
 
-  /// Save a image to the gallery from [Uint8List].
+  /// Save an image to the gallery from [Uint8List].
   ///
   /// Specify the album with [album]. If it does not exist, it will be created.
   /// Specify the file name with [name]. Do not include the extension.
@@ -67,9 +67,10 @@ final class Gal {
   }) async =>
       GalPlatform.instance.putImageBytes(bytes, album: album, name: name);
 
-  /// Open gallery app.
+  /// Open the gallery app.
   ///
-  /// If there are multiple gallery apps, App selection sheet may be displayed.
+  /// If there are multiple gallery apps, an app selection sheet may be
+  /// displayed.
   static Future<void> open() async => GalPlatform.instance.open();
 
   /// Check if the app has permission to save to the gallery.
