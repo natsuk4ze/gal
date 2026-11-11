@@ -36,8 +36,12 @@ class GalException implements Exception {
     stackTrace: stackTrace,
   );
 
+  /// Also shows [PlatformException.message], the error from native code.
   @override
-  String toString() => "[GalException/${type.code}]: ${type.message}";
+  String toString() => [
+    '[GalException/${type.code}]: ${type.message}',
+    ?platformException.message,
+  ].join(' ');
 }
 
 /// Types of [GalException]
