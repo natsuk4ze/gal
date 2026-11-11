@@ -12,7 +12,7 @@
 * Fix `Gal.open` showing a missing image on Samsung Gallery #259
 * Fix the Gradle 10 deprecation warning of Android `build.gradle` #334
 * Fix the AGP warning about the `package` attribute of the Android manifest #358
-* Show the message of `GalException.platformException` in `GalException.toString` #360
+* Show the code and message of `GalException.platformException` in `GalException.toString` #360
 * Fix the wording of doc comments and `GalExceptionType.notSupportedFormat.message` #359
 * Document that the `put-` methods request permission #362
 * Replace GitHub Wiki links with dartdoc, README and DeepWiki #346
