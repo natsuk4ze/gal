@@ -222,6 +222,31 @@ enum GalExceptionType {
 }
 ```
 
+### Testing
+
+Gal calls native code, which does not run in unit tests or widget tests.
+In most cases, wrap Gal in your own class and mock that class.
+To replace Gal itself, extend `GalPlatform` from
+`package:gal/gal_platform_interface.dart` and set it to `GalPlatform.instance`.
+Methods that the fake does not override throw `UnimplementedError`.
+
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:gal/gal.dart';
+import 'package:gal/gal_platform_interface.dart';
+
+final class FakeGalPlatform extends GalPlatform {
+  @override
+  Future<void> putImage(String path, {String? album}) async {}
+}
+
+void main() {
+  setUp(() => GalPlatform.instance = FakeGalPlatform());
+
+  test('saves the image', () => Gal.putImage('image.jpg'));
+}
+```
+
 ## 📚 Documentation
 
 If you write an article about Gal, let us know in the discussion and we'll post the URL in the readme 🤝
