@@ -1,3 +1,35 @@
+## 3.0.0
+
+* **BREAKING CHANGE**: Rename `Gal.hasAccess` and `Gal.requestAccess` to `Gal.hasPermission` and `Gal.requestPermission` #303
+* **BREAKING CHANGE**: Rename `GalExceptionType.accessDenied` to `GalExceptionType.permissionDenied`, and its code `ACCESS_DENIED` to `PERMISSION_DENIED` #356
+* **BREAKING CHANGE**: Replace `GalException.fromCode` with `GalException.fromPlatformException` #303
+* **BREAKING CHANGE**: Require Flutter 3.41, Dart 3.11, iOS 13 and Android API 24 #352
+* **BREAKING CHANGE**: On Android 10 and later, `putImage` and `putVideo` keep the last-modified time of the source file, so media without an embedded date appears at that date in galleries #331
+* **BREAKING CHANGE**: On Android, `putImageBytes` rejects TIFF and TIFF-based camera RAW, which were saved as `.tif`, and unsupported bytes fail with `notSupportedFormat` instead of `unexpected` #347
+* Add the `FlutterFramework` dependency for Swift Package Manager #352
+* Save WebP, HEIC and AVIF with `putImageBytes` on Android, and remove the `commons-imaging` dependency #347
+* Fix PNG saved as `image.png.jpg` on Android 10 #338
+* Fix `Gal.open` showing a missing image on Samsung Gallery #259
+* Fix the Gradle 10 deprecation warning of Android `build.gradle` #334
+* Fix the AGP warning about the `package` attribute of the Android manifest #358
+* Show the native error message in `GalException.toString` #360
+* Fix the wording of doc comments and `GalExceptionType.notSupportedFormat.message` #359
+* Replace GitHub Wiki links with dartdoc, README and DeepWiki #346
+
+### Migration
+
+```dart
+// 2.x
+await Gal.hasAccess(toAlbum: true);
+await Gal.requestAccess(toAlbum: true);
+if (e.type == GalExceptionType.accessDenied) {}
+
+// 3.0.0
+await Gal.hasPermission(toAlbum: true);
+await Gal.requestPermission(toAlbum: true);
+if (e.type == GalExceptionType.permissionDenied) {}
+```
+
 ## 2.3.3
 
 * Fix Windows build on latest MSVC by removing /await flag #324
