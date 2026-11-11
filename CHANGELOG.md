@@ -7,6 +7,7 @@
 * **BREAKING CHANGE**: On Android 10 and later, `putImage` and `putVideo` keep the last-modified time of the source file, so media without an embedded date appears at that date in galleries #331
 * **BREAKING CHANGE**: On Android, `putImageBytes` rejects TIFF and TIFF-based camera RAW, which were saved as `.tif`, and unsupported bytes fail with `notSupportedFormat` instead of `unexpected` #347
 * Add the `FlutterFramework` dependency for Swift Package Manager #352
+* Export `GalPlatform` in `package:gal/gal_platform_interface.dart`, so tests can replace `Gal` #357
 * Save WebP, HEIC and AVIF with `putImageBytes` on Android, and remove the `commons-imaging` dependency #347
 * Fix PNG saved as `image.png.jpg` on Android 10 #338
 * Fix `Gal.open` showing a missing image on Samsung Gallery #259
