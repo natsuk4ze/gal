@@ -4,10 +4,28 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gal/gal.dart';
 import 'package:gal/testing.dart';
 
-/// Answers every call, so that no call reaches the native code.
 class _FakeGal implements TestGal {
   @override
-  dynamic noSuchMethod(Invocation invocation) => Future.value(true);
+  Future<void> putVideo(String path, {String? album}) async {}
+
+  @override
+  Future<void> putImage(String path, {String? album}) async {}
+
+  @override
+  Future<void> putImageBytes(
+    Uint8List bytes, {
+    String? album,
+    required String name,
+  }) async {}
+
+  @override
+  Future<void> open() async {}
+
+  @override
+  Future<bool> hasPermission({bool toAlbum = false}) async => true;
+
+  @override
+  Future<bool> requestPermission({bool toAlbum = false}) async => true;
 }
 
 void main() {
