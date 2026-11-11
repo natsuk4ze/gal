@@ -36,13 +36,14 @@ class GalException implements Exception {
     stackTrace: stackTrace,
   );
 
-  /// Also shows the [PlatformException.message] of [platformException].
+  /// Also shows the [PlatformException.code] and [PlatformException.message]
+  /// of [platformException].
   @override
-  String toString() => [
-    '[GalException/${type.code}]: ${type.message}',
-    if (platformException.message case final message?)
-      '(PlatformException: $message)',
-  ].join(' ');
+  String toString() {
+    final PlatformException(:code, :message) = platformException;
+    return '[GalException/${type.code}]: ${type.message} '
+        '(PlatformException/$code${message == null ? '' : ': $message'})';
+  }
 }
 
 /// Types of [GalException]
