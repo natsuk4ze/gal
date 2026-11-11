@@ -66,6 +66,18 @@ Future<void> main() async {
       );
     }
   }, skip: !Platform.isAndroid);
+  test('putImage(missing file)', () async {
+    await expectLater(
+      Gal.putImage('/no/such/file.jpg'),
+      throwsA(
+        isA<GalException>().having(
+          (e) => e.type,
+          'type',
+          GalExceptionType.unexpected,
+        ),
+      ),
+    );
+  }, skip: !Platform.isAndroid);
   await run('open', () async => Gal.open());
 }
 

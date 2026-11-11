@@ -174,8 +174,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
     switch PHErrorCode(rawValue: error.code) {
     case .accessRestricted, .accessUserDenied:
       return FlutterError(code: "PERMISSION_DENIED", message: message, details: details)
-    case .identifierNotFound, .multipleIdentifiersFound, .requestNotSupportedForAsset,
-         .videoConversionFailed, .unsupportedVideoCodec:
+    case .requestNotSupportedForAsset, .videoConversionFailed, .unsupportedVideoCodec:
       return FlutterError(code: "NOT_SUPPORTED_FORMAT", message: message, details: details)
     case .notEnoughSpace:
       return FlutterError(code: "NOT_ENOUGH_SPACE", message: message, details: details)
@@ -191,12 +190,6 @@ public class GalPlugin: NSObject, FlutterPlugin {
 /// Some documents are not provided by Apple.
 /// https://developer.apple.com/documentation/photokit/phphotoserror/code/$caseName
 enum PHErrorCode: Int {
-  // [PHPhotosError.identifierNotFound]
-  case identifierNotFound = 3201
-
-  // [PHPhotosError.multipleIdentifiersFound]
-  case multipleIdentifiersFound = 3202
-
   // Apple has not released documentation.
   case videoConversionFailed = 3300
 
