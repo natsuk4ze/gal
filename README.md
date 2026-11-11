@@ -181,6 +181,9 @@ await Gal.putVideo(video.path);
 
 ### Handle Permissions
 
+`put-` methods request permission when the app does not have it yet, so you do not need to call these before saving.
+Use them to choose when the dialog appears, for example after showing your own explanation.
+
 ```dart
 // Check Permission
 final hasPermission = await Gal.hasPermission();

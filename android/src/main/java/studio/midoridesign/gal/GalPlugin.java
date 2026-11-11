@@ -18,6 +18,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
@@ -25,6 +26,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.system.Os;
+import android.system.StructTimespec;
 import android.webkit.MimeTypeMap;
 import android.Manifest;
 import android.app.Activity;
@@ -36,6 +39,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
+
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware,
         PluginRegistry.RequestPermissionsResultListener {
@@ -161,6 +167,20 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);
             }
+            setLastModified(resolver, uri, in);
+        }
+    }
+
+    // See: https://github.com/natsuk4ze/gal/issues/330
+    private void setLastModified(ContentResolver resolver, Uri uri, InputStream in) {
+        if (Build.VERSION.SDK_INT < 29 || !(in instanceof FileInputStream)) return;
+        String[] projection = {MediaStore.MediaColumns.DATA};
+        try (Cursor cursor = resolver.query(uri, projection, null, null, null)) {
+            cursor.moveToFirst();
+            StructTimespec t = Os.fstat(((FileInputStream) in).getFD()).st_mtim;
+            long time = SECONDS.toMillis(t.tv_sec) + NANOSECONDS.toMillis(t.tv_nsec);
+            if (time > 0) new File(cursor.getString(0)).setLastModified(time);
+        } catch (Exception ignored) {
         }
     }
 
