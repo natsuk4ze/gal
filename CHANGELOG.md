@@ -14,6 +14,7 @@
 * Fix the AGP warning about the `package` attribute of the Android manifest #358
 * Show the native error message in `GalException.toString` #360
 * Fix the wording of doc comments and `GalExceptionType.notSupportedFormat.message` #359
+* Document that the `put-` methods request permission #362
 * Replace GitHub Wiki links with dartdoc, README and DeepWiki #346
 
 ### Migration
