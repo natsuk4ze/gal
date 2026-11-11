@@ -24,3 +24,29 @@ transforms:
     changes:
       - kind: 'rename'
         newName: 'requestPermission'
+
+  # For the calls and the overrides of GalPlatform. 2.x has GalPlatform only in
+  # src, so the code for 2.x imports it from there.
+  - title: "Rename to 'hasPermission'"
+    date: 2026-11-11
+    element:
+      uris:
+        - 'package:gal/gal_platform_interface.dart'
+        - 'package:gal/src/gal_platform_interface.dart'
+      method: 'hasAccess'
+      inClass: 'GalPlatform'
+    changes:
+      - kind: 'rename'
+        newName: 'hasPermission'
+
+  - title: "Rename to 'requestPermission'"
+    date: 2026-11-11
+    element:
+      uris:
+        - 'package:gal/gal_platform_interface.dart'
+        - 'package:gal/src/gal_platform_interface.dart'
+      method: 'requestAccess'
+      inClass: 'GalPlatform'
+    changes:
+      - kind: 'rename'
+        newName: 'requestPermission'

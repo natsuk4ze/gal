@@ -1,0 +1,14 @@
+import 'package:gal/src/gal_platform_interface.dart';
+
+final class FakeGalPlatform extends GalPlatform {
+  @override
+  Future<bool> hasPermission({bool toAlbum = false}) async => true;
+
+  @override
+  Future<bool> requestPermission({bool toAlbum = false}) async => true;
+}
+
+Future<void> main() async {
+  await GalPlatform.instance.hasPermission();
+  await GalPlatform.instance.requestPermission(toAlbum: true);
+}
