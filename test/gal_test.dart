@@ -3,9 +3,9 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gal/gal.dart';
-import 'package:gal/testing.dart';
+import 'package:gal/gal_platform_interface.dart';
 
-class _FakeGal implements TestGal {
+final class _FakeGalPlatform extends GalPlatform {
   @override
   Future<void> putVideo(String path, {String? album}) async {}
 
@@ -30,7 +30,7 @@ class _FakeGal implements TestGal {
 }
 
 void main() {
-  setUp(() => TestGal.setUp(_FakeGal()));
+  setUp(() => GalPlatform.instance = _FakeGalPlatform());
 
   test('putVideo', () => Gal.putVideo('example/assets/done.mp4'));
   test('putImage', () => Gal.putImage('example/assets/done.jpg'));
