@@ -17,7 +17,11 @@ final class Gal {
   /// ```dart
   /// await Gal.putVideo('${Directory.systemTemp.path}/video.mp4');
   /// ```
-  /// Throws a [GalException] if the app does not have permission or
+  /// {@template gal.put.permission}
+  /// If the app does not have permission yet, this requests it first, so you
+  /// do not need to call [requestPermission] beforehand.
+  /// {@endtemplate}
+  /// Throws a [GalException] if permission is denied or
   /// if an error occurs during saving.
   /// The OS must support both the file type and the video codec,
   /// or [GalExceptionType.notSupportedFormat] is thrown.
@@ -25,14 +29,15 @@ final class Gal {
   static Future<void> putVideo(String path, {String? album}) async =>
       GalPlatform.instance.putVideo(path, album: album);
 
-  /// Save a image to the gallery from file [path].
+  /// Save an image to the gallery from file [path].
   ///
   /// Specify the album with [album]. If it does not exist, it will be created.
   /// [path] must include the file extension.
   /// ```dart
   /// await Gal.putImage('${Directory.systemTemp.path}/image.jpg');
   /// ```
-  /// Throws a [GalException] if the app does not have permission or
+  /// {@macro gal.put.permission}
+  /// Throws a [GalException] if permission is denied or
   /// if an error occurs during saving.
   /// The OS must support the file type,
   /// or [GalExceptionType.notSupportedFormat] is thrown.
@@ -40,7 +45,7 @@ final class Gal {
   static Future<void> putImage(String path, {String? album}) async =>
       GalPlatform.instance.putImage(path, album: album);
 
-  /// Save a image to the gallery from [Uint8List].
+  /// Save an image to the gallery from [Uint8List].
   ///
   /// Specify the album with [album]. If it does not exist, it will be created.
   /// Specify the file name with [name]. Do not include the extension.
@@ -50,7 +55,8 @@ final class Gal {
   /// ```dart
   /// await Gal.putImageBytes(bytes, name: 'photo');
   /// ```
-  /// Throws a [GalException] if the app does not have permission or
+  /// {@macro gal.put.permission}
+  /// Throws a [GalException] if permission is denied or
   /// if an error occurs during saving.
   /// The OS must support the image format,
   /// or [GalExceptionType.notSupportedFormat] is thrown.
@@ -61,9 +67,10 @@ final class Gal {
   }) async =>
       GalPlatform.instance.putImageBytes(bytes, album: album, name: name);
 
-  /// Open gallery app.
+  /// Open the gallery app.
   ///
-  /// If there are multiple gallery apps, App selection sheet may be displayed.
+  /// If there are multiple gallery apps, an app selection sheet may be
+  /// displayed.
   static Future<void> open() async => GalPlatform.instance.open();
 
   /// Check if the app has permission to save to the gallery.

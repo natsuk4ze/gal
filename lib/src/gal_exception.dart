@@ -36,8 +36,14 @@ class GalException implements Exception {
     stackTrace: stackTrace,
   );
 
+  /// Also shows the [PlatformException.code] and [PlatformException.message]
+  /// of [platformException].
   @override
-  String toString() => "[GalException/${type.code}]: ${type.message}";
+  String toString() {
+    final PlatformException(:code, :message) = platformException;
+    return '[GalException/${type.code}]: ${type.message} '
+        '(PlatformException/$code${message == null ? '' : ': $message'})';
+  }
 }
 
 /// Types of [GalException]
@@ -48,11 +54,11 @@ class GalException implements Exception {
 /// including all values of [GalException.platformException]
 /// and [GalException.stackTrace].
 enum GalExceptionType {
-  /// When has no permission to access gallery app.
+  /// When the app does not have permission to access the gallery.
   /// See: [Gal.hasPermission] and [Gal.requestPermission]
   permissionDenied,
 
-  /// When insufficient device storage.
+  /// When the device does not have enough storage.
   notEnoughSpace,
 
   /// When trying to save a file in an unsupported format.
@@ -61,7 +67,7 @@ enum GalExceptionType {
   /// support the video codec. Re-encode the video if the codec is not supported.
   notSupportedFormat,
 
-  /// When an error occurs with unexpected.
+  /// When an unexpected error occurs.
   unexpected;
 
   String get code => switch (this) {
@@ -74,7 +80,7 @@ enum GalExceptionType {
   String get message => switch (this) {
     permissionDenied => 'Permission to access the gallery is denied.',
     notEnoughSpace => 'Not enough space for storage.',
-    notSupportedFormat => 'Unsupported file formats.',
+    notSupportedFormat => 'Unsupported file format.',
     unexpected => 'An unexpected error has occurred.',
   };
 }

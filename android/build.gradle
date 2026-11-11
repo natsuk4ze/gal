@@ -11,10 +11,8 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    if (project.android.hasProperty("namespace")) {
-      namespace = 'studio.midoridesign.gal'
-    }
-    
+    namespace = 'studio.midoridesign.gal'
+
     compileSdk = flutter.compileSdkVersion
 
     compileOptions {

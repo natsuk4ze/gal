@@ -116,3 +116,21 @@ jobs:
     needs: filter
     if: ${{ needs.filter.outputs.android_changed == 'true' || needs.filter.outputs.common_changed == 'true' || inputs.run_all || inputs.run_android }}
     uses: ./.github/workflows/ci_android.yml
+
+  # Unit tests are fast, so they run on every change
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Setup Flutter SDK
+        timeout-minutes: 10
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Run unit tests
+        run: flutter test

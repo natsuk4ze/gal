@@ -181,6 +181,9 @@ await Gal.putVideo(video.path);
 
 ### Handle Permissions
 
+`put-` methods request permission when the app does not have it yet, so you do not need to call these before saving.
+Use them to choose when the dialog appears, for example after showing your own explanation.
+
 ```dart
 // Check Permission
 final hasPermission = await Gal.hasPermission();
@@ -216,6 +219,31 @@ enum GalExceptionType {
         notSupportedFormat => 'Unsupported file format.',
         unexpected => 'An unexpected error has occurred.',
       };
+}
+```
+
+### Testing
+
+Gal calls native code, which does not run in unit tests or widget tests.
+In most cases, wrap Gal in your own class and mock that class.
+To replace Gal itself, extend `GalPlatform` from
+`package:gal/gal_platform_interface.dart` and set it to `GalPlatform.instance`.
+Methods that the fake does not override throw `UnimplementedError`.
+
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:gal/gal.dart';
+import 'package:gal/gal_platform_interface.dart';
+
+final class FakeGalPlatform extends GalPlatform {
+  @override
+  Future<void> putImage(String path, {String? album}) async {}
+}
+
+void main() {
+  setUp(() => GalPlatform.instance = FakeGalPlatform());
+
+  test('saves the image', () => Gal.putImage('image.jpg'));
 }
 ```
 
