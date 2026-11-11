@@ -16,11 +16,8 @@ import 'package:gal/src/gal_platform_interface.dart';
 /// setUp(() => TestGal.setUp(FakeGal()));
 /// ```
 ///
-/// Methods may be added in minor versions. A fake that implements this
-/// class may need to add them, but mocks do not.
-// This is an interface rather than a subclass of `GalPlatform`, because
-// `GalPlatform` is a base class, and mock packages such as mockito can only
-// create mocks with `implements`.
+/// This is an interface rather than a subclass of `GalPlatform`, which is a
+/// base class, so that mock packages such as mockito can implement it.
 @visibleForTesting
 abstract interface class TestGal {
   /// Makes `Gal` call [platform] instead of the real platform.
