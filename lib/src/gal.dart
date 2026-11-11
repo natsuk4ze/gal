@@ -17,7 +17,11 @@ final class Gal {
   /// ```dart
   /// await Gal.putVideo('${Directory.systemTemp.path}/video.mp4');
   /// ```
-  /// Throws a [GalException] if the app does not have permission or
+  /// {@template gal.put.permission}
+  /// If the app does not have permission yet, this requests it first, so you
+  /// do not need to call [requestPermission] beforehand.
+  /// {@endtemplate}
+  /// Throws a [GalException] if permission is denied or
   /// if an error occurs during saving.
   /// The OS must support both the file type and the video codec,
   /// or [GalExceptionType.notSupportedFormat] is thrown.
@@ -32,7 +36,8 @@ final class Gal {
   /// ```dart
   /// await Gal.putImage('${Directory.systemTemp.path}/image.jpg');
   /// ```
-  /// Throws a [GalException] if the app does not have permission or
+  /// {@macro gal.put.permission}
+  /// Throws a [GalException] if permission is denied or
   /// if an error occurs during saving.
   /// The OS must support the file type,
   /// or [GalExceptionType.notSupportedFormat] is thrown.
@@ -50,7 +55,8 @@ final class Gal {
   /// ```dart
   /// await Gal.putImageBytes(bytes, name: 'photo');
   /// ```
-  /// Throws a [GalException] if the app does not have permission or
+  /// {@macro gal.put.permission}
+  /// Throws a [GalException] if permission is denied or
   /// if an error occurs during saving.
   /// The OS must support the image format,
   /// or [GalExceptionType.notSupportedFormat] is thrown.
