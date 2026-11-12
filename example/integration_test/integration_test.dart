@@ -18,7 +18,7 @@ void main() {
         'putImageBytes($bytes)',
         () => Gal.putImageBytes(Uint8List.fromList(bytes)),
         GalExceptionType.notSupportedFormat,
-        skip: !Platform.isAndroid,
+        skip: Platform.isMacOS,
       );
     }
     testThrows(
