@@ -9,7 +9,7 @@ import 'gal_platform_interface.dart';
 final class MethodChannelGal extends GalPlatform {
   final _methodChannel = const MethodChannel('gal');
 
-  Future<T?> _invokeMethod<T>(String method, Map<String, dynamic> args) async {
+  Future<T?> _invokeMethod<T>(String method, Map<String, Object?> args) async {
     try {
       return await _methodChannel.invokeMethod<T>(method, args);
     } on PlatformException catch (error, stackTrace) {

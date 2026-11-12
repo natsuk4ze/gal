@@ -1,114 +1,109 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gal/gal.dart';
 
 /// Integration_test is required to test native code,
 /// but it is not necessary to build the widget.
-Future<void> main() async {
-  final testCases = [
-    for (final isSavedToAlbum in [true, false])
-      TestCase(isSavedToAlbum: isSavedToAlbum),
-  ];
-
-  for (final testCase in testCases) {
-    final toAlbum = testCase.toAlbum;
-    final album = testCase.album;
-
-    await run(
-      'hasPermission(toAlbum: $toAlbum)',
-      () async => Gal.hasPermission(toAlbum: toAlbum),
-    );
-
-    await run(
-      'requestPermission(toAlbum: $toAlbum)',
-      () async => Gal.requestPermission(toAlbum: toAlbum),
-      skip: Platform.isMacOS,
-    );
-
-    await run('putImage(album: $album)', () async {
-      final path = await getFilePath('assets/done.jpg');
-      await Gal.putImage(path, album: album);
-    }, skip: Platform.isMacOS);
-
-    await run('putImageBytes(album: $album)', () async {
-      final bytes = await getBytesData('assets/done.jpg');
-      await Gal.putImageBytes(bytes, album: album);
-    }, skip: Platform.isMacOS);
-
-    await run('putImageBytes(webp, album: $album)', () async {
-      final bytes = await getBytesData('assets/done.webp');
-      await Gal.putImageBytes(bytes, album: album);
-    }, skip: !Platform.isAndroid);
-
-    await run('putVideo(album: $album)', () async {
-      final path = await getFilePath('assets/done.mp4');
-      await Gal.putVideo(path, album: album);
-    }, skip: Platform.isMacOS);
-  }
-  test('putImageBytes(unsupported format)', () async {
+void main() {
+  group('throws', () {
     // [0, 0, 1, 1] looks like a 1x1 WBMP, which has no signature.
     for (final bytes in [
       [0, 1, 2, 3],
       [0, 0, 1, 1],
     ]) {
-      await expectLater(
-        Gal.putImageBytes(Uint8List.fromList(bytes)),
-        throwsA(
-          isA<GalException>().having(
-            (e) => e.type,
-            'type',
-            GalExceptionType.notSupportedFormat,
-          ),
-        ),
+      testThrows(
+        'putImageBytes($bytes)',
+        () => Gal.putImageBytes(Uint8List.fromList(bytes)),
+        GalExceptionType.notSupportedFormat,
+        skip: Platform.isMacOS,
       );
     }
-  }, skip: !Platform.isAndroid);
-  await run('open', () async => Gal.open());
+    testThrows(
+      'putImage(missing file)',
+      () => Gal.putImage('/no/such/file.jpg'),
+      GalExceptionType.unexpected,
+      skip: Platform.isMacOS,
+    );
+  });
+
+  // Runs last, as Gal.open opens the gallery app over this app.
+  group('completes', () {
+    for (final album in ['album', null]) {
+      final toAlbum = album != null;
+      testCompletes(
+        'hasPermission(toAlbum: $toAlbum)',
+        () => Gal.hasPermission(toAlbum: toAlbum),
+      );
+      testCompletes(
+        'requestPermission(toAlbum: $toAlbum)',
+        () => Gal.requestPermission(toAlbum: toAlbum),
+        skip: Platform.isMacOS,
+      );
+      testCompletes(
+        'putImage(album: $album)',
+        () async => Gal.putImage(await copyAsset('done.jpg'), album: album),
+        skip: Platform.isMacOS,
+      );
+      testCompletes(
+        'putImageBytes(album: $album)',
+        () async =>
+            Gal.putImageBytes(await loadAsset('done.jpg'), album: album),
+        skip: Platform.isMacOS,
+      );
+      testCompletes(
+        'putImageBytes(webp, album: $album)',
+        () async =>
+            Gal.putImageBytes(await loadAsset('done.webp'), album: album),
+        skip: !Platform.isAndroid,
+      );
+      testCompletes(
+        'putVideo(album: $album)',
+        () async => Gal.putVideo(await copyAsset('done.mp4'), album: album),
+        skip: Platform.isMacOS,
+      );
+    }
+    testCompletes('open', Gal.open);
+  });
 }
 
-Future<void> run(
-  String title,
-  Future<dynamic> Function() function, {
+/// Fails with the native stack trace too, if [body] throws a [GalException].
+void testCompletes(
+  String description,
+  Future<Object?> Function() body, {
   bool skip = false,
-}) async => test(title, () async {
+}) => test(description, () async {
   try {
-    final value = await function();
+    final value = await body();
     if (value != null) debugPrint('returned: $value');
-  } on GalException catch (e, st) {
-    fail("""
-${e.runtimeType}: $e\n
-StackTrace: $st
-PlatformException: ${e.platformException}""");
+  } on GalException catch (e) {
+    fail('$e\n${e.platformException.details ?? ''}');
   }
 }, skip: skip);
 
-Future<String> getFilePath(String path) async {
-  final byteData = await rootBundle.load(path);
-  final file = await File(
-    '${Directory.systemTemp.path}${path.replaceAll('assets', '')}',
-  ).create();
-  await file.writeAsBytes(
-    byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
-  );
+void testThrows(
+  String description,
+  Future<void> Function() body,
+  GalExceptionType type, {
+  bool skip = false,
+}) => test(
+  description,
+  () => expectLater(
+    body(),
+    throwsA(isA<GalException>().having((e) => e.type, 'type', type)),
+  ),
+  skip: skip,
+);
+
+Future<Uint8List> loadAsset(String name) async {
+  final data = await rootBundle.load('assets/$name');
+  return data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+}
+
+Future<String> copyAsset(String name) async {
+  final file = File('${Directory.systemTemp.path}/$name');
+  await file.writeAsBytes(await loadAsset(name));
   return file.path;
-}
-
-Future<Uint8List> getBytesData(String path) async {
-  final byteData = await rootBundle.load(path);
-  final uint8List = byteData.buffer.asUint8List(
-    byteData.offsetInBytes,
-    byteData.lengthInBytes,
-  );
-  return Uint8List.fromList(uint8List);
-}
-
-class TestCase {
-  const TestCase({required this.isSavedToAlbum});
-  final bool isSavedToAlbum;
-
-  bool get toAlbum => isSavedToAlbum;
-  String? get album => isSavedToAlbum ? 'album' : null;
 }

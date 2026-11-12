@@ -39,6 +39,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -54,7 +56,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private MethodChannel channel;
     private FlutterPluginBinding pluginBinding;
     private Activity activity;
-    private Result pendingResult;
+    private final List<Result> pendingResults = new ArrayList<>();
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -106,8 +108,9 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                     result.success(true);
                     return;
                 }
-                pendingResult = result;
-                requestPermission();
+                // Android cancels a request made while another is shown.
+                pendingResults.add(result);
+                if (pendingResults.size() == 1) requestPermission();
                 break;
             }
             default:
@@ -120,7 +123,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         File file = new File(path);
         String name = file.getName();
         int dotIndex = name.lastIndexOf('.');
-        if (dotIndex == -1) throw new FileNotFoundException("Extension not found.");
+        if (dotIndex == -1) throw new UnsupportedFormatException("Extension not found.");
 
         try (InputStream in = new FileInputStream(file)) {
             writeData(in, isImage, name.substring(0, dotIndex), name.substring(dotIndex + 1),
@@ -135,7 +138,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
         String extension = getImageExtension(options.outMimeType, bytes);
-        if (extension == null) throw new FileNotFoundException("Unsupported image format.");
+        if (extension == null) throw new UnsupportedFormatException("Unsupported image format.");
         try (InputStream in = new ByteArrayInputStream(bytes)) {
             writeData(in, true, name, extension, album);
         }
@@ -248,8 +251,14 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     private void requestPermission() {
-        ActivityCompat.requestPermissions(activity, new String[] {PERMISSION},
-                PERMISSION_REQUEST_CODE);
+        try {
+            ActivityCompat.requestPermissions(activity, new String[] {PERMISSION},
+                    PERMISSION_REQUEST_CODE);
+        } catch (RuntimeException e) {
+            // Otherwise later calls wait for a dialog that is never shown.
+            pendingResults.clear();
+            throw e;
+        }
     }
 
     private void sendError(String errorCode, String message, StackTraceElement[] stackTrace,
@@ -263,11 +272,18 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                 .post(() -> result.error(errorCode, message, trace.toString()));
     }
 
+    // Not FileNotFoundException, which the system also throws for a missing file.
+    private static class UnsupportedFormatException extends IOException {
+        UnsupportedFormatException(String message) {
+            super(message);
+        }
+    }
+
     private void handleError(Exception e, Result result) {
         String errorCode;
         if (e instanceof SecurityException || e.toString().contains("Permission denied")) {
             errorCode = "PERMISSION_DENIED";
-        } else if (e instanceof FileNotFoundException) {
+        } else if (e instanceof UnsupportedFormatException) {
             errorCode = "NOT_SUPPORTED_FORMAT";
         } else if (e instanceof IOException && e.toString().contains("No space left on device")) {
             errorCode = "NOT_ENOUGH_SPACE";
@@ -303,9 +319,11 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     @Override
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions,
             int[] grantResults) {
-        if (requestCode != PERMISSION_REQUEST_CODE || grantResults.length == 0 || pendingResult == null) return false;
-        pendingResult.success(grantResults[0] == PackageManager.PERMISSION_GRANTED);
-        pendingResult = null;
+        if (requestCode != PERMISSION_REQUEST_CODE) return false;
+        // grantResults is empty when the request is canceled.
+        boolean granted = hasPermission(true);
+        for (Result result : pendingResults) result.success(granted);
+        pendingResults.clear();
         return true;
     }
 

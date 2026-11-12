@@ -29,7 +29,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
         album: args["album"] as? String,
         isImage: call.method == "putImage"
       ) { _, error in
-        result(error == nil ? nil : self.handleError(error: error!))
+        result(error.map(self.handleError))
       }
     case "putImageBytes":
       let args = call.arguments as! [String: Any]
@@ -38,7 +38,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
         album: args["album"] as? String,
         name: args["name"] as! String
       ) { _, error in
-        result(error == nil ? nil : self.handleError(error: error!))
+        result(error.map(self.handleError))
       }
     case "open":
       open { result(nil) }
@@ -65,6 +65,15 @@ public class GalPlugin: NSObject, FlutterPlugin {
   private func putMedia(
     path: String, album: String?, isImage: Bool, completion: @escaping (Bool, Error?) -> Void
   ) {
+    // On iOS 26, PhotoKit reports a missing file as 3302, which is NOT_SUPPORTED_FORMAT.
+    guard FileManager.default.fileExists(atPath: path) else {
+      completion(
+        false,
+        NSError(
+          domain: NSCocoaErrorDomain, code: NSFileReadNoSuchFileError,
+          userInfo: [NSFilePathErrorKey: path]))
+      return
+    }
     let url = URL(fileURLWithPath: path)
     writeContent(
       assetChangeRequest: {
@@ -174,8 +183,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
     switch PHErrorCode(rawValue: error.code) {
     case .accessRestricted, .accessUserDenied:
       return FlutterError(code: "PERMISSION_DENIED", message: message, details: details)
-    case .identifierNotFound, .multipleIdentifiersFound, .requestNotSupportedForAsset,
-         .videoConversionFailed, .unsupportedVideoCodec:
+    case .requestNotSupportedForAsset, .changeNotSupported, .invalidResource:
       return FlutterError(code: "NOT_SUPPORTED_FORMAT", message: message, details: details)
     case .notEnoughSpace:
       return FlutterError(code: "NOT_ENOUGH_SPACE", message: message, details: details)
@@ -188,20 +196,13 @@ public class GalPlugin: NSObject, FlutterPlugin {
 /// Low iOS versions do not have an enum defined, so [rawValue] must be used.
 /// If [rawValue] is not defined either, no handle is possible.
 /// You can check Apple's documentation by replacing the [$caseName] of the following URL
-/// Some documents are not provided by Apple.
 /// https://developer.apple.com/documentation/photokit/phphotoserror/code/$caseName
 enum PHErrorCode: Int {
-  // [PHPhotosError.identifierNotFound]
-  case identifierNotFound = 3201
+  // [PHPhotosError.changeNotSupported]
+  case changeNotSupported = 3300
 
-  // [PHPhotosError.multipleIdentifiersFound]
-  case multipleIdentifiersFound = 3202
-
-  // Apple has not released documentation.
-  case videoConversionFailed = 3300
-
-  // Apple has not released documentation.
-  case unsupportedVideoCodec = 3302
+  // [PHPhotosError.invalidResource]
+  case invalidResource = 3302
 
   // [PHPhotosError.notEnoughSpace]
   case notEnoughSpace = 3305

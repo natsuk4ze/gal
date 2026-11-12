@@ -1,5 +1,10 @@
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  exclude:
+    # Uses the old API on purpose to test lib/fix_data.yaml.
+    - test_fixes/**
+
 linter:
   rules:
     unawaited_futures: true
