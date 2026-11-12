@@ -96,8 +96,8 @@ final class Gal {
   /// Use the [toAlbum] for additional permissions to save to an album.
   /// On iOS and macOS, the dialog is shown only once. If the user denies it,
   /// permission can only be changed in the Settings app.
-  /// On Android API 24 to 29, the dialog is shown each time until
-  /// the user selects "Don't ask again".
+  /// On Android API 24 to 28, and on API 29 with [toAlbum], the dialog is
+  /// shown each time until the user selects "Don't ask again".
   /// See [hasPermission] for limited access on iOS and macOS.
   static Future<bool> requestPermission({bool toAlbum = false}) async =>
       GalPlatform.instance.requestPermission(toAlbum: toAlbum);
