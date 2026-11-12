@@ -29,6 +29,9 @@ import 'package:gal/gal.dart';
 await Gal.putImage(path);       // Save an image file
 await Gal.putVideo(path);       // Save a video file
 await Gal.putImageBytes(bytes); // Save image bytes
+
+await Gal.hasPermission();      // Check the permission
+await Gal.requestPermission();  // Ask for the permission
 ```
 
 ## 💚 Support Gal
