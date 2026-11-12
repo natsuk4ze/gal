@@ -12,6 +12,7 @@ Android · iOS · macOS · Windows
 [![pub points](https://img.shields.io/pub/points/gal?style=flat-square&color=2E8B57)](https://pub.dev/packages/gal/score)
 [![CI](https://img.shields.io/github/actions/workflow/status/natsuk4ze/gal/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/natsuk4ze/gal/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/natsuk4ze/gal?style=flat-square&color=2E8B57)](https://github.com/natsuk4ze/gal/blob/main/LICENSE)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/natsuk4ze/gal)
 
 [**pub.dev**](https://pub.dev/packages/gal) &nbsp;·&nbsp;
 [**API Reference**](https://pub.dev/documentation/gal/latest/) &nbsp;·&nbsp;
