@@ -10,7 +10,6 @@ Android · iOS · macOS · Windows
 
 [![pub version](https://img.shields.io/pub/v/gal?style=flat-square&color=2E8B57&label=pub)](https://pub.dev/packages/gal)
 [![pub points](https://img.shields.io/pub/points/gal?style=flat-square&color=2E8B57)](https://pub.dev/packages/gal/score)
-[![pub likes](https://img.shields.io/pub/likes/gal?style=flat-square&color=2E8B57)](https://pub.dev/packages/gal/score)
 [![CI](https://img.shields.io/github/actions/workflow/status/natsuk4ze/gal/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/natsuk4ze/gal/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/natsuk4ze/gal?style=flat-square&color=2E8B57)](https://github.com/natsuk4ze/gal/blob/main/LICENSE)
 
@@ -31,6 +30,19 @@ await Gal.putImage(path);       // Save an image file
 await Gal.putVideo(path);       // Save a video file
 await Gal.putImageBytes(bytes); // Save image bytes
 ```
+
+## 💚 Support Gal
+
+<div align="center">
+
+Gal is built and maintained by volunteers.<br>
+If it saves you time, a like, a star or a sponsorship keeps it going.
+
+[![Like on pub.dev](https://img.shields.io/pub/likes/gal?style=for-the-badge&logo=dart&logoColor=white&label=Like%20on%20pub.dev&color=0175C2)](https://pub.dev/packages/gal)
+[![Star on GitHub](https://img.shields.io/github/stars/natsuk4ze/gal?style=for-the-badge&logo=github&label=Star%20on%20GitHub&color=2E8B57)](https://github.com/natsuk4ze/gal)
+[![Sponsor](https://img.shields.io/badge/Sponsor-natsuk4ze-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/natsuk4ze)
+
+</div>
 
 ## ✨ Highlights
 
@@ -305,12 +317,6 @@ Wrote an article about Gal? Let us know in [Discussions](https://github.com/nats
 | [**Thunder**](https://github.com/thunder-app/thunder) | Lemmy client | ![stars](https://img.shields.io/github/stars/thunder-app/thunder?style=flat-square&label=%E2%AD%90&color=2E8B57) |
 
 …and many more.
-
-## 💛 Support
-
-Gal is built by volunteers. If it saves you time, please give it a
-[👍 on pub.dev](https://pub.dev/packages/gal) and a [⭐ on GitHub](https://github.com/natsuk4ze/gal),
-or [sponsor the project](https://github.com/sponsors/natsuk4ze).
 
 <br>
 
