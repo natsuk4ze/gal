@@ -77,7 +77,7 @@ Future<void> main() async {
         ),
       ),
     );
-  }, skip: !Platform.isAndroid);
+  }, skip: !Platform.isAndroid && !Platform.isIOS);
   await run('open', () async => Gal.open());
 }
 
