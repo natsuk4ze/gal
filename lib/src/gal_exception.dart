@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:meta/meta.dart';
 
 /// Every [Exception] that [Gal] throws should be this.
 @immutable
@@ -24,6 +25,7 @@ class GalException implements Exception {
   final StackTrace stackTrace;
 
   /// Creates a [GalException] whose [type] matches [PlatformException.code].
+  @internal
   factory GalException.fromPlatformException(
     PlatformException exception,
     StackTrace stackTrace,
