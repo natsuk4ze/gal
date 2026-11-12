@@ -108,9 +108,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                     result.success(true);
                     return;
                 }
-                // The put methods request permission each time, so calls can overlap. Android
-                // cancels a request made while another is shown, so only the first call shows
-                // the dialog and every waiting call gets its result.
+                // Android cancels a request made while another is shown.
                 pendingResults.add(result);
                 if (pendingResults.size() == 1) requestPermission();
                 break;
@@ -257,7 +255,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
             ActivityCompat.requestPermissions(activity, new String[] {PERMISSION},
                     PERMISSION_REQUEST_CODE);
         } catch (RuntimeException e) {
-            // Flutter returns the exception to the call, so it must not keep later calls waiting.
+            // Otherwise later calls wait for a dialog that is never shown.
             pendingResults.clear();
             throw e;
         }
@@ -315,7 +313,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions,
             int[] grantResults) {
         if (requestCode != PERMISSION_REQUEST_CODE) return false;
-        // grantResults is empty when the request is canceled, so check the permission itself.
+        // grantResults is empty when the request is canceled.
         boolean granted = hasPermission(true);
         for (Result result : pendingResults) result.success(granted);
         pendingResults.clear();
