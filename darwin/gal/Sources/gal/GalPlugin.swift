@@ -29,7 +29,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
         album: args["album"] as? String,
         isImage: call.method == "putImage"
       ) { _, error in
-        result(error == nil ? nil : self.handleError(error: error!))
+        result(error.map(self.handleError))
       }
     case "putImageBytes":
       let args = call.arguments as! [String: Any]
@@ -38,7 +38,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
         album: args["album"] as? String,
         name: args["name"] as! String
       ) { _, error in
-        result(error == nil ? nil : self.handleError(error: error!))
+        result(error.map(self.handleError))
       }
     case "open":
       open { result(nil) }
