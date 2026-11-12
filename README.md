@@ -316,6 +316,10 @@ Wrote an article about Gal? Let us know in [Discussions](https://github.com/nats
 | :------ | :---- | :---: |
 | [**LocalSend**](https://github.com/localsend/localsend) | Share files to nearby devices | ![stars](https://img.shields.io/github/stars/localsend/localsend?style=flat-square&label=%E2%AD%90&color=2E8B57) |
 | [**Flutter Quill**](https://github.com/singerdmx/flutter-quill) | Rich text editor | ![stars](https://img.shields.io/github/stars/singerdmx/flutter-quill?style=flat-square&label=%E2%AD%90&color=2E8B57) |
+| [**Moodiary**](https://github.com/ZhuJHua/moodiary) | Diary app | ![stars](https://img.shields.io/github/stars/ZhuJHua/moodiary?style=flat-square&label=%E2%AD%90&color=2E8B57) |
+| [**Turms**](https://github.com/turms-im/turms) | Instant messaging engine | ![stars](https://img.shields.io/github/stars/turms-im/turms?style=flat-square&label=%E2%AD%90&color=2E8B57) |
+| [**Lotti**](https://github.com/matthiasn/lotti) | Private logbook with AI assistants | ![stars](https://img.shields.io/github/stars/matthiasn/lotti?style=flat-square&label=%E2%AD%90&color=2E8B57) |
+| [**Pho**](https://github.com/fregie/pho) | Photo sync to cloud storage | ![stars](https://img.shields.io/github/stars/fregie/pho?style=flat-square&label=%E2%AD%90&color=2E8B57) |
 | [**Stream Chat**](https://github.com/GetStream/stream-chat-flutter) | Chat SDK | ![stars](https://img.shields.io/github/stars/GetStream/stream-chat-flutter?style=flat-square&label=%E2%AD%90&color=2E8B57) |
 | [**Thunder**](https://github.com/thunder-app/thunder) | Lemmy client | ![stars](https://img.shields.io/github/stars/thunder-app/thunder?style=flat-square&label=%E2%AD%90&color=2E8B57) |
 
