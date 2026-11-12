@@ -113,8 +113,7 @@ Add the following to `android/app/src/main/AndroidManifest.xml`:
 
 See the [example's AndroidManifest.xml](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
 
-> [!WARNING]
-> Android emulators with API below 29 need an SD card set up. Real devices don't.
+> ⚠️ Android emulators with API below 29 need an SD card set up. Real devices don't.
 
 </details>
 
@@ -136,8 +135,7 @@ Add the following keys to `macos/Runner/Info.plist`:
 
 See the [example's Info.plist](https://github.com/natsuk4ze/gal/blob/main/example/macos/Runner/Info.plist).
 
-> [!WARNING]
-> Flutter has a [known issue with loading Info.plist](https://github.com/flutter/flutter/issues/134191) that can cause permission denials or crashes when running from some code editors.
+> ⚠️ Flutter has a [known issue with loading Info.plist](https://github.com/flutter/flutter/issues/134191) that can cause permission denials or crashes when running from some code editors.
 
 </details>
 
@@ -147,9 +145,8 @@ See the [example's Info.plist](https://github.com/natsuk4ze/gal/blob/main/exampl
 
 Update [Visual Studio](https://visualstudio.microsoft.com) to the latest version to build with C++20.
 
-> [!TIP]
-> If the build still fails, install the latest Windows SDK:
-> **Visual Studio Installer** → **Modify** → **Windows SDK**
+> 💡 If the build still fails, install the latest Windows SDK from
+> **Visual Studio Installer** → **Modify** → **Windows SDK**.
 
 </details>
 
