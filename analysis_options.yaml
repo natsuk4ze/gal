@@ -4,6 +4,9 @@ analyzer:
   exclude:
     # Uses the old API on purpose to test lib/fix_data.yaml.
     - test_fixes/**
+    - build/**
+    - android/**
+    - windows/**
 
 linter:
   rules:
