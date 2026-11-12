@@ -200,12 +200,9 @@ public class GalPlugin: NSObject, FlutterPlugin {
 /// https://developer.apple.com/documentation/photokit/phphotoserror/code/$caseName
 enum PHErrorCode: Int {
   // [PHPhotosError.changeNotSupported]
-  // It is NOT_SUPPORTED_FORMAT, because PhotoKit returns it for a video that it cannot convert.
   case changeNotSupported = 3300
 
   // [PHPhotosError.invalidResource]
-  // It is NOT_SUPPORTED_FORMAT, because PhotoKit returns it for a file in an unsupported format,
-  // such as a video with an unsupported codec.
   case invalidResource = 3302
 
   // [PHPhotosError.notEnoughSpace]
