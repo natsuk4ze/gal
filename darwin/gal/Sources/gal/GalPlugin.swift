@@ -184,7 +184,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
     switch PHErrorCode(rawValue: error.code) {
     case .accessRestricted, .accessUserDenied:
       return FlutterError(code: "PERMISSION_DENIED", message: message, details: details)
-    case .requestNotSupportedForAsset, .videoConversionFailed, .unsupportedVideoCodec:
+    case .requestNotSupportedForAsset, .changeNotSupported, .invalidResource:
       return FlutterError(code: "NOT_SUPPORTED_FORMAT", message: message, details: details)
     case .notEnoughSpace:
       return FlutterError(code: "NOT_ENOUGH_SPACE", message: message, details: details)
@@ -197,14 +197,16 @@ public class GalPlugin: NSObject, FlutterPlugin {
 /// Low iOS versions do not have an enum defined, so [rawValue] must be used.
 /// If [rawValue] is not defined either, no handle is possible.
 /// You can check Apple's documentation by replacing the [$caseName] of the following URL
-/// Some documents are not provided by Apple.
 /// https://developer.apple.com/documentation/photokit/phphotoserror/code/$caseName
 enum PHErrorCode: Int {
-  // Apple has not released documentation.
-  case videoConversionFailed = 3300
+  // [PHPhotosError.changeNotSupported]
+  // It is NOT_SUPPORTED_FORMAT, because PhotoKit returns it for a video that it cannot convert.
+  case changeNotSupported = 3300
 
-  // Apple has not released documentation.
-  case unsupportedVideoCodec = 3302
+  // [PHPhotosError.invalidResource]
+  // It is NOT_SUPPORTED_FORMAT, because PhotoKit returns it for a file in an unsupported format,
+  // such as a video with an unsupported codec.
+  case invalidResource = 3302
 
   // [PHPhotosError.notEnoughSpace]
   case notEnoughSpace = 3305
