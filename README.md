@@ -254,7 +254,7 @@ try {
 ```
 
 | `GalExceptionType`   | When                                                                                     |
-| -------------------- | ---------------------------------------------------------------------------------------- |
+| :------------------- | :--------------------------------------------------------------------------------------- |
 | `permissionDenied`   | The app does not have permission to access the gallery.                                  |
 | `notEnoughSpace`     | The device does not have enough storage.                                                 |
 | `notSupportedFormat` | The OS does not support the file type or video codec. The path must include the extension. |
@@ -287,24 +287,22 @@ void main() {
 
 ## 📚 Resources
 
-|                                                                                 |                                         |
-| ------------------------------------------------------------------------------- | --------------------------------------- |
-| 🎯 [**Example**](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart) | An app that uses every API              |
-| 📖 [**API Reference**](https://pub.dev/documentation/gal/latest/)               | Documentation for every class and method |
-| 🧠 [**DeepWiki**](https://deepwiki.com/natsuk4ze/gal)                           | How Gal works, explained by AI          |
-| 💬 [**Q&A**](https://github.com/natsuk4ze/gal/discussions/categories/q-a)       | Ask questions                           |
-| 💚 [**Contributing**](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md) | How to send issues and PRs              |
+- 🎯 [**Example**](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart) — An app that uses every API
+- 📖 [**API Reference**](https://pub.dev/documentation/gal/latest/) — Documentation for every class and method
+- 🧠 [**DeepWiki**](https://deepwiki.com/natsuk4ze/gal) — How Gal works, explained by AI
+- 💬 [**Q&A**](https://github.com/natsuk4ze/gal/discussions/categories/q-a) — Ask questions
+- 💚 [**Contributing**](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md) — How to send issues and PRs
 
 Wrote an article about Gal? Let us know in [Discussions](https://github.com/natsuk4ze/gal/discussions) and we'll link it here.
 
 ## 🤝 Trusted By
 
-| Project                                                         |                                         | Stars                                                                                           |
-| --------------------------------------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| [**LocalSend**](https://github.com/localsend/localsend)         | Share files to nearby devices           | ![stars](https://img.shields.io/github/stars/localsend/localsend?style=flat-square&label=%E2%AD%90&color=2E8B57)         |
-| [**Flutter Quill**](https://github.com/singerdmx/flutter-quill) | Rich text editor                        | ![stars](https://img.shields.io/github/stars/singerdmx/flutter-quill?style=flat-square&label=%E2%AD%90&color=2E8B57)     |
-| [**Stream Chat**](https://github.com/GetStream/stream-chat-flutter) | Chat SDK                            | ![stars](https://img.shields.io/github/stars/GetStream/stream-chat-flutter?style=flat-square&label=%E2%AD%90&color=2E8B57) |
-| [**Thunder**](https://github.com/thunder-app/thunder)           | Lemmy client                            | ![stars](https://img.shields.io/github/stars/thunder-app/thunder?style=flat-square&label=%E2%AD%90&color=2E8B57)         |
+| Project | About | Stars |
+| :------ | :---- | :---: |
+| [**LocalSend**](https://github.com/localsend/localsend) | Share files to nearby devices | ![stars](https://img.shields.io/github/stars/localsend/localsend?style=flat-square&label=%E2%AD%90&color=2E8B57) |
+| [**Flutter Quill**](https://github.com/singerdmx/flutter-quill) | Rich text editor | ![stars](https://img.shields.io/github/stars/singerdmx/flutter-quill?style=flat-square&label=%E2%AD%90&color=2E8B57) |
+| [**Stream Chat**](https://github.com/GetStream/stream-chat-flutter) | Chat SDK | ![stars](https://img.shields.io/github/stars/GetStream/stream-chat-flutter?style=flat-square&label=%E2%AD%90&color=2E8B57) |
+| [**Thunder**](https://github.com/thunder-app/thunder) | Lemmy client | ![stars](https://img.shields.io/github/stars/thunder-app/thunder?style=flat-square&label=%E2%AD%90&color=2E8B57) |
 
 …and many more.
 
