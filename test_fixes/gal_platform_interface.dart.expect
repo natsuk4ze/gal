@@ -1,4 +1,4 @@
-import 'package:gal/src/gal_platform_interface.dart';
+import 'package:gal/gal_platform_interface.dart';
 
 final class FakeGalPlatform extends GalPlatform {
   @override
