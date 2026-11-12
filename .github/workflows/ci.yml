@@ -79,7 +79,6 @@ jobs:
         with:
           filters: |
             common:
-              # Not lib/fix_data.yaml, which only the unit job tests.
               - '**/lib/**/*.dart'
               - '**/pubspec.yaml'
               - '**/pubspec.lock'
