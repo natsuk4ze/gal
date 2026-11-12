@@ -39,6 +39,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -54,7 +56,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private MethodChannel channel;
     private FlutterPluginBinding pluginBinding;
     private Activity activity;
-    private Result pendingResult;
+    private final List<Result> pendingResults = new ArrayList<>();
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -106,8 +108,9 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                     result.success(true);
                     return;
                 }
-                pendingResult = result;
-                requestPermission();
+                // Android cancels a request made while another is shown.
+                pendingResults.add(result);
+                if (pendingResults.size() == 1) requestPermission();
                 break;
             }
             default:
@@ -248,8 +251,14 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     private void requestPermission() {
-        ActivityCompat.requestPermissions(activity, new String[] {PERMISSION},
-                PERMISSION_REQUEST_CODE);
+        try {
+            ActivityCompat.requestPermissions(activity, new String[] {PERMISSION},
+                    PERMISSION_REQUEST_CODE);
+        } catch (RuntimeException e) {
+            // Otherwise later calls wait for a dialog that is never shown.
+            pendingResults.clear();
+            throw e;
+        }
     }
 
     private void sendError(String errorCode, String message, StackTraceElement[] stackTrace,
@@ -310,9 +319,11 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     @Override
     public boolean onRequestPermissionsResult(int requestCode, String[] permissions,
             int[] grantResults) {
-        if (requestCode != PERMISSION_REQUEST_CODE || grantResults.length == 0 || pendingResult == null) return false;
-        pendingResult.success(grantResults[0] == PackageManager.PERMISSION_GRANTED);
-        pendingResult = null;
+        if (requestCode != PERMISSION_REQUEST_CODE) return false;
+        // grantResults is empty when the request is canceled.
+        boolean granted = hasPermission(true);
+        for (Result result : pendingResults) result.success(granted);
+        pendingResults.clear();
         return true;
     }
 
