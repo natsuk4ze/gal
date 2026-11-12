@@ -65,8 +65,7 @@ public class GalPlugin: NSObject, FlutterPlugin {
   private func putMedia(
     path: String, album: String?, isImage: Bool, completion: @escaping (Bool, Error?) -> Void
   ) {
-    // PhotoKit reports a missing file as an invalid resource (3302) on iOS 26, the same as
-    // a file in an unsupported format, so the file is checked first.
+    // On iOS 26, PhotoKit reports a missing file as 3302, which is NOT_SUPPORTED_FORMAT.
     guard FileManager.default.fileExists(atPath: path) else {
       completion(
         false,

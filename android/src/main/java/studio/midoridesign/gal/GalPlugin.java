@@ -263,8 +263,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                 .post(() -> result.error(errorCode, message, trace.toString()));
     }
 
-    // Thrown only for the formats that gal does not save. FileNotFoundException cannot be used,
-    // because the system also throws it, for example when the file does not exist.
+    // Not FileNotFoundException, which the system also throws for a missing file.
     private static class UnsupportedFormatException extends IOException {
         UnsupportedFormatException(String message) {
             super(message);

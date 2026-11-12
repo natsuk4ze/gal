@@ -29,8 +29,7 @@ void main() {
     );
   });
 
-  // This group runs last, because Gal.open at its end opens the gallery app
-  // over this app.
+  // Runs last, as Gal.open opens the gallery app over this app.
   group('completes', () {
     for (final album in ['album', null]) {
       final toAlbum = album != null;
@@ -84,7 +83,6 @@ void testCompletes(
   }
 }, skip: skip);
 
-/// Expects [body] to throw a [GalException] of [type].
 void testThrows(
   String description,
   Future<void> Function() body,
@@ -104,7 +102,6 @@ Future<Uint8List> loadAsset(String name) async {
   return data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
 }
 
-/// Copies the asset to a file, because the put methods take a file path.
 Future<String> copyAsset(String name) async {
   final file = File('${Directory.systemTemp.path}/$name');
   await file.writeAsBytes(await loadAsset(name));

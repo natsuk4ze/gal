@@ -48,7 +48,6 @@ void main() {
       ('NOT_ENOUGH_SPACE', GalExceptionType.notEnoughSpace),
       ('NOT_SUPPORTED_FORMAT', GalExceptionType.notSupportedFormat),
       ('UNEXPECTED', GalExceptionType.unexpected),
-      // A code that gal does not know, such as a new one from the native side.
       ('UNKNOWN', GalExceptionType.unexpected),
     ]) {
       test('$code is ${type.name}', () {
