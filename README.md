@@ -1,233 +1,274 @@
-<p align="center">
-  <p align="center">
-   <img width="200" height="200" src="https://github.com/natsuk4ze/gal/raw/main/assets/logo.png" alt="Logo">
-  </p>
- <h1 align="center"><b>Gal</b></h1>
- <h3 align="center">
-  <b>
-   Dart3 plugin for saving image or video to photos gallery
-    <img src="https://is5-ssl.mzstatic.com/image/thumb/Purple122/v4/fe/3a/7e/fe3a7e0e-7f52-b750-0ed2-523998c59d48/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/246x0w.webp" alt="ios photos" width="20" height="20"/> <img src="https://play-lh.googleusercontent.com/ZyWNGIfzUyoajtFcD7NhMksHEZh37f-MkHVGr5Yfefa-IX7yj9SMfI82Z7a2wpdKCA=w240-h480-rw" alt="google photos" width="20" height="20"/> <img src="https://upload.wikimedia.org/wikipedia/en/9/94/Microsoft_Photos_logo.png" alt="microsoft photos" width="22" height="22"/>
-  </b>
-  </h3>
- <p align="center">
-    <a href="https://pub.dev/packages/gal"><strong>pub.dev »</strong></a>
-    <br />
-    <br />
-    <img src="https://img.shields.io/badge/since-2023.06-purple" alt="Since">
-    <a href="https://pub.dev/packages/gal/score">
-    <img src="https://img.shields.io/pub/points/gal?color=2E8B57&label=pub%20points" alt="pub points">
-    </a>
-    <a href="https://www.codefactor.io/repository/github/natsuk4ze/gal">
-    <img src="https://www.codefactor.io/repository/github/natsuk4ze/gal/badge" alt="CodeFactor">
-    <a href="https://app.codacy.com/gh/natsuk4ze/gal/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade">
-    <img src="https://app.codacy.com/project/badge/Grade/3a20a89327ba43c789c0dc8465e16168" alt="Codacy Badge">
-    <img src="https://github.com/natsuk4ze/gal/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI">
-    <a href="https://pub.dev/packages/gal">
-    <img src="https://img.shields.io/pub/v/gal.svg" alt="pub package">
-    </a>  
-  </p>
-</p>
+<div align="center">
 
-## 📢 Support Us
+<img src="https://github.com/natsuk4ze/gal/raw/main/assets/logo.png" width="160" height="160" alt="Gal">
 
-Please support our volunteer efforts by giving us a [LIKE👍](https://pub.dev/packages/gal) and [STAR⭐️](https://github.com/natsuk4ze/gal).
+# Gal
 
-## 🧠 DeepWiki Documentation
+**Save images and videos to the photo gallery with a single line of Dart.**
 
-[![DeepWiki](https://img.shields.io/badge/DeepWiki-Documentation-2E8B57?style=for-the-badge&logo=read-the-docs&logoColor=white)](https://deepwiki.com/natsuk4ze/gal)
+Android · iOS · macOS · Windows
 
-## 📱 Supported Platforms
+[![pub version](https://img.shields.io/pub/v/gal?style=flat-square&color=2E8B57&label=pub)](https://pub.dev/packages/gal)
+[![pub points](https://img.shields.io/pub/points/gal?style=flat-square&color=2E8B57)](https://pub.dev/packages/gal/score)
+[![pub likes](https://img.shields.io/pub/likes/gal?style=flat-square&color=2E8B57)](https://pub.dev/packages/gal/score)
+[![CI](https://img.shields.io/github/actions/workflow/status/natsuk4ze/gal/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/natsuk4ze/gal/actions/workflows/ci.yml)
+[![license](https://img.shields.io/github/license/natsuk4ze/gal?style=flat-square&color=2E8B57)](https://github.com/natsuk4ze/gal/blob/main/LICENSE)
+
+[**pub.dev**](https://pub.dev/packages/gal) &nbsp;·&nbsp;
+[**API Reference**](https://pub.dev/documentation/gal/latest/) &nbsp;·&nbsp;
+[**DeepWiki**](https://deepwiki.com/natsuk4ze/gal) &nbsp;·&nbsp;
+[**Example**](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart) &nbsp;·&nbsp;
+[**Q&A**](https://github.com/natsuk4ze/gal/discussions/categories/q-a)
+
+</div>
+
+<br>
+
+```dart
+import 'package:gal/gal.dart';
+
+await Gal.putImage(path);       // Save an image file
+await Gal.putVideo(path);       // Save a video file
+await Gal.putImageBytes(bytes); // Save image bytes
+```
+
+## ✨ Highlights
+
+- **Simple API** — Save with `putImage`, `putVideo` or `putImageBytes`. Each is a single static call.
+- **Albums** — Save to a named album. It is created if it does not exist.
+- **Permissions built in** — Gal asks for access only when it needs it. Take control with `hasPermission` and `requestPermission`.
+- **Metadata kept** — EXIF and other metadata are saved along with the file.
+- **Typed errors** — Every failure is a `GalException` with a clear `GalExceptionType`.
+- **Easy to test** — Replace the platform with a fake in your unit tests.
+- **Tested in CI** — Integration tests run on Android, iOS, macOS and Windows.
+
+## 📱 Platforms
+
+<div align="center">
 
 |             | Android | iOS | macOS | Windows | Linux |
-|-------------|---------|-----|-------|---------|-------|
-| **Support** | SDK 24+ | 13+ |  11+  |   10+   | See: [gal_linux](https://pub.dev/packages/gal_linux) |
+| :---------: | :-----: | :-: | :---: | :-----: | :---: |
+| **Minimum** | API 24  | 13  |  11   |   10    | [`gal_linux`](https://pub.dev/packages/gal_linux) |
 
-**Support** means that all functions have been tested manually or [automatically](https://github.com/natsuk4ze/gal/actions/runs/7517751549) whenever possible.
+</div>
+
+Every function is tested on each platform, [automatically](https://github.com/natsuk4ze/gal/actions/workflows/ci.yml) wherever possible.
+Linux is available through [`gal_linux`](https://pub.dev/packages/gal_linux), a community plugin that is not officially endorsed.
 
 ## 📸 Demo
 
-|             | iOS | Android |
-|-------------|-----|---------|
-| **Example** | <img src="https://github.com/natsuk4ze/gal/raw/main/assets/ios.gif" alt="ios" width="270"/> | <img src="https://github.com/natsuk4ze/gal/raw/main/assets/android.gif" alt="android" width="270"/> |
+<div align="center">
 
-## ✨ Features
+| iOS | Android |
+| :-: | :-----: |
+| <img src="https://github.com/natsuk4ze/gal/raw/main/assets/ios.gif" width="260" alt="Gal on iOS"> | <img src="https://github.com/natsuk4ze/gal/raw/main/assets/android.gif" width="260" alt="Gal on Android"> |
 
-* Open gallery
-* Save video
-* Save image
-* Save to album
-* Save with metadata
-* Handle permission
-* Handle errors
-* Comprehensive documentation
+</div>
 
 ## 🚀 Getting Started
 
-### Add Dependency
+### 1. Install
 
-Add the latest stable version of gal to your dependencies:
-
-```console
+```sh
 flutter pub add gal
 ```
 
-### iOS Setup
+### 2. Set up each platform
+
+<details>
+<summary><b>iOS</b></summary>
+<br>
 
 Add the following keys to `ios/Runner/Info.plist`:
 
-* `<key>NSPhotoLibraryAddUsageDescription</key>` Required
-* `<key>NSPhotoLibraryUsageDescription</key>` Required for iOS < 14 or saving to album
+```xml
+<!-- Required -->
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>Save photos and videos to your library.</string>
 
-You can copy from [example's Info.plist](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
+<!-- Required for iOS 13 or saving to an album -->
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Save photos and videos to an album.</string>
+```
 
-### Android Setup
+See the [example's Info.plist](https://github.com/natsuk4ze/gal/blob/main/example/ios/Runner/Info.plist).
 
-Add the following keys to `android/app/src/main/AndroidManifest.xml`:
+</details>
 
-* `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-                 android:maxSdkVersion="29" />` Required for API <= 29
-* `android:requestLegacyExternalStorage="true"` Required for saving to album in API 29
+<details>
+<summary><b>Android</b></summary>
+<br>
 
-You can copy from [example's AndroidManifest.xml](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
+Add the following to `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<!-- Required for API 29 and below -->
+<uses-permission
+    android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    android:maxSdkVersion="29" />
+
+<!-- Required for saving to an album on API 29 -->
+<application android:requestLegacyExternalStorage="true">
+```
+
+See the [example's AndroidManifest.xml](https://github.com/natsuk4ze/gal/blob/main/example/android/app/src/main/AndroidManifest.xml).
 
 > [!WARNING]
-> Android emulators with API < 29 require SD card setup. Real devices don't.
+> Android emulators with API below 29 need an SD card set up. Real devices don't.
 
-### macOS Setup
+</details>
+
+<details>
+<summary><b>macOS</b></summary>
+<br>
 
 Add the following keys to `macos/Runner/Info.plist`:
 
-* `<key>NSPhotoLibraryAddUsageDescription</key>` Required
-* `<key>NSPhotoLibraryUsageDescription</key>` Required for saving to album
+```xml
+<!-- Required -->
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>Save photos and videos to your library.</string>
 
-You can copy from [example's Info.plist](https://github.com/natsuk4ze/gal/blob/main/example/macos/Runner/Info.plist).
+<!-- Required for saving to an album -->
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Save photos and videos to an album.</string>
+```
+
+See the [example's Info.plist](https://github.com/natsuk4ze/gal/blob/main/example/macos/Runner/Info.plist).
 
 > [!WARNING]
-> Flutter currently has a [fatal problem for loading info.plist](https://github.com/flutter/flutter/issues/134191), which may cause permission denials or app crashes in some code editors.
+> Flutter has a [known issue with loading Info.plist](https://github.com/flutter/flutter/issues/134191) that can cause permission denials or crashes when running from some code editors.
 
-### Windows Setup
+</details>
 
-Update [Visual Studio](https://visualstudio.microsoft.com) to the latest version for using `C++ 20`.
+<details>
+<summary><b>Windows</b></summary>
+<br>
+
+Update [Visual Studio](https://visualstudio.microsoft.com) to the latest version to build with C++20.
 
 > [!TIP]
-> If you can't compile, try downloading the latest Windows SDK:
->
-> 1. Open Visual Studio Installer
-> 2. Select Modify
-> 3. Select Windows SDK
+> If the build still fails, install the latest Windows SDK:
+> **Visual Studio Installer** → **Modify** → **Windows SDK**
 
-### Linux Setup
+</details>
 
-Linux is not officially supported, but can be added through a non-endorsed federated plugin.
-See: [gal_linux](https://pub.dev/packages/gal_linux)
+<details>
+<summary><b>Linux</b></summary>
+<br>
+
+Linux is not officially supported. Use the community plugin [`gal_linux`](https://pub.dev/packages/gal_linux).
+
+</details>
 
 ## 💻 Usage
 
-### Save from Local
+### Save images and videos
 
 ```dart
-// Save Image (Supports two ways)
+// From a file. The path must include the extension.
 await Gal.putImage('$filePath');
-await Gal.putImageBytes('$uint8List');
-
-// Save Video
 await Gal.putVideo('$filePath');
 
-// Save to Album
-await Gal.putImage('$filePath', album: '$album')
-...
+// From bytes. The extension is detected from the bytes.
+await Gal.putImageBytes(bytes, name: 'photo');
+
+// To an album. It is created if it does not exist.
+await Gal.putImage('$filePath', album: 'My Album');
+
+// Open the gallery app
+await Gal.open();
 ```
 
-### Download from Internet
+### Recipes
 
-```console
+<details>
+<summary><b>Download from the internet</b></summary>
+<br>
+
+```sh
 flutter pub add dio
 ```
 
 ```dart
-// Download Image
-final imagePath = '${Directory.systemTemp.path}/image.jpg';
-await Dio().download('$url',imagePath);
-await Gal.putImage(imagePath);
-
-// Download Video
-final videoPath = '${Directory.systemTemp.path}/video.mp4';
-await Dio().download('$url',videoPath);
-await Gal.putVideo(videoPath);
+final path = '${Directory.systemTemp.path}/image.jpg';
+await Dio().download('$url', path);
+await Gal.putImage(path);
 ```
 
-### Save from Camera
+</details>
 
-```console
+<details>
+<summary><b>Take a photo</b></summary>
+<br>
+
+```sh
 flutter pub add image_picker
 ```
 
 ```dart
-// Capture and Save
-final image = await ImagePicker.pickImage(source: ImageSource.camera);
-await Gal.putImage(image.path);
+final image = await ImagePicker().pickImage(source: ImageSource.camera);
+if (image != null) await Gal.putImage(image.path);
 ```
 
-```console
+</details>
+
+<details>
+<summary><b>Record a video</b></summary>
+<br>
+
+```sh
 flutter pub add camera
 ```
 
 ```dart
-// Record and Save
-...
+await controller.startVideoRecording();
+// ...
 final video = await controller.stopVideoRecording();
 await Gal.putVideo(video.path);
 ```
 
-### Handle Permissions
+</details>
 
-`put-` methods request permission when the app does not have it yet, so you do not need to call these before saving.
-Use them to choose when the dialog appears, for example after showing your own explanation.
+### Permissions
+
+`put` methods ask for permission when the app does not have it yet, so you don't need to request it beforehand.
+Request it yourself only to choose when the dialog appears, for example after showing your own explanation.
 
 ```dart
-// Check Permission
 final hasPermission = await Gal.hasPermission();
+final granted = await Gal.requestPermission();
 
-// Request Permission
-await Gal.requestPermission();
-
-// ... for saving to album
-final hasPermission = await Gal.hasPermission(toAlbum: true);
+// For saving to an album
+await Gal.hasPermission(toAlbum: true);
 await Gal.requestPermission(toAlbum: true);
 ```
 
-### Handle Errors
+### Errors
+
+Every error is a `GalException`. Use its `type` to decide what to do.
 
 ```dart
-// Save Image with try-catch
 try {
   await Gal.putImage('$filePath');
 } on GalException catch (e) {
   log(e.type.message);
 }
-
-// Exception Type
-enum GalExceptionType {
-  permissionDenied,
-  notEnoughSpace,
-  notSupportedFormat,
-  unexpected;
-
-  String get message => switch (this) {
-        permissionDenied => 'Permission to access the gallery is denied.',
-        notEnoughSpace => 'Not enough space for storage.',
-        notSupportedFormat => 'Unsupported file format.',
-        unexpected => 'An unexpected error has occurred.',
-      };
-}
 ```
+
+| `GalExceptionType`   | When                                                                                     |
+| -------------------- | ---------------------------------------------------------------------------------------- |
+| `permissionDenied`   | The app does not have permission to access the gallery.                                  |
+| `notEnoughSpace`     | The device does not have enough storage.                                                 |
+| `notSupportedFormat` | The OS does not support the file type or video codec. The path must include the extension. |
+| `unexpected`         | Anything else. Please [open an issue](https://github.com/natsuk4ze/gal/issues) with `platformException` and `stackTrace`. |
 
 ### Testing
 
 Gal calls native code, which does not run in unit tests or widget tests.
 In most cases, wrap Gal in your own class and mock that class.
-To replace Gal itself, extend `GalPlatform` from
-`package:gal/gal_platform_interface.dart` and set it to `GalPlatform.instance`.
+
+To replace Gal itself, extend `GalPlatform` from `package:gal/gal_platform_interface.dart` and set it to `GalPlatform.instance`.
 Methods that the fake does not override throw `UnimplementedError`.
 
 ```dart
@@ -247,30 +288,37 @@ void main() {
 }
 ```
 
-## 📚 Documentation
+## 📚 Resources
 
-If you write an article about Gal, let us know in the discussion and we'll post the URL in the readme 🤝
+|                                                                                 |                                         |
+| ------------------------------------------------------------------------------- | --------------------------------------- |
+| 🎯 [**Example**](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart) | An app that uses every API              |
+| 📖 [**API Reference**](https://pub.dev/documentation/gal/latest/)               | Documentation for every class and method |
+| 🧠 [**DeepWiki**](https://deepwiki.com/natsuk4ze/gal)                           | How Gal works, explained by AI          |
+| 💬 [**Q&A**](https://github.com/natsuk4ze/gal/discussions/categories/q-a)       | Ask questions                           |
+| 💚 [**Contributing**](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md) | How to send issues and PRs              |
 
-* ### [🎯 Example](https://github.com/natsuk4ze/gal/blob/main/example/lib/main.dart)
+Wrote an article about Gal? Let us know in [Discussions](https://github.com/natsuk4ze/gal/discussions) and we'll link it here.
 
-* ### [📖 API Reference](https://pub.dev/documentation/gal/latest/)
+## 🤝 Trusted By
 
-* ### [🧠 DeepWiki](https://deepwiki.com/natsuk4ze/gal)
+| Project                                                         |                                         | Stars                                                                                           |
+| --------------------------------------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| [**LocalSend**](https://github.com/localsend/localsend)         | Share files to nearby devices           | ![stars](https://img.shields.io/github/stars/localsend/localsend?style=flat-square&label=%E2%AD%90&color=2E8B57)         |
+| [**Flutter Quill**](https://github.com/singerdmx/flutter-quill) | Rich text editor                        | ![stars](https://img.shields.io/github/stars/singerdmx/flutter-quill?style=flat-square&label=%E2%AD%90&color=2E8B57)     |
+| [**Stream Chat**](https://github.com/GetStream/stream-chat-flutter) | Chat SDK                            | ![stars](https://img.shields.io/github/stars/GetStream/stream-chat-flutter?style=flat-square&label=%E2%AD%90&color=2E8B57) |
+| [**Thunder**](https://github.com/thunder-app/thunder)           | Lemmy client                            | ![stars](https://img.shields.io/github/stars/thunder-app/thunder?style=flat-square&label=%E2%AD%90&color=2E8B57)         |
 
-* ### [💚 Contributing](https://github.com/natsuk4ze/gal/blob/main/CONTRIBUTING.md)
+…and many more.
 
-* ### [💬 Q&A](https://github.com/natsuk4ze/gal/discussions/categories/q-a)
+## 💛 Support
 
-## 💚 Trusted by Major Projects
+Gal is built by volunteers. If it saves you time, please give it a
+[👍 on pub.dev](https://pub.dev/packages/gal) and a [⭐ on GitHub](https://github.com/natsuk4ze/gal),
+or [sponsor the project](https://github.com/sponsors/natsuk4ze).
 
-Although Gal has only been released for a short time, it's already trusted by major projects.
+<br>
 
-* ### [localsend - 60k⭐️](https://github.com/localsend/localsend)
-
-* ### [flutter-quill-extensions - 2.6k⭐️](https://github.com/singerdmx/flutter-quill)
-
-* ### [stream-chat-flutter - 1k⭐️](https://github.com/GetStream/stream-chat-flutter)
-
-* ### [Thunder - 0.8k⭐️](https://github.com/thunder-app/thunder)
-
-and more...
+<div align="center">
+<sub>Released under the <a href="https://github.com/natsuk4ze/gal/blob/main/LICENSE">BSD 3-Clause License</a> · Made with 💚 by <a href="https://github.com/natsuk4ze">@natsuk4ze</a></sub>
+</div>
