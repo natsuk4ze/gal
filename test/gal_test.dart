@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gal/gal.dart';
 import 'package:gal/gal_platform_interface.dart';
@@ -41,4 +41,23 @@ void main() {
   test('open', Gal.open);
   test('hasPermission', Gal.hasPermission);
   test('requestPermission', Gal.requestPermission);
+
+  group('GalException.fromPlatformException', () {
+    for (final (code, type) in [
+      ('PERMISSION_DENIED', GalExceptionType.permissionDenied),
+      ('NOT_ENOUGH_SPACE', GalExceptionType.notEnoughSpace),
+      ('NOT_SUPPORTED_FORMAT', GalExceptionType.notSupportedFormat),
+      ('UNEXPECTED', GalExceptionType.unexpected),
+      // A code that gal does not know, such as a new one from the native side.
+      ('UNKNOWN', GalExceptionType.unexpected),
+    ]) {
+      test('$code is ${type.name}', () {
+        final exception = GalException.fromPlatformException(
+          PlatformException(code: code),
+          StackTrace.empty,
+        );
+        expect(exception.type, type);
+      });
+    }
+  });
 }
