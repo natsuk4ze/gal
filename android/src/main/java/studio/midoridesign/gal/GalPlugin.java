@@ -120,7 +120,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         File file = new File(path);
         String name = file.getName();
         int dotIndex = name.lastIndexOf('.');
-        if (dotIndex == -1) throw new FileNotFoundException("Extension not found.");
+        if (dotIndex == -1) throw new UnsupportedFormatException("Extension not found.");
 
         try (InputStream in = new FileInputStream(file)) {
             writeData(in, isImage, name.substring(0, dotIndex), name.substring(dotIndex + 1),
@@ -135,7 +135,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
         String extension = getImageExtension(options.outMimeType, bytes);
-        if (extension == null) throw new FileNotFoundException("Unsupported image format.");
+        if (extension == null) throw new UnsupportedFormatException("Unsupported image format.");
         try (InputStream in = new ByteArrayInputStream(bytes)) {
             writeData(in, true, name, extension, album);
         }
@@ -263,11 +263,18 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
                 .post(() -> result.error(errorCode, message, trace.toString()));
     }
 
+    // Not FileNotFoundException, which the system also throws for a missing file.
+    private static class UnsupportedFormatException extends IOException {
+        UnsupportedFormatException(String message) {
+            super(message);
+        }
+    }
+
     private void handleError(Exception e, Result result) {
         String errorCode;
         if (e instanceof SecurityException || e.toString().contains("Permission denied")) {
             errorCode = "PERMISSION_DENIED";
-        } else if (e instanceof FileNotFoundException) {
+        } else if (e instanceof UnsupportedFormatException) {
             errorCode = "NOT_SUPPORTED_FORMAT";
         } else if (e instanceof IOException && e.toString().contains("No space left on device")) {
             errorCode = "NOT_ENOUGH_SPACE";
