@@ -119,7 +119,7 @@ jobs:
     if: ${{ needs.filter.outputs.android_changed == 'true' || needs.filter.outputs.common_changed == 'true' || inputs.run_all || inputs.run_android }}
     uses: ./.github/workflows/ci_android.yml
 
-  # Unit tests are fast, so they run on every change
+  # Unit tests and static checks are fast, so they run on every change
   unit:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -133,6 +133,15 @@ jobs:
         with:
           channel: stable
           cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: dart analyze --fatal-infos
+
+      - name: Format
+        run: dart format --set-exit-if-changed .
 
       - name: Run unit tests
         run: flutter test
