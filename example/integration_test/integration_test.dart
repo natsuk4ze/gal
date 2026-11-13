@@ -41,7 +41,7 @@ void main() {
         'putImage($type, album: $album)',
         () async => Gal.putImage(await copyAsset('done.$type'), album: album),
         supported: supported,
-        checksType: apple,
+        checksType: isApple,
       );
       testPut(
         'putImageBytes($type, album: $album)',
@@ -56,7 +56,7 @@ void main() {
         'putVideo($type, album: $album)',
         () async => Gal.putVideo(await copyAsset('done.$type'), album: album),
         supported: isSupported(type, support),
-        checksType: apple,
+        checksType: isApple,
       );
     }
   }
@@ -65,6 +65,7 @@ void main() {
   testCompletes('open', Gal.open);
 }
 
+/// Whether a type is supported on Android, on iOS and macOS, and on Windows.
 typedef Support = ({bool android, bool apple, bool windows});
 
 /// The image types that each platform supports.
@@ -98,7 +99,7 @@ const videos = <String, Support>{
 /// The Android API level that each type is supported from.
 const androidSince = {'heic': 28, 'heif': 28, 'avif': 31};
 
-final apple = Platform.isIOS || Platform.isMacOS;
+final isApple = Platform.isIOS || Platform.isMacOS;
 
 final androidApiLevel = int.parse(
   '${Process.runSync('getprop', ['ro.build.version.sdk']).stdout}'.trim(),
@@ -107,8 +108,8 @@ final androidApiLevel = int.parse(
 /// Whether this device supports [type]. Null on Android before the API level
 /// that [type] is supported from, where it may or may not be supported.
 bool? isSupported(String type, Support support) {
-  if (apple) return support.apple;
-  if (!Platform.isAndroid) return support.windows;
+  if (Platform.isWindows) return support.windows;
+  if (isApple) return support.apple;
   if (!support.android) return false;
   return androidApiLevel >= (androidSince[type] ?? 0) ? true : null;
 }
