@@ -5,54 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gal/gal.dart';
 
-typedef Support = ({bool android, bool apple, bool windows});
-
-/// The image types that each platform supports.
-/// Windows supports the types that it detects from the bytes.
-const images = <String, Support>{
-  'jpg': (android: true, apple: true, windows: true),
-  'png': (android: true, apple: true, windows: true),
-  'gif': (android: true, apple: true, windows: true),
-  'bmp': (android: true, apple: true, windows: true),
-  'webp': (android: true, apple: true, windows: false),
-  'heic': (android: true, apple: true, windows: false),
-  'heif': (android: true, apple: true, windows: false),
-  'avif': (android: true, apple: true, windows: false),
-  'tiff': (android: false, apple: true, windows: true),
-  'dng': (android: true, apple: true, windows: true),
-  'emf': (android: false, apple: false, windows: true),
-};
-
-/// The video types that each platform supports.
-const videos = <String, Support>{
-  'mp4': (android: true, apple: true, windows: true),
-  'mov': (android: false, apple: true, windows: true),
-  'm4v': (android: false, apple: true, windows: true),
-  'avi': (android: false, apple: true, windows: true),
-  '3gp': (android: true, apple: true, windows: true),
-  'ts': (android: true, apple: false, windows: true),
-  'mkv': (android: true, apple: false, windows: true),
-  'webm': (android: true, apple: false, windows: true),
-};
-
-/// The Android API level that each type is supported from.
-const androidSince = {'heic': 28, 'heif': 28, 'avif': 31};
-
-final apple = Platform.isIOS || Platform.isMacOS;
-
-final androidApiLevel = int.parse(
-  '${Process.runSync('getprop', ['ro.build.version.sdk']).stdout}'.trim(),
-);
-
-/// Whether this device supports [type]. Null on Android before the API level
-/// that [type] is supported from, where it may or may not be supported.
-bool? isSupported(String type, Support support) {
-  if (apple) return support.apple;
-  if (!Platform.isAndroid) return support.windows;
-  if (!support.android) return false;
-  return androidApiLevel >= (androidSince[type] ?? 0) ? true : null;
-}
-
 /// Integration_test is required to test native code,
 /// but it is not necessary to build the widget.
 void main() {
@@ -115,6 +67,54 @@ void main() {
 
   // Runs last, as it opens the gallery app over this app.
   testCompletes('open', Gal.open);
+}
+
+typedef Support = ({bool android, bool apple, bool windows});
+
+/// The image types that each platform supports.
+/// Windows supports the types that it detects from the bytes.
+const images = <String, Support>{
+  'jpg': (android: true, apple: true, windows: true),
+  'png': (android: true, apple: true, windows: true),
+  'gif': (android: true, apple: true, windows: true),
+  'bmp': (android: true, apple: true, windows: true),
+  'webp': (android: true, apple: true, windows: false),
+  'heic': (android: true, apple: true, windows: false),
+  'heif': (android: true, apple: true, windows: false),
+  'avif': (android: true, apple: true, windows: false),
+  'tiff': (android: false, apple: true, windows: true),
+  'dng': (android: true, apple: true, windows: true),
+  'emf': (android: false, apple: false, windows: true),
+};
+
+/// The video types that each platform supports.
+const videos = <String, Support>{
+  'mp4': (android: true, apple: true, windows: true),
+  'mov': (android: false, apple: true, windows: true),
+  'm4v': (android: false, apple: true, windows: true),
+  'avi': (android: false, apple: true, windows: true),
+  '3gp': (android: true, apple: true, windows: true),
+  'ts': (android: true, apple: false, windows: true),
+  'mkv': (android: true, apple: false, windows: true),
+  'webm': (android: true, apple: false, windows: true),
+};
+
+/// The Android API level that each type is supported from.
+const androidSince = {'heic': 28, 'heif': 28, 'avif': 31};
+
+final apple = Platform.isIOS || Platform.isMacOS;
+
+final androidApiLevel = int.parse(
+  '${Process.runSync('getprop', ['ro.build.version.sdk']).stdout}'.trim(),
+);
+
+/// Whether this device supports [type]. Null on Android before the API level
+/// that [type] is supported from, where it may or may not be supported.
+bool? isSupported(String type, Support support) {
+  if (apple) return support.apple;
+  if (!Platform.isAndroid) return support.windows;
+  if (!support.android) return false;
+  return androidApiLevel >= (androidSince[type] ?? 0) ? true : null;
 }
 
 /// Fails with the native stack trace too, if [body] throws a [GalException].
