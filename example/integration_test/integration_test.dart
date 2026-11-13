@@ -52,7 +52,7 @@ void main() {
         'putImageBytes(webp, album: $album)',
         () async =>
             Gal.putImageBytes(await loadAsset('done.webp'), album: album),
-        skip: !Platform.isAndroid,
+        skip: Platform.isWindows,
       );
       testCompletes(
         'putVideo(album: $album)',
