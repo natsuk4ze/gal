@@ -2,10 +2,13 @@
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
 # Run `pod lib lint gal.podspec` to validate before publishing.
 #
+require 'yaml'
+pubspec = YAML.load_file(File.join(__dir__, '..', 'pubspec.yaml'))
+
 Pod::Spec.new do |s|
   s.name             = 'gal'
-  s.version          = '1.0.0'
-  s.summary          = 'Flutter plugin for handle native gallary apps.'
+  s.version          = pubspec['version']
+  s.summary          = pubspec['description']
   s.homepage         = 'https://github.com/natsuk4ze/gal'
   s.license          = { :type => 'BSD-3-Clause', :file => '../LICENSE' }
   s.author           = { 'Midori Design Studio' => 'https://midoridesign.studio' }
