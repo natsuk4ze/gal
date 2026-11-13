@@ -8,61 +8,57 @@ import 'package:gal/gal.dart';
 /// Integration_test is required to test native code,
 /// but it is not necessary to build the widget.
 void main() {
-  group('throws', () {
-    // [0, 0, 1, 1] looks like a 1x1 WBMP, which has no signature.
-    for (final bytes in [
-      [0, 1, 2, 3],
-      [0, 0, 1, 1],
-    ]) {
-      testThrows(
-        'putImageBytes($bytes)',
-        () => Gal.putImageBytes(Uint8List.fromList(bytes)),
-        GalExceptionType.notSupportedFormat,
-      );
-    }
+  // [0, 0, 1, 1] looks like a 1x1 WBMP, which has no signature.
+  for (final bytes in [
+    [0, 1, 2, 3],
+    [0, 0, 1, 1],
+  ]) {
     testThrows(
-      'putImage(missing file)',
-      () => Gal.putImage('/no/such/file.jpg'),
-      GalExceptionType.unexpected,
+      'putImageBytes($bytes)',
+      () => Gal.putImageBytes(Uint8List.fromList(bytes)),
+      GalExceptionType.notSupportedFormat,
     );
-  });
+  }
+  testThrows(
+    'putImage(missing file)',
+    () => Gal.putImage('/no/such/file.jpg'),
+    GalExceptionType.unexpected,
+  );
 
   for (final album in ['album', null]) {
-    group('album: $album', () {
-      final toAlbum = album != null;
-      testCompletes(
-        'hasPermission(toAlbum: $toAlbum)',
-        () => Gal.hasPermission(toAlbum: toAlbum),
+    final toAlbum = album != null;
+    testCompletes(
+      'hasPermission(toAlbum: $toAlbum)',
+      () => Gal.hasPermission(toAlbum: toAlbum),
+    );
+    testCompletes(
+      'requestPermission(toAlbum: $toAlbum)',
+      () => Gal.requestPermission(toAlbum: toAlbum),
+    );
+    for (final MapEntry(key: type, value: support) in images.entries) {
+      final supported = isSupported(type, support);
+      testPut(
+        'putImage($type, album: $album)',
+        () async => Gal.putImage(await copyAsset('done.$type'), album: album),
+        supported: supported,
+        checksType: apple,
       );
-      testCompletes(
-        'requestPermission(toAlbum: $toAlbum)',
-        () => Gal.requestPermission(toAlbum: toAlbum),
+      testPut(
+        'putImageBytes($type, album: $album)',
+        () async =>
+            Gal.putImageBytes(await loadAsset('done.$type'), album: album),
+        supported: supported,
+        checksType: true,
       );
-      for (final MapEntry(key: type, value: support) in images.entries) {
-        final supported = isSupported(type, support);
-        testPut(
-          'putImage($type)',
-          () async => Gal.putImage(await copyAsset('done.$type'), album: album),
-          supported: supported,
-          checksType: apple,
-        );
-        testPut(
-          'putImageBytes($type)',
-          () async =>
-              Gal.putImageBytes(await loadAsset('done.$type'), album: album),
-          supported: supported,
-          checksType: true,
-        );
-      }
-      for (final MapEntry(key: type, value: support) in videos.entries) {
-        testPut(
-          'putVideo($type)',
-          () async => Gal.putVideo(await copyAsset('done.$type'), album: album),
-          supported: isSupported(type, support),
-          checksType: apple,
-        );
-      }
-    });
+    }
+    for (final MapEntry(key: type, value: support) in videos.entries) {
+      testPut(
+        'putVideo($type, album: $album)',
+        () async => Gal.putVideo(await copyAsset('done.$type'), album: album),
+        supported: isSupported(type, support),
+        checksType: apple,
+      );
+    }
   }
 
   // Runs last, as it opens the gallery app over this app.
@@ -119,7 +115,7 @@ bool? isSupported(String type, Support support) {
 
 /// Fails with the native stack trace too, if [body] throws a [GalException].
 void testCompletes(String description, Future<Object?> Function() body) =>
-    test(description, () async {
+    test('completes $description', () async {
       try {
         final value = await body();
         if (value != null) debugPrint('returned: $value');
@@ -133,7 +129,7 @@ void testThrows(
   Future<void> Function() body,
   GalExceptionType type,
 ) => test(
-  description,
+  'throws $description',
   () => expectLater(
     body(),
     throwsA(isA<GalException>().having((e) => e.type, 'type', type)),
