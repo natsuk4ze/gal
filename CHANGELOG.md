@@ -1,3 +1,10 @@
+## 3.0.1
+
+* On Android 10 and later, throw `notSupportedFormat` instead of `unexpected` when MediaStore rejects the file type, such as a `.jpg` file passed to `putVideo` #376
+* Fix the MIME type of uppercase extensions such as `.HEIC` on Android when the device language is Turkish or Azerbaijani #376
+* Set the version of the podspec and the Android library to the package version instead of `1.0.0` and `1.0`, and take the summary and homepage of the podspec from the pubspec #380
+* Leave the platform folders and assets of the example out of the published package #379
+
 ## 3.0.0
 
 * **BREAKING CHANGE**: Rename `Gal.hasAccess` and `Gal.requestAccess` to `Gal.hasPermission` and `Gal.requestPermission` #303
