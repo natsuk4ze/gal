@@ -41,6 +41,7 @@ import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -227,7 +228,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         // appends its extension to DISPLAY_NAME, e.g. "image.png" becomes "image.png.jpg". It is
         // taken from MimeTypeMap, which MediaStore also uses, so that the two always match.
         String mimeType = MimeTypeMap.getSingleton()
-                .getMimeTypeFromExtension(extension.toLowerCase());
+                .getMimeTypeFromExtension(extension.toLowerCase(Locale.ROOT));
         if (mimeType != null) values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
         return values;
     }
@@ -283,7 +284,8 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         String errorCode;
         if (e instanceof SecurityException || e.toString().contains("Permission denied")) {
             errorCode = "PERMISSION_DENIED";
-        } else if (e instanceof UnsupportedFormatException) {
+        } else if (e instanceof UnsupportedFormatException
+                || (e instanceof IllegalArgumentException && e.toString().contains("MIME type"))) {
             errorCode = "NOT_SUPPORTED_FORMAT";
         } else if (e instanceof IOException && e.toString().contains("No space left on device")) {
             errorCode = "NOT_ENOUGH_SPACE";

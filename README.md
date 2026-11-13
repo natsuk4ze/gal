@@ -273,7 +273,7 @@ try {
 | :------------------- | :--------------------------------------------------------------------------------------- |
 | `permissionDenied`   | The app does not have permission to access the gallery.                                  |
 | `notEnoughSpace`     | The device does not have enough storage.                                                 |
-| `notSupportedFormat` | The OS does not support the file type or video codec. The path must include the extension. |
+| `notSupportedFormat` | The OS does not support the file type or video codec. The path must include the extension. `putImage` and `putVideo` on Android and Windows do not look inside the file. |
 | `unexpected`         | Anything else. Please [open an issue](https://github.com/natsuk4ze/gal/issues) with `platformException` and `stackTrace`. |
 
 ### Testing
