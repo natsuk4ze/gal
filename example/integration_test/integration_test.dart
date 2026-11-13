@@ -18,14 +18,12 @@ void main() {
         'putImageBytes($bytes)',
         () => Gal.putImageBytes(Uint8List.fromList(bytes)),
         GalExceptionType.notSupportedFormat,
-        skip: Platform.isMacOS,
       );
     }
     testThrows(
       'putImage(missing file)',
       () => Gal.putImage('/no/such/file.jpg'),
       GalExceptionType.unexpected,
-      skip: Platform.isMacOS,
     );
   });
 
@@ -40,18 +38,15 @@ void main() {
       testCompletes(
         'requestPermission(toAlbum: $toAlbum)',
         () => Gal.requestPermission(toAlbum: toAlbum),
-        skip: Platform.isMacOS,
       );
       testCompletes(
         'putImage(album: $album)',
         () async => Gal.putImage(await copyAsset('done.jpg'), album: album),
-        skip: Platform.isMacOS,
       );
       testCompletes(
         'putImageBytes(album: $album)',
         () async =>
             Gal.putImageBytes(await loadAsset('done.jpg'), album: album),
-        skip: Platform.isMacOS,
       );
       testCompletes(
         'putImageBytes(webp, album: $album)',
@@ -62,7 +57,6 @@ void main() {
       testCompletes(
         'putVideo(album: $album)',
         () async => Gal.putVideo(await copyAsset('done.mp4'), album: album),
-        skip: Platform.isMacOS,
       );
     }
     testCompletes('open', Gal.open);
