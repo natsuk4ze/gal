@@ -1,6 +1,10 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
   exclude:
     # Uses the old API on purpose to test lib/fix_data.yaml.
     - test_fixes/**
@@ -10,4 +14,5 @@ analyzer:
 
 linter:
   rules:
+    public_member_api_docs: true
     unawaited_futures: true

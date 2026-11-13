@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 /// Every [Exception] that [Gal] throws should be this.
 @immutable
 class GalException implements Exception {
+  /// Creates a [GalException].
   const GalException({
     required this.type,
     required this.platformException,
@@ -70,6 +71,7 @@ enum GalExceptionType {
   /// When an unexpected error occurs.
   unexpected;
 
+  /// The [PlatformException.code] that the native side throws for this type.
   String get code => switch (this) {
     permissionDenied => 'PERMISSION_DENIED',
     notEnoughSpace => 'NOT_ENOUGH_SPACE',
@@ -77,6 +79,7 @@ enum GalExceptionType {
     unexpected => 'UNEXPECTED',
   };
 
+  /// The message that [GalException.toString] shows for this type.
   String get message => switch (this) {
     permissionDenied => 'Permission to access the gallery is denied.',
     notEnoughSpace => 'Not enough space for storage.',
