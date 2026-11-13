@@ -7,9 +7,7 @@ import 'package:gal/src/gal_platform_interface.dart';
 /// See: [README](https://github.com/natsuk4ze/gal#readme)
 /// and [DeepWiki](https://deepwiki.com/natsuk4ze/gal)
 @immutable
-final class Gal {
-  const Gal._();
-
+abstract final class Gal {
   /// Save a video to the gallery from file [path].
   ///
   /// Specify the album with [album]. If it does not exist, it will be created.
