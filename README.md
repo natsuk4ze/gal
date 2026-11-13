@@ -51,7 +51,7 @@ If it saves you time, a like, a star or a sponsorship keeps it going.
 ## ✨ Highlights
 
 - **Simple API** — Save with `putImage`, `putVideo` or `putImageBytes`. Each is a single static call.
-- **Ultra-lightweight** — No dependencies besides Flutter. Gal uses only each platform's built-in APIs.
+- **Ultra-lightweight** — No dependencies besides Flutter.
 - **Albums** — Save to a named album. It is created if it does not exist.
 - **Permissions built in** — Gal asks for access only when it needs it. Take control with `hasPermission` and `requestPermission`.
 - **Metadata kept** — EXIF and other metadata are saved along with the file.
