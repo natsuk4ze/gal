@@ -144,7 +144,20 @@ jobs:
         run: dart format --set-exit-if-changed .
 
       - name: Run unit tests
-        run: flutter test
+        run: flutter test --coverage
+
+      - name: Check that unit tests cover every line
+        run: |
+          awk -F: '
+            /^SF:/ { file = $2 }
+            /^LF:/ { found[file] = $2; total += $2 }
+            /^LH:/ { hit[file] = $2; covered += $2 }
+            END {
+              for (f in found) if (hit[f] < found[f]) print f ": " hit[f] "/" found[f]
+              printf "Coverage: %d/%d lines\n", covered, total
+              exit (covered != total)
+            }
+          ' coverage/lcov.info
 
       - name: Test dart fix
         working-directory: test_fixes
