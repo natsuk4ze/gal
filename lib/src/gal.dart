@@ -25,7 +25,8 @@ final class Gal {
   /// if an error occurs during saving.
   /// The OS must support both the file type and the video codec,
   /// or [GalExceptionType.notSupportedFormat] is thrown.
-  /// Windows saves the file as is, without checking its format.
+  /// Android and Windows save the file as is, without checking its format,
+  /// except that Android 10 and later require a known video extension.
   static Future<void> putVideo(String path, {String? album}) async =>
       GalPlatform.instance.putVideo(path, album: album);
 
@@ -41,7 +42,8 @@ final class Gal {
   /// if an error occurs during saving.
   /// The OS must support the file type,
   /// or [GalExceptionType.notSupportedFormat] is thrown.
-  /// Windows saves the file as is, without checking its format.
+  /// Android and Windows save the file as is, without checking its format,
+  /// except that Android 10 and later require a known image extension.
   static Future<void> putImage(String path, {String? album}) async =>
       GalPlatform.instance.putImage(path, album: album);
 
