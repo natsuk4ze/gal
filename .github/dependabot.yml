@@ -13,6 +13,10 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
   - package-ecosystem: "gradle"
     directory: "/android"
     schedule:
