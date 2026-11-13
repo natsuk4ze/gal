@@ -52,6 +52,7 @@ void main() {
         'putImageBytes(webp, album: $album)',
         () async =>
             Gal.putImageBytes(await loadAsset('done.webp'), album: album),
+        // Windows does not detect WebP from the bytes.
         skip: Platform.isWindows,
       );
       testCompletes(
