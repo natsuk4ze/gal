@@ -44,14 +44,13 @@ jobs:
           wait_for_boot: true
           erase_before_boot: true
 
+      # simctl writes the photos permission with auth_version 1, which PhotoKit reads as not granted.
+      # Version 2 is the format since iOS 14, where the permission can also be limited.
       - name: Grant permission
         run: |
-          brew tap wix/brew
-          # Homebrew 6.0 requires explicit trust for third-party taps
-          brew trust wix/brew
-          brew install applesimutils coreutils
-          cd example
-          applesimutils --booted --bundle studio.midoridesign.galExample --setPermissions photos=YES
+          xcrun simctl privacy booted grant photos studio.midoridesign.galExample
+          sqlite3 "$(xcrun simctl getenv booted HOME)/Library/TCC/TCC.db" \
+            "UPDATE access SET auth_version = 2 WHERE service = 'kTCCServicePhotos'"
 
       - name: Set Package Manager Configuration
         run: |
@@ -66,6 +65,7 @@ jobs:
       # --no-uninstall keeps the photos permission for the next attempt.
       - name: Run integration tests
         run: |
+          brew install coreutils
           cd example
           for i in 1 2 3; do
             gtimeout -s INT -k 1m 10m flutter test --no-uninstall integration_test/integration_test.dart && exit 0
