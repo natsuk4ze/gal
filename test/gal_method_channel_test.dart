@@ -20,11 +20,23 @@ void main() {
     expect(await Gal.requestPermission(), isTrue);
   });
 
-  test('throws GalException from PlatformException', () {
-    messenger.setMockMethodCallHandler(
-      channel,
-      (_) => throw PlatformException(code: 'UNEXPECTED'),
-    );
-    return expectLater(Gal.open(), throwsA(isA<GalException>()));
-  });
+  for (final type in GalExceptionType.values) {
+    test('throws GalException from ${type.code}', () {
+      messenger.setMockMethodCallHandler(
+        channel,
+        (_) => throw PlatformException(code: type.code, message: 'message'),
+      );
+      return expectLater(
+        Gal.open(),
+        throwsA(
+          isA<GalException>().having(
+            (e) => '$e',
+            'toString()',
+            '[GalException/${type.code}]: ${type.message} '
+                '(PlatformException/${type.code}: message)',
+          ),
+        ),
+      );
+    });
+  }
 }
