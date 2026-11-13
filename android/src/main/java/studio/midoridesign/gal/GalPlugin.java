@@ -41,6 +41,7 @@ import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -227,7 +228,7 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
         // appends its extension to DISPLAY_NAME, e.g. "image.png" becomes "image.png.jpg". It is
         // taken from MimeTypeMap, which MediaStore also uses, so that the two always match.
         String mimeType = MimeTypeMap.getSingleton()
-                .getMimeTypeFromExtension(extension.toLowerCase());
+                .getMimeTypeFromExtension(extension.toLowerCase(Locale.ROOT));
         if (mimeType != null) values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
         return values;
     }
