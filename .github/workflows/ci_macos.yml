@@ -39,7 +39,7 @@ jobs:
         run: |
           agent=$(sudo launchctl procinfo $$ | sed -n 's/^[[:space:]]*responsible path = //p')
           for service in kTCCServicePhotos kTCCServicePhotosAdd; do
-            sqlite3 "$HOME/Library/Application Support/com.apple.TCC/TCC.db" \
+            sqlite3 -cmd '.timeout 10000' "$HOME/Library/Application Support/com.apple.TCC/TCC.db" \
               "INSERT OR REPLACE INTO access (service, client, client_type, auth_value, auth_reason, auth_version) VALUES ('$service', '$agent', 1, 2, 3, 1)"
           done
 
