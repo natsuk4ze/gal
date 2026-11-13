@@ -25,13 +25,19 @@ void main() {
   test('throws GalException from every method', () async {
     messenger.setMockMethodCallHandler(
       channel,
-      (_) => throw PlatformException(code: 'UNEXPECTED'),
+      (call) async => call.method == 'requestPermission'
+          ? true
+          : throw PlatformException(code: 'UNEXPECTED'),
     );
     await expectLater(Gal.putVideo(video), throwsA(isA<GalException>()));
     await expectLater(Gal.putImage(image), throwsA(isA<GalException>()));
     await expectLater(Gal.putImageBytes(bytes), throwsA(isA<GalException>()));
     await expectLater(Gal.open(), throwsA(isA<GalException>()));
     await expectLater(Gal.hasPermission(), throwsA(isA<GalException>()));
+    messenger.setMockMethodCallHandler(
+      channel,
+      (_) => throw PlatformException(code: 'UNEXPECTED'),
+    );
     await expectLater(Gal.requestPermission(), throwsA(isA<GalException>()));
   });
 }
