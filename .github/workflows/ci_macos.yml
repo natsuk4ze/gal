@@ -33,6 +33,16 @@ jobs:
             flutter config --enable-swift-package-manager
           fi
 
+      # The runners cannot answer the dialog asking for access to the photo library, so allow it beforehand.
+      # TCC checks the process responsible for the app, which is the agent running the job.
+      - name: Allow access to the photo library
+        run: |
+          agent=$(sudo launchctl procinfo $$ | sed -n 's/^[[:space:]]*responsible path = //p')
+          for service in kTCCServicePhotos kTCCServicePhotosAdd; do
+            sqlite3 "$HOME/Library/Application Support/com.apple.TCC/TCC.db" \
+              "INSERT OR REPLACE INTO access (service, client, client_type, auth_value, auth_reason, auth_version) VALUES ('$service', '$agent', 1, 2, 3, 1)"
+          done
+
       - name: Run integration tests
         id: Run-integration-tests
         timeout-minutes: 15
