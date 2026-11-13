@@ -1,5 +1,5 @@
 group = 'studio.midoridesign.gal'
-version = '1.0'
+version = (file('../pubspec.yaml').text =~ /(?m)^version:\s*(\S+)/)[0][1]
 
 rootProject.allprojects {
     repositories {
