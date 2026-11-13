@@ -139,7 +139,7 @@ jobs:
 
       - name: Check that unit tests cover every line
         run: |
-          for f in lib/src/*.dart; do grep -qx "SF:$f" coverage/lcov.info || { echo "$f: not loaded by any test"; exit 1; }; done
+          for f in $(find lib/src -name '*.dart'); do grep -qxF "SF:$f" coverage/lcov.info || { echo "$f: not loaded by any test"; exit 1; }; done
           awk -F'[:,]' '/^SF:/{f=$2} /^DA:/ && $3==0 {print f ":" $2; bad=1} END{exit bad}' coverage/lcov.info
 
       - name: Test dart fix
