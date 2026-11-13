@@ -36,23 +36,22 @@ const videos = <String, Support>{
 };
 
 /// The Android API level that each type is supported from.
-const androidApi = {'heic': 28, 'heif': 28, 'avif': 31};
+const androidSince = {'heic': 28, 'heif': 28, 'avif': 31};
 
-final android = Platform.isAndroid;
 final apple = Platform.isIOS || Platform.isMacOS;
 
-/// The Android API level, or 0 on the other platforms.
-final api = android
-    ? int.parse(
-        '${Process.runSync('getprop', ['ro.build.version.sdk']).stdout}'.trim(),
-      )
-    : 0;
+final androidApiLevel = int.parse(
+  '${Process.runSync('getprop', ['ro.build.version.sdk']).stdout}'.trim(),
+);
 
-bool isSupported(String type, Support support) => android
-    ? support.android && api >= (androidApi[type] ?? 0)
-    : apple
-    ? support.apple
-    : support.windows;
+/// Whether this device supports [type]. Null on Android before the API level
+/// that [type] is supported from, where it may or may not be supported.
+bool? isSupported(String type, Support support) {
+  if (apple) return support.apple;
+  if (!Platform.isAndroid) return support.windows;
+  if (!support.android) return false;
+  return androidApiLevel >= (androidSince[type] ?? 0) ? true : null;
+}
 
 /// Integration_test is required to test native code,
 /// but it is not necessary to build the widget.
@@ -143,19 +142,21 @@ void testThrows(
 
 /// Expects [body] to save a supported type, and to throw `notSupportedFormat`
 /// for an unsupported one if the method [checksType] on this platform.
-/// Otherwise the file is saved as is, or the OS may refuse it.
+/// Otherwise the result is not defined, so the test is skipped.
 void testPut(
   String description,
   Future<void> Function() body, {
-  required bool supported,
+  required bool? supported,
   required bool checksType,
-}) {
-  if (supported) return testCompletes(description, body);
-  if (checksType) {
-    return testThrows(description, body, GalExceptionType.notSupportedFormat);
-  }
-  test(description, () {}, skip: 'Not supported, and not checked');
-}
+}) => switch ((supported, checksType)) {
+  (true, _) => testCompletes(description, body),
+  (false, true) => testThrows(
+    description,
+    body,
+    GalExceptionType.notSupportedFormat,
+  ),
+  _ => test(description, () {}, skip: 'The result is not defined'),
+};
 
 Future<Uint8List> loadAsset(String name) async {
   final data = await rootBundle.load('assets/$name');
