@@ -82,6 +82,8 @@ jobs:
               - '**/lib/**/*.dart'
               - '**/pubspec.yaml'
               - '**/pubspec.lock'
+              - 'example/integration_test/**'
+              - 'example/assets/**'
             windows:
               - '**/windows/**'
               - '**/ci_windows.yml'
