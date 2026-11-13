@@ -26,6 +26,7 @@ build/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
+coverage/
 /android/app/release
 /android/app/src/debug/
 /android/app/src/profile/
