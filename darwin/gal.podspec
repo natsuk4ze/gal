@@ -8,8 +8,8 @@ pubspec = YAML.load_file(File.join(__dir__, '..', 'pubspec.yaml'))
 Pod::Spec.new do |s|
   s.name             = 'gal'
   s.version          = pubspec['version']
-  s.summary          = pubspec['description']
-  s.homepage         = 'https://github.com/natsuk4ze/gal'
+  s.summary          = pubspec['description'].strip
+  s.homepage         = pubspec['repository']
   s.license          = { :type => 'BSD-3-Clause', :file => '../LICENSE' }
   s.author           = { 'Midori Design Studio' => 'https://midoridesign.studio' }
   s.source           = { :http => 'https://github.com/natsuk4ze/gal' }
