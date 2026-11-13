@@ -10,6 +10,7 @@ import 'gal_method_channel.dart';
 ///
 /// See: [PR](https://github.com/natsuk4ze/gal/pull/180)
 abstract base class GalPlatform {
+  /// Constructor for subclasses.
   const GalPlatform();
 
   /// The implementation that `Gal` calls. Defaults to the method channel.
