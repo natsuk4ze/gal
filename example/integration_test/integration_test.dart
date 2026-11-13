@@ -5,32 +5,54 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gal/gal.dart';
 
-const images = ['jpg', 'png', 'gif', 'bmp', 'tiff', 'heic', 'avif', 'webp'];
-const videos = ['mp4', 'mov', 'webm'];
+typedef Support = ({bool android, bool apple, bool windows});
 
-/// The images whose format [Gal.putImageBytes] detects from the bytes.
-final detectedImages = Platform.isWindows
-    ? ['jpg', 'png', 'gif', 'bmp', 'tiff']
-    : Platform.isAndroid
-    ? [
-        'jpg',
-        'png',
-        'gif',
-        'bmp',
-        'webp',
-        if (androidSdk >= 28) 'heic',
-        if (androidSdk >= 31) 'avif',
-      ]
-    : images;
+/// The image types that each platform supports.
+/// Windows supports the types that it detects from the bytes.
+const images = <String, Support>{
+  'jpg': (android: true, apple: true, windows: true),
+  'png': (android: true, apple: true, windows: true),
+  'gif': (android: true, apple: true, windows: true),
+  'bmp': (android: true, apple: true, windows: true),
+  'webp': (android: true, apple: true, windows: false),
+  'heic': (android: true, apple: true, windows: false),
+  'heif': (android: true, apple: true, windows: false),
+  'avif': (android: true, apple: true, windows: false),
+  'tiff': (android: false, apple: true, windows: true),
+  'dng': (android: true, apple: true, windows: true),
+  'emf': (android: false, apple: false, windows: true),
+};
 
-/// Photos does not support WebM.
-final savedVideos = Platform.isIOS || Platform.isMacOS
-    ? ['mp4', 'mov']
-    : videos;
+/// The video types that each platform supports.
+const videos = <String, Support>{
+  'mp4': (android: true, apple: true, windows: true),
+  'mov': (android: false, apple: true, windows: true),
+  'm4v': (android: false, apple: true, windows: true),
+  'avi': (android: false, apple: true, windows: true),
+  '3gp': (android: true, apple: true, windows: true),
+  'ts': (android: true, apple: false, windows: true),
+  'mkv': (android: true, apple: false, windows: true),
+  'webm': (android: true, apple: false, windows: true),
+};
 
-final androidSdk = int.parse(
-  '${Process.runSync('getprop', ['ro.build.version.sdk']).stdout}'.trim(),
-);
+/// The Android API level that each type is supported from.
+const androidApi = {'heic': 28, 'heif': 28, 'avif': 31};
+
+final android = Platform.isAndroid;
+final apple = Platform.isIOS || Platform.isMacOS;
+
+/// The Android API level, or 0 on the other platforms.
+final api = android
+    ? int.parse(
+        '${Process.runSync('getprop', ['ro.build.version.sdk']).stdout}'.trim(),
+      )
+    : 0;
+
+bool isSupported(String type, Support support) => android
+    ? support.android && api >= (androidApi[type] ?? 0)
+    : apple
+    ? support.apple
+    : support.windows;
 
 /// Integration_test is required to test native code,
 /// but it is not necessary to build the widget.
@@ -47,20 +69,6 @@ void main() {
         GalExceptionType.notSupportedFormat,
       );
     }
-    for (final type in images.where((e) => !detectedImages.contains(e))) {
-      testThrows(
-        'putImageBytes($type)',
-        () async => Gal.putImageBytes(await loadAsset('done.$type')),
-        GalExceptionType.notSupportedFormat,
-      );
-    }
-    for (final type in videos.where((e) => !savedVideos.contains(e))) {
-      testThrows(
-        'putVideo($type)',
-        () async => Gal.putVideo(await copyAsset('done.$type')),
-        GalExceptionType.notSupportedFormat,
-      );
-    }
     testThrows(
       'putImage(missing file)',
       () => Gal.putImage('/no/such/file.jpg'),
@@ -68,9 +76,8 @@ void main() {
     );
   });
 
-  // Runs last, as Gal.open opens the gallery app over this app.
-  group('completes', () {
-    for (final album in ['album', null]) {
+  for (final album in ['album', null]) {
+    group('album: $album', () {
       final toAlbum = album != null;
       testCompletes(
         'hasPermission(toAlbum: $toAlbum)',
@@ -80,28 +87,35 @@ void main() {
         'requestPermission(toAlbum: $toAlbum)',
         () => Gal.requestPermission(toAlbum: toAlbum),
       );
-      for (final type in images) {
-        testCompletes(
-          'putImage($type, album: $album)',
+      for (final MapEntry(key: type, value: support) in images.entries) {
+        final supported = isSupported(type, support);
+        testPut(
+          'putImage($type)',
           () async => Gal.putImage(await copyAsset('done.$type'), album: album),
+          supported: supported,
+          checksType: apple,
         );
-      }
-      for (final type in detectedImages) {
-        testCompletes(
-          'putImageBytes($type, album: $album)',
+        testPut(
+          'putImageBytes($type)',
           () async =>
               Gal.putImageBytes(await loadAsset('done.$type'), album: album),
+          supported: supported,
+          checksType: true,
         );
       }
-      for (final type in savedVideos) {
-        testCompletes(
-          'putVideo($type, album: $album)',
+      for (final MapEntry(key: type, value: support) in videos.entries) {
+        testPut(
+          'putVideo($type)',
           () async => Gal.putVideo(await copyAsset('done.$type'), album: album),
+          supported: isSupported(type, support),
+          checksType: apple,
         );
       }
-    }
-    testCompletes('open', Gal.open);
-  });
+    });
+  }
+
+  // Runs last, as it opens the gallery app over this app.
+  testCompletes('open', Gal.open);
 }
 
 /// Fails with the native stack trace too, if [body] throws a [GalException].
@@ -126,6 +140,22 @@ void testThrows(
     throwsA(isA<GalException>().having((e) => e.type, 'type', type)),
   ),
 );
+
+/// Expects [body] to save a supported type, and to throw `notSupportedFormat`
+/// for an unsupported one if the method [checksType] on this platform.
+/// Otherwise the file is saved as is, or the OS may refuse it.
+void testPut(
+  String description,
+  Future<void> Function() body, {
+  required bool supported,
+  required bool checksType,
+}) {
+  if (supported) return testCompletes(description, body);
+  if (checksType) {
+    return testThrows(description, body, GalExceptionType.notSupportedFormat);
+  }
+  test(description, () {}, skip: 'Not supported, and not checked');
+}
 
 Future<Uint8List> loadAsset(String name) async {
   final data = await rootBundle.load('assets/$name');
