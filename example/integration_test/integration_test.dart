@@ -5,6 +5,33 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gal/gal.dart';
 
+const images = ['jpg', 'png', 'gif', 'bmp', 'tiff', 'heic', 'avif', 'webp'];
+const videos = ['mp4', 'mov', 'webm'];
+
+/// The images whose format [Gal.putImageBytes] detects from the bytes.
+final detectedImages = Platform.isWindows
+    ? ['jpg', 'png', 'gif', 'bmp', 'tiff']
+    : Platform.isAndroid
+    ? [
+        'jpg',
+        'png',
+        'gif',
+        'bmp',
+        'webp',
+        if (androidSdk >= 28) 'heic',
+        if (androidSdk >= 31) 'avif',
+      ]
+    : images;
+
+/// Photos does not support WebM.
+final savedVideos = Platform.isIOS || Platform.isMacOS
+    ? ['mp4', 'mov']
+    : videos;
+
+final androidSdk = int.parse(
+  '${Process.runSync('getprop', ['ro.build.version.sdk']).stdout}'.trim(),
+);
+
 /// Integration_test is required to test native code,
 /// but it is not necessary to build the widget.
 void main() {
@@ -17,6 +44,20 @@ void main() {
       testThrows(
         'putImageBytes($bytes)',
         () => Gal.putImageBytes(Uint8List.fromList(bytes)),
+        GalExceptionType.notSupportedFormat,
+      );
+    }
+    for (final type in images.where((e) => !detectedImages.contains(e))) {
+      testThrows(
+        'putImageBytes($type)',
+        () async => Gal.putImageBytes(await loadAsset('done.$type')),
+        GalExceptionType.notSupportedFormat,
+      );
+    }
+    for (final type in videos.where((e) => !savedVideos.contains(e))) {
+      testThrows(
+        'putVideo($type)',
+        () async => Gal.putVideo(await copyAsset('done.$type')),
         GalExceptionType.notSupportedFormat,
       );
     }
@@ -39,57 +80,51 @@ void main() {
         'requestPermission(toAlbum: $toAlbum)',
         () => Gal.requestPermission(toAlbum: toAlbum),
       );
-      testCompletes(
-        'putImage(album: $album)',
-        () async => Gal.putImage(await copyAsset('done.jpg'), album: album),
-      );
-      testCompletes(
-        'putImageBytes(album: $album)',
-        () async =>
-            Gal.putImageBytes(await loadAsset('done.jpg'), album: album),
-      );
-      testCompletes(
-        'putImageBytes(webp, album: $album)',
-        () async =>
-            Gal.putImageBytes(await loadAsset('done.webp'), album: album),
-        // Windows does not detect WebP from the bytes.
-        skip: Platform.isWindows,
-      );
-      testCompletes(
-        'putVideo(album: $album)',
-        () async => Gal.putVideo(await copyAsset('done.mp4'), album: album),
-      );
+      for (final type in images) {
+        testCompletes(
+          'putImage($type, album: $album)',
+          () async => Gal.putImage(await copyAsset('done.$type'), album: album),
+        );
+      }
+      for (final type in detectedImages) {
+        testCompletes(
+          'putImageBytes($type, album: $album)',
+          () async =>
+              Gal.putImageBytes(await loadAsset('done.$type'), album: album),
+        );
+      }
+      for (final type in savedVideos) {
+        testCompletes(
+          'putVideo($type, album: $album)',
+          () async => Gal.putVideo(await copyAsset('done.$type'), album: album),
+        );
+      }
     }
     testCompletes('open', Gal.open);
   });
 }
 
 /// Fails with the native stack trace too, if [body] throws a [GalException].
-void testCompletes(
-  String description,
-  Future<Object?> Function() body, {
-  bool skip = false,
-}) => test(description, () async {
-  try {
-    final value = await body();
-    if (value != null) debugPrint('returned: $value');
-  } on GalException catch (e) {
-    fail('$e\n${e.platformException.details ?? ''}');
-  }
-}, skip: skip);
+void testCompletes(String description, Future<Object?> Function() body) =>
+    test(description, () async {
+      try {
+        final value = await body();
+        if (value != null) debugPrint('returned: $value');
+      } on GalException catch (e) {
+        fail('$e\n${e.platformException.details ?? ''}');
+      }
+    });
 
 void testThrows(
   String description,
   Future<void> Function() body,
-  GalExceptionType type, {
-  bool skip = false,
-}) => test(
+  GalExceptionType type,
+) => test(
   description,
   () => expectLater(
     body(),
     throwsA(isA<GalException>().having((e) => e.type, 'type', type)),
   ),
-  skip: skip,
 );
 
 Future<Uint8List> loadAsset(String name) async {
