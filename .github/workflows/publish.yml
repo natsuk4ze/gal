@@ -1,6 +1,9 @@
 # https://dart.dev/tools/pub/automated-publishing#hardening-security-with-tag-protection-rules-on-github
 name: Publish to pub.dev
 
+permissions:
+  contents: read
+
 on:
   push:
     tags:

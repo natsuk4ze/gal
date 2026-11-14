@@ -1,5 +1,8 @@
 name: macOS Integration Tests
 
+permissions:
+  contents: read
+
 on:
   workflow_call:
   workflow_dispatch:
@@ -22,7 +25,7 @@ jobs:
         timeout-minutes: 10
         uses: ./.github/actions/setup-flutter
         with:
-          channel: beta
+          channel: stable
           cache: true
 
       - name: Set Package Manager Configuration
