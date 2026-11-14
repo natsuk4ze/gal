@@ -67,7 +67,7 @@ runs:
           echo "hash=$(jq -r .hash <<<"$release")"
           echo "url=$base_url/$(jq -r .archive <<<"$release")"
           echo "sha256=$(jq -r .sha256 <<<"$release")"
-          echo "key=flutter-$os-$CHANNEL-$version-$arch-$(jq -r .hash <<<"$release")"
+          echo "key=setup-flutter-$os-$CHANNEL-$version-$arch-$(jq -r .hash <<<"$release")"
           echo "path=$(native "$RUNNER_TOOL_CACHE/flutter/$CHANNEL-$version-$arch")"
           echo "pub-cache=$(native "$pub_cache")"
         } >>"$GITHUB_OUTPUT"
