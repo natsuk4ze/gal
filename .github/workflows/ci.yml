@@ -1,6 +1,9 @@
 # Runner details on https://github.com/actions/runner-images/tree/main/images
 name: CI
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
