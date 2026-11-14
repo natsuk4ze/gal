@@ -130,38 +130,62 @@ jobs:
     if: ${{ needs.filter.outputs.android_changed == 'true' || needs.filter.outputs.common_changed == 'true' || inputs.run_all || inputs.run_android }}
     uses: ./.github/workflows/ci_android.yml
 
-  # Unit tests and static checks are fast, so they run on every change
+  # Unit tests and static checks are fast, so they run on every change.
+  # They run on the latest stable Flutter, and in parallel on the lowest Flutter that
+  # pubspec.yaml allows. Lints and formatting differ between versions, so on the minimum
+  # only errors and warnings fail, and the format, coverage and dart fix checks run on stable.
   unit:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      matrix:
+        flutter: [stable, minimum]
+      fail-fast: false
     steps:
       - name: Check out
         uses: actions/checkout@v7
 
+      - name: Read the minimum Flutter version
+        id: minimum
+        if: matrix.flutter == 'minimum'
+        run: |
+          constraint=$(awk '/^environment:/ { env = 1; next } /^[^[:space:]#]/ { env = 0 } env && $1 == "flutter:" { print $2 }' pubspec.yaml | tr -d "'\"")
+          version=$(echo "$constraint" | sed -nE 's/^(>=|\^)?([0-9]+\.[0-9]+\.[0-9]+)$/\2/p')
+          if [ -z "$version" ]; then
+            echo "::error::Cannot read the minimum Flutter version from '$constraint' in pubspec.yaml"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      # On stable, the version is empty, so the latest stable release is installed
       - name: Setup Flutter SDK
         timeout-minutes: 10
         uses: ./.github/actions/setup-flutter
         with:
           channel: stable
+          version: ${{ steps.minimum.outputs.version }}
           cache: true
 
       - name: Install dependencies
         run: flutter pub get
 
       - name: Analyze
-        run: dart analyze --fatal-infos
+        run: dart analyze ${{ matrix.flutter == 'stable' && '--fatal-infos' || '' }}
 
       - name: Format
+        if: matrix.flutter == 'stable'
         run: dart format --set-exit-if-changed .
 
       - name: Run unit tests
         run: flutter test --coverage
 
       - name: Check that unit tests cover every line
+        if: matrix.flutter == 'stable'
         run: |
           for f in $(find lib/src -name '*.dart'); do grep -qxF "SF:$f" coverage/lcov.info || { echo "$f: not loaded by any test"; exit 1; }; done
           awk -F'[:,]' '/^SF:/{f=$2} /^DA:/ && $3==0 {print f ":" $2; bad=1} END{exit bad}' coverage/lcov.info
 
       - name: Test dart fix
+        if: matrix.flutter == 'stable'
         working-directory: test_fixes
         run: dart fix --compare-to-golden
