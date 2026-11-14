@@ -83,32 +83,61 @@ jobs:
       android_changed: ${{ steps.filter.outputs.android }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          # A pull request checks out its merge commit, whose first parent is the base branch
+          fetch-depth: 2
 
+      # Compares the same commits as dorny/paths-filter did:
+      # - pull_request: the changes of the pull request
+      # - push to a branch: the changes since the commit before the push
+      # - other runs, such as workflow_dispatch or the tag push of publish.yml:
+      #   the changes since the commit where HEAD left the default branch
+      # Every filter is true when there is no commit to compare with, as for the first push
+      # or a workflow_dispatch on the default branch, or when that commit cannot be fetched.
       - name: Filter changes
         id: filter
-        uses: dorny/paths-filter@v4
-        with:
-          filters: |
-            common:
-              - '**/lib/**/*.dart'
-              - '**/pubspec.yaml'
-              - '**/pubspec.lock'
-              - 'example/integration_test/**'
-              - 'example/assets/**'
-            windows:
-              - '**/windows/**'
-              - '**/ci_windows.yml'
-            macos:
-              - 'darwin/**'
-              - 'example/macos/**'
-              - '**/ci_macos.yml'
-            ios:
-              - 'darwin/**'
-              - 'example/ios/**'
-              - '**/ci_ios.yml'
-            android:
-              - '**/android/**'
-              - '**/ci_android.yml'
+        env:
+          BEFORE: ${{ github.event.before }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          merge_base() {
+            local refs=("$GITHUB_SHA" "+refs/heads/$DEFAULT_BRANCH:refs/remotes/origin/$DEFAULT_BRANCH")
+            git fetch --no-tags --depth=100 origin "${refs[@]}" || return
+            git merge-base "origin/$DEFAULT_BRANCH" HEAD && return
+            git fetch --no-tags --unshallow origin "${refs[@]}" || return
+            git merge-base "origin/$DEFAULT_BRANCH" HEAD
+          }
+          base=
+          if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+            base=HEAD^1
+          elif [ "$GITHUB_EVENT_NAME" = push ] && [ "$GITHUB_REF_TYPE" = branch ] && [ "$BEFORE" != 0000000000000000000000000000000000000000 ]; then
+            git fetch --no-tags --depth=1 origin "$BEFORE" && base=$BEFORE
+          elif [ "$GITHUB_REF" != "refs/heads/$DEFAULT_BRANCH" ]; then
+            base=$(merge_base) || base=
+          fi
+          if [ -z "$base" ]; then
+            echo "No commit to compare with, so every filter is true"
+          else
+            echo "Changes from $base:"
+            git diff --no-renames --name-status "$base" HEAD
+          fi
+
+          # Prints whether a file matching one of the patterns changed. Each pattern gets the
+          # glob magic, where * does not match / and **/ matches any folders, including none.
+          changed() {
+            if [ -z "$base" ] || ! git diff --quiet --no-renames "$base" HEAD -- "${@/#/:(glob)}"; then
+              echo true
+            else
+              echo false
+            fi
+          }
+          {
+            echo "common=$(changed '**/lib/**/*.dart' '**/pubspec.yaml' '**/pubspec.lock' 'example/integration_test/**' 'example/assets/**' '.github/actions/**')"
+            echo "windows=$(changed '**/windows/**' '**/ci_windows.yml')"
+            echo "macos=$(changed 'darwin/**' 'example/macos/**' '**/ci_macos.yml')"
+            echo "ios=$(changed 'darwin/**' 'example/ios/**' '**/ci_ios.yml')"
+            echo "android=$(changed '**/android/**' '**/ci_android.yml')"
+          } | tee -a "$GITHUB_OUTPUT"
 
   windows:
     needs: filter
