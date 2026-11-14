@@ -154,3 +154,40 @@ jobs:
       - name: Test dart fix
         working-directory: test_fixes
         run: dart fix --compare-to-golden
+
+  # Unit tests on the lowest Flutter that pubspec.yaml allows. Lints and formatting
+  # differ between versions, so only errors and warnings fail here, and the format,
+  # coverage and dart fix checks stay in `unit`.
+  minimum:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Read the minimum Flutter version
+        id: minimum
+        run: |
+          constraint=$(awk '/^environment:/ { env = 1; next } /^[^[:space:]#]/ { env = 0 } env && $1 == "flutter:" { print $2 }' pubspec.yaml | tr -d "'\"")
+          version=$(echo "$constraint" | sed -nE 's/^(>=|\^)?([0-9]+\.[0-9]+\.[0-9]+)$/\2/p')
+          if [ -z "$version" ]; then
+            echo "::error::Cannot read the minimum Flutter version from '$constraint' in pubspec.yaml"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Flutter SDK
+        timeout-minutes: 10
+        uses: ./.github/actions/setup-flutter
+        with:
+          version: ${{ steps.minimum.outputs.version }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: dart analyze
+
+      - name: Run unit tests
+        run: flutter test
