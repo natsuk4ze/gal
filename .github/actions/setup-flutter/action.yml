@@ -1,0 +1,141 @@
+# Installs Flutter from its official release archives, as subosito/flutter-action did,
+# using only official actions: the release manifest and the archives come from
+# https://docs.flutter.dev/install/archive, and the cache is actions/cache.
+name: Set up Flutter
+description: Install a Flutter release from its official archive and add it to the PATH.
+
+inputs:
+  channel:
+    description: The release channel, stable or beta.
+    required: false
+    default: stable
+  version:
+    description: The exact version, such as 3.41.0. If empty, the latest release of the channel.
+    required: false
+    default: ''
+  cache:
+    description: Cache the Flutter SDK and the pub cache.
+    required: false
+    default: 'false'
+
+outputs:
+  version:
+    description: The installed Flutter version.
+    value: ${{ steps.release.outputs.version }}
+
+runs:
+  using: composite
+  steps:
+    - name: Find the release
+      id: release
+      shell: bash
+      env:
+        CHANNEL: ${{ inputs.channel }}
+        VERSION: ${{ inputs.version }}
+      run: |
+        os=$(echo "$RUNNER_OS" | tr '[:upper:]' '[:lower:]')
+        arch=$(echo "$RUNNER_ARCH" | tr '[:upper:]' '[:lower:]')
+        base_url=https://storage.googleapis.com/flutter_infra_release/releases
+
+        # The releases are listed newest first. Old ones have no dart_sdk_arch and are x64.
+        release=$(curl --fail --silent --show-error --location --connect-timeout 15 --retry 5 "$base_url/releases_$os.json" |
+          jq -c --arg channel "$CHANNEL" --arg version "$VERSION" --arg arch "$arch" '
+            [.releases[]
+              | .version |= sub("^v"; "")
+              | select(.channel == $channel)
+              | select(.dart_sdk_arch == $arch or ($arch == "x64" and (has("dart_sdk_arch") | not)))
+              | select($version == "" or .version == $version)
+            ] | first')
+        if [ "$release" = null ]; then
+          echo "::error::No Flutter release for channel '$CHANNEL', version '${VERSION:-latest}' and architecture '$arch' in releases_$os.json"
+          exit 1
+        fi
+        version=$(jq -r .version <<<"$release")
+        echo "Flutter $version ($CHANNEL, $arch): $(jq -r .archive <<<"$release")"
+
+        # Native paths, so that the steps in PowerShell can use them on Windows
+        native() { if [ "$RUNNER_OS" = Windows ]; then cygpath -w "$1"; else echo "$1"; fi; }
+        if [ -n "${PUB_CACHE:-}" ]; then
+          pub_cache=$PUB_CACHE
+        elif [ "$RUNNER_OS" = Windows ]; then
+          pub_cache="$LOCALAPPDATA/Pub/Cache"
+        else
+          pub_cache="$HOME/.pub-cache"
+        fi
+        {
+          echo "version=$version"
+          echo "hash=$(jq -r .hash <<<"$release")"
+          echo "url=$base_url/$(jq -r .archive <<<"$release")"
+          echo "sha256=$(jq -r .sha256 <<<"$release")"
+          echo "key=flutter-$os-$CHANNEL-$version-$arch-$(jq -r .hash <<<"$release")"
+          echo "path=$(native "$RUNNER_TOOL_CACHE/flutter/$CHANNEL-$version-$arch")"
+          echo "pub-cache=$(native "$pub_cache")"
+        } >>"$GITHUB_OUTPUT"
+
+    - name: Cache Flutter
+      if: inputs.cache == 'true'
+      uses: actions/cache@v6
+      with:
+        path: ${{ steps.release.outputs.path }}
+        key: ${{ steps.release.outputs.key }}
+
+    - name: Cache pub dependencies
+      if: inputs.cache == 'true'
+      uses: actions/cache@v6
+      with:
+        path: ${{ steps.release.outputs.pub-cache }}
+        key: ${{ steps.release.outputs.key }}-pub-${{ hashFiles('**/pubspec.yaml') }}
+
+    - name: Install Flutter
+      shell: bash
+      env:
+        SDK_PATH: ${{ steps.release.outputs.path }}
+        URL: ${{ steps.release.outputs.url }}
+        SHA256: ${{ steps.release.outputs.sha256 }}
+        PUB_CACHE_PATH: ${{ steps.release.outputs.pub-cache }}
+      run: |
+        native() { if [ "$RUNNER_OS" = Windows ]; then cygpath -w "$1"; else echo "$1"; fi; }
+        flutter_root=$(native "$SDK_PATH/flutter")
+
+        if [ -x "$SDK_PATH/flutter/bin/flutter" ]; then
+          echo "Using the cached Flutter in $flutter_root"
+        else
+          archive="$RUNNER_TEMP/$(basename "$URL")"
+          curl --fail --silent --show-error --location --connect-timeout 15 --retry 5 --output "$archive" "$URL"
+
+          if command -v sha256sum >/dev/null; then
+            actual=$(sha256sum "$archive" | cut -d ' ' -f 1)
+          else
+            actual=$(shasum -a 256 "$archive" | cut -d ' ' -f 1)
+          fi
+          if [ "$actual" != "$SHA256" ]; then
+            echo "::error::The SHA-256 of $(basename "$URL") is $actual instead of $SHA256"
+            exit 1
+          fi
+
+          mkdir -p "$SDK_PATH"
+          case "$archive" in
+            *.zip) unzip -q -o "$archive" -d "$SDK_PATH" ;;
+            *) tar -xf "$archive" -C "$SDK_PATH" ;;
+          esac
+          rm "$archive"
+        fi
+
+        {
+          echo "FLUTTER_ROOT=$flutter_root"
+          echo "PUB_CACHE=$PUB_CACHE_PATH"
+        } >>"$GITHUB_ENV"
+        {
+          native "$SDK_PATH/flutter/bin"
+          native "$SDK_PATH/flutter/bin/cache/dart-sdk/bin"
+          native "$PUB_CACHE_PATH/bin"
+        } >>"$GITHUB_PATH"
+
+    - name: Show the Flutter version
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" = Windows ]; then
+          flutter.bat --version
+        else
+          flutter --version
+        fi
