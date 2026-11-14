@@ -121,7 +121,7 @@ jobs:
             fi
           }
           {
-            echo "common=$(changed '**/lib/**/*.dart' '**/pubspec.yaml' '**/pubspec.lock' 'example/integration_test/**' 'example/assets/**')"
+            echo "common=$(changed '**/lib/**/*.dart' '**/pubspec.yaml' '**/pubspec.lock' 'example/integration_test/**' 'example/assets/**' '.github/actions/**')"
             echo "windows=$(changed '**/windows/**' '**/ci_windows.yml')"
             echo "macos=$(changed 'darwin/**' 'example/macos/**' '**/ci_macos.yml')"
             echo "ios=$(changed 'darwin/**' 'example/ios/**' '**/ci_ios.yml')"
