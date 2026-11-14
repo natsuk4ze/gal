@@ -71,32 +71,93 @@ jobs:
           EOF
           chmod +x "$adb"
 
+      # Start the emulator with the tools of the Android SDK on the runner, as reactivecircus/android-emulator-runner did:
+      # install the latest stable emulator and the system image, create the AVD, and wait until the emulator has booted.
+      # Unlike that action, this does not install platform-tools, which would replace the adb wrapper above when it is updated.
+      - name: Start the emulator
+        env:
+          API_LEVEL: ${{ matrix.api-level }}
+          # On the default API 29 image, the debug app sometimes crashes in malloc or never draws its first frame
+          # (23 of 521 launches), with Impeller or Skia and with -gpu guest. The google_apis image did so in 1 of 418.
+          TARGET: ${{ matrix.api-level == 29 && 'google_apis' || 'default' }}
+          # API 37 does not finish a cold boot within 200 seconds on 2 cores,
+          # but API 24 and 25 hang right after booting with 4 cores and 4 GB
+          BOOT_TIMEOUT: 600
+          CORES: ${{ matrix.api-level >= 37 && 4 || 2 }}
+          RAM_SIZE: ${{ matrix.api-level >= 37 && '4096M' || '' }}
+          SDCARD_SIZE: ${{ matrix.api-level < 29 && '10M' || '' }}
+          EMULATOR_OPTIONS: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+        run: |
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          export ANDROID_AVD_HOME="$HOME/.android/avd"
+          echo "ANDROID_AVD_HOME=$ANDROID_AVD_HOME" >> "$GITHUB_ENV"
+          mkdir -p "$ANDROID_AVD_HOME"
+          image="system-images;android-$API_LEVEL;$TARGET;x86_64"
+
+          echo "::group::Install the emulator and $image"
+          yes | sdkmanager --licenses > /dev/null
+          sdkmanager --install emulator --channel=0 > /dev/null
+          sdkmanager --install "$image" --channel=0 > /dev/null
+          echo "::endgroup::"
+
+          echo "::group::Create the AVD"
+          echo no | avdmanager create avd --force -n test --package "$image" ${SDCARD_SIZE:+--sdcard "$SDCARD_SIZE"}
+          {
+            echo "hw.cpu.ncore=$CORES"
+            [ -z "$RAM_SIZE" ] || echo "hw.ramSize=$RAM_SIZE"
+            echo "disk.dataPartition.size=4GB"
+          } >> "$ANDROID_AVD_HOME/test.avd/config.ini"
+          cat "$ANDROID_AVD_HOME/test.avd/config.ini"
+          echo "::endgroup::"
+
+          # The output goes to a file, which the last step shows
+          "$ANDROID_HOME/emulator/emulator" -port 5554 -avd test $EMULATOR_OPTIONS > "$RUNNER_TEMP/emulator.log" 2>&1 &
+          emulator=$!
+          echo "Waiting for the emulator to boot"
+          attempt=0
+          until [ "$(adb -s emulator-5554 shell getprop sys.boot_completed 2> /dev/null | tr -d '\r')" = 1 ]; do
+            if ! kill -0 "$emulator" 2> /dev/null; then
+              cat "$RUNNER_TEMP/emulator.log"
+              echo "::error::The emulator exited before it booted"
+              exit 1
+            fi
+            if [ "$attempt" -ge $((BOOT_TIMEOUT / 2)) ]; then
+              echo "::error::The emulator did not boot within $BOOT_TIMEOUT seconds"
+              exit 1
+            fi
+            attempt=$((attempt + 1))
+            sleep 2
+          done
+          echo "Booted after about $((attempt * 2)) seconds"
+
+          adb -s emulator-5554 shell input keyevent 82
+          adb -s emulator-5554 shell settings put global window_animation_scale 0.0
+          adb -s emulator-5554 shell settings put global transition_animation_scale 0.0
+          adb -s emulator-5554 shell settings put global animator_duration_scale 0.0
+          adb -s emulator-5554 shell settings put secure spell_checker_enabled 0
+
       # Retry in the same emulator. timeout stops a test run that hangs,
       # and the wait between attempts outlasts short download failures, such as HTTP 504 from GitHub
       # or a socket error from pub.dev (the flutter commands resolve the packages inside the loop).
       # API 29 and lower need the storage permissions, granted by `adb install -g` before the tests run.
       # --no-uninstall keeps them for the next attempt.
       - name: Run integration tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          working-directory: ./example
-          arch: x86_64
-          # On the default API 29 image, the debug app sometimes crashes in malloc or never draws its first frame
-          # (23 of 521 launches), with Impeller or Skia and with -gpu guest. The google_apis image did so in 1 of 418.
-          target: ${{ matrix.api-level == 29 && 'google_apis' || 'default' }}
-          # API 37 does not finish a cold boot within 200 seconds on 2 cores,
-          # but API 24 and 25 hang right after booting with 4 cores and 4 GB
-          emulator-boot-timeout: 600
-          cores: ${{ matrix.api-level >= 37 && 4 || 2 }}
-          ram-size: ${{ matrix.api-level >= 37 && '4096M' || '' }}
-          disable-spellchecker: true
-          disk-size: 4GB
-          sdcard-path-or-size: ${{ matrix.api-level < 29 && '10M' || null }}
-          emulator-options: -accel on -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
-          script: >-
-            for i in 1 2 3; do
-            [ $i -eq 1 ] || sleep 60;
-            if ${{ matrix.api-level <= 29 }}; then flutter build apk --debug && adb install -r -g build/app/outputs/flutter-apk/app-debug.apk || continue; fi;
-            timeout 10m flutter test --no-uninstall integration_test/integration_test.dart && exit 0;
-            done; exit 1
+        working-directory: ./example
+        env:
+          ANDROID_SERIAL: emulator-5554
+        run: >-
+          for i in 1 2 3; do
+          [ $i -eq 1 ] || sleep 60;
+          if ${{ matrix.api-level <= 29 }}; then flutter build apk --debug && adb install -r -g build/app/outputs/flutter-apk/app-debug.apk || continue; fi;
+          timeout 10m flutter test --no-uninstall integration_test/integration_test.dart && exit 0;
+          done; exit 1
+
+      - name: Stop the emulator
+        if: always()
+        run: |
+          adb -s emulator-5554 emu kill || true
+          echo "::group::Emulator output"
+          cat "$RUNNER_TEMP/emulator.log" || true
+          echo "::endgroup::"
