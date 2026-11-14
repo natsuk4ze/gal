@@ -1,5 +1,8 @@
 name: macOS Integration Tests
 
+permissions:
+  contents: read
+
 on:
   workflow_call:
   workflow_dispatch:
