@@ -103,10 +103,11 @@ runs:
           archive="$RUNNER_TEMP/$(basename "$URL")"
           curl --fail --silent --show-error --location --connect-timeout 15 --retry 5 --output "$archive" "$URL"
 
+          # From stdin, since sha256sum escapes the line when the file name has a backslash
           if command -v sha256sum >/dev/null; then
-            actual=$(sha256sum "$archive" | cut -d ' ' -f 1)
+            actual=$(sha256sum <"$archive" | cut -d ' ' -f 1)
           else
-            actual=$(shasum -a 256 "$archive" | cut -d ' ' -f 1)
+            actual=$(shasum -a 256 <"$archive" | cut -d ' ' -f 1)
           fi
           if [ "$actual" != "$SHA256" ]; then
             echo "::error::The SHA-256 of $(basename "$URL") is $actual instead of $SHA256"
