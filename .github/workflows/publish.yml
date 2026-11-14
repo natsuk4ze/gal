@@ -1,6 +1,9 @@
 # https://dart.dev/tools/pub/automated-publishing#hardening-security-with-tag-protection-rules-on-github
 name: Publish to pub.dev
 
+permissions:
+  contents: read
+
 on:
   push:
     tags:
@@ -11,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: subosito/flutter-action@v2
+      - uses: ./.github/actions/setup-flutter
         with:
           channel: stable
       - name: Install dependencies
@@ -35,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: subosito/flutter-action@v2
+      - uses: ./.github/actions/setup-flutter
         with:
           channel: stable
       - name: Install dependencies

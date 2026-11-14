@@ -1,6 +1,9 @@
 # Runner details on https://github.com/actions/runner-images/tree/main/images
 name: CI
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
@@ -60,6 +63,14 @@ on:
         description: "Run Android tests"
         required: false
         default: false
+
+# Cancels the run in progress when a newer one starts for the same ref. The ref of a pull request
+# is refs/pull/<number>/merge, so pull requests from forks with the same branch name do not cancel
+# each other. Inside a called workflow, github.workflow is the name of the caller, so the tests
+# that publish.yml runs for a tag have their own group and never cancel or wait for these.
+concurrency:
+  group: ci.yml-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   filter:
@@ -158,7 +169,7 @@ jobs:
 
       - name: Setup Flutter SDK
         timeout-minutes: 10
-        uses: subosito/flutter-action@v2
+        uses: ./.github/actions/setup-flutter
         with:
           channel: stable
           cache: true
