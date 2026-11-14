@@ -39,13 +39,35 @@ jobs:
           fi
           flutter --version
 
+      # Boot the first available simulator of an iOS runtime with the major version of the matrix,
+      # in the order simctl lists them, as futureware-tech/simulator-action did.
+      # bootstatus waits until it has booted. If that takes over 6 minutes, boot it again, up to 3 times.
       - name: Boot iOS simulator
-        uses: futureware-tech/simulator-action@v6
-        with:
-          os: iOS
-          os_version: ^${{ matrix.ios-version }}
-          wait_for_boot: true
-          erase_before_boot: true
+        env:
+          IOS_VERSION: ${{ matrix.ios-version }}
+        run: |
+          device=$(xcrun simctl list --json devices available | jq -r --arg major "$IOS_VERSION" '
+            first(.devices | to_entries[]
+              | select(.key | test("^com\\.apple\\.CoreSimulator\\.SimRuntime\\.iOS-\($major)(-|$)"))
+              | (.key | ltrimstr("com.apple.CoreSimulator.SimRuntime.iOS-") | gsub("-"; ".")) as $version
+              | .value[] | "\(.udid) \(.state) \($version) \(.name)") // empty')
+          if [ -z "$device" ]; then
+            echo "::error::No available simulator of iOS $IOS_VERSION"
+            xcrun simctl list runtimes
+            exit 1
+          fi
+          read -r udid state version name <<< "$device"
+          echo "Picked a device: $name (iOS $version) [$udid] - $state"
+          [ "$state" = Shutdown ] || xcrun simctl shutdown "$udid"
+          xcrun simctl erase "$udid"
+          xcrun simctl boot "$udid"
+          for attempt in 1 2 3 4; do
+            perl -e 'alarm shift; exec @ARGV' 360 xcrun simctl bootstatus "$udid" && exit 0
+            echo "::warning::bootstatus attempt $attempt/4 failed"
+            [ "$attempt" -lt 4 ] || exit 1
+            xcrun simctl shutdown "$udid" || true
+            xcrun simctl boot "$udid"
+          done
 
       # simctl writes the photos permission with auth_version 1, which PhotoKit reads as not granted.
       # Version 2 is the format since iOS 14, where the permission can also be limited.
