@@ -1,12 +1,12 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 // ignore: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:gal/gal.dart';
+import 'package:http/http.dart' as http;
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -65,12 +65,11 @@ class _AppState extends State<App> {
                 ),
                 FilledButton(
                   onPressed: () async {
-                    final path = '${Directory.systemTemp.path}/done.jpg';
-                    await Dio().download(
+                    final uri = Uri.parse(
                       'https://github.com/natsuk4ze/gal/raw/main/example/assets/done.jpg',
-                      path,
                     );
-                    await Gal.putImage(path, album: album);
+                    final bytes = await http.readBytes(uri);
+                    await Gal.putImageBytes(bytes, album: album);
                     showSnackbar();
                   },
                   child: const Text('Download Image'),
@@ -78,10 +77,10 @@ class _AppState extends State<App> {
                 FilledButton(
                   onPressed: () async {
                     final path = '${Directory.systemTemp.path}/done.mp4';
-                    await Dio().download(
+                    final uri = Uri.parse(
                       'https://github.com/natsuk4ze/gal/raw/main/example/assets/done.mp4',
-                      path,
                     );
+                    await File(path).writeAsBytes(await http.readBytes(uri));
                     await Gal.putVideo(path, album: album);
                     showSnackbar();
                   },

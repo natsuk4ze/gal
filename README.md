@@ -201,13 +201,12 @@ await Gal.open();
 <br>
 
 ```sh
-flutter pub add dio
+flutter pub add http
 ```
 
 ```dart
-final path = '${Directory.systemTemp.path}/image.jpg';
-await Dio().download('$url', path);
-await Gal.putImage(path);
+final bytes = await http.readBytes(Uri.parse('$url'));
+await Gal.putImageBytes(bytes);
 ```
 
 </details>
