@@ -13,165 +13,142 @@ on:
     inputs:
       run_all:
         type: boolean
-        description: "Run all jobs regardless of path filters"
-        required: false
-        default: false
+        description: Run every platform
       run_windows:
         type: boolean
-        description: "Run Windows tests"
-        required: false
-        default: false
+        description: Run Windows tests
       run_macos:
         type: boolean
-        description: "Run macOS tests"
-        required: false
-        default: false
+        description: Run macOS tests
       run_ios:
         type: boolean
-        description: "Run iOS tests"
-        required: false
-        default: false
+        description: Run iOS tests
       run_android:
         type: boolean
-        description: "Run Android tests"
-        required: false
-        default: false
+        description: Run Android tests
   workflow_call:
     inputs:
       run_all:
         type: boolean
-        description: "Run all jobs regardless of path filters"
-        required: false
-        default: false
-      run_windows:
-        type: boolean
-        description: "Run Windows tests"
-        required: false
-        default: false
-      run_macos:
-        type: boolean
-        description: "Run macOS tests"
-        required: false
-        default: false
-      run_ios:
-        type: boolean
-        description: "Run iOS tests"
-        required: false
-        default: false
-      run_android:
-        type: boolean
-        description: "Run Android tests"
-        required: false
-        default: false
+        description: Run every platform
 
-# Cancels the run in progress when a newer one starts for the same ref. The ref of a pull request
-# is refs/pull/<number>/merge, so pull requests from forks with the same branch name do not cancel
-# each other. Inside a called workflow, github.workflow is the name of the caller, so the tests
-# that publish.yml runs for a tag have their own group and never cancel or wait for these.
+# Cancels the run in progress when a newer one starts for the same ref. When publish.yml calls
+# this workflow, github.workflow is the name of the caller, so those runs have a group of their own.
 concurrency:
   group: ci.yml-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # Decides which platforms to test
   filter:
     runs-on: ubuntu-latest
     outputs:
-      common_changed: ${{ steps.filter.outputs.common }}
-      windows_changed: ${{ steps.filter.outputs.windows }}
-      macos_changed: ${{ steps.filter.outputs.macos }}
-      ios_changed: ${{ steps.filter.outputs.ios }}
-      android_changed: ${{ steps.filter.outputs.android }}
+      windows: ${{ steps.filter.outputs.windows }}
+      macos: ${{ steps.filter.outputs.macos }}
+      ios: ${{ steps.filter.outputs.ios }}
+      android: ${{ steps.filter.outputs.android }}
     steps:
       - uses: actions/checkout@v7
         with:
           # A pull request checks out its merge commit, whose first parent is the base branch
           fetch-depth: 2
 
-      # Compares the same commits as dorny/paths-filter did:
-      # - pull_request: the changes of the pull request
-      # - push to a branch: the changes since the commit before the push
-      # - other runs, such as workflow_dispatch or the tag push of publish.yml:
-      #   the changes since the commit where HEAD left the default branch
-      # Every filter is true when there is no commit to compare with, as for the first push
-      # or a workflow_dispatch on the default branch, or when that commit cannot be fetched.
       - name: Filter changes
         id: filter
         env:
           BEFORE: ${{ github.event.before }}
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          RUN_ALL: ${{ inputs.run_all }}
+          RUN_WINDOWS: ${{ inputs.run_windows }}
+          RUN_MACOS: ${{ inputs.run_macos }}
+          RUN_IOS: ${{ inputs.run_ios }}
+          RUN_ANDROID: ${{ inputs.run_android }}
         run: |
-          merge_base() {
-            local refs=("$GITHUB_SHA" "+refs/heads/$DEFAULT_BRANCH:refs/remotes/origin/$DEFAULT_BRANCH")
-            git fetch --no-tags --depth=100 origin "${refs[@]}" || return
-            git merge-base "origin/$DEFAULT_BRANCH" HEAD && return
-            git fetch --no-tags --unshallow origin "${refs[@]}" || return
-            git merge-base "origin/$DEFAULT_BRANCH" HEAD
-          }
+          # A pull request is compared with its base branch, and a push with the commit before it.
+          # Other runs, such as workflow_dispatch, test only the platforms their inputs ask for.
           base=
-          if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
-            base=HEAD^1
-          elif [ "$GITHUB_EVENT_NAME" = push ] && [ "$GITHUB_REF_TYPE" = branch ] && [ "$BEFORE" != 0000000000000000000000000000000000000000 ]; then
-            git fetch --no-tags --depth=1 origin "$BEFORE" && base=$BEFORE
-          elif [ "$GITHUB_REF" != "refs/heads/$DEFAULT_BRANCH" ]; then
-            base=$(merge_base) || base=
-          fi
-          if [ -z "$base" ]; then
-            echo "No commit to compare with, so every filter is true"
-          else
-            echo "Changes from $base:"
-            git diff --no-renames --name-status "$base" HEAD
+          case $GITHUB_EVENT_NAME in
+            pull_request)
+              base=HEAD^1
+              ;;
+            push)
+              # Without the commit before the push, as after a force push, every platform runs
+              if git fetch --no-tags --depth=1 origin "$BEFORE"; then base=$BEFORE; else RUN_ALL=true; fi
+              ;;
+          esac
+          if [ -n "$base" ]; then
+            git diff --name-status "$base" HEAD
           fi
 
-          # Prints whether a file matching one of the patterns changed. Each pattern gets the
-          # glob magic, where * does not match / and **/ matches any folders, including none.
-          changed() {
-            if [ -z "$base" ] || ! git diff --quiet --no-renames "$base" HEAD -- "${@/#/:(glob)}"; then
+          # Prints whether to test a platform. $1 is its input, and the rest are the files it
+          # depends on, besides the shared ones. In the patterns, * does not match / and **/
+          # matches any number of folders, including none.
+          shared=('**/lib/**/*.dart' '**/pubspec.yaml' '**/pubspec.lock' 'example/integration_test/**' 'example/assets/**' '.github/actions/**')
+          platform() {
+            local input=$1
+            shift
+            if [ "$RUN_ALL" = true ] || [ "$input" = true ]; then
+              echo true
+            elif [ -n "$base" ] && ! git diff --quiet "$base" HEAD -- "${shared[@]/#/:(glob)}" "${@/#/:(glob)}"; then
               echo true
             else
               echo false
             fi
           }
           {
-            echo "common=$(changed '**/lib/**/*.dart' '**/pubspec.yaml' '**/pubspec.lock' 'example/integration_test/**' 'example/assets/**' '.github/actions/**')"
-            echo "windows=$(changed '**/windows/**' '**/ci_windows.yml')"
-            echo "macos=$(changed 'darwin/**' 'example/macos/**' '**/ci_macos.yml')"
-            echo "ios=$(changed 'darwin/**' 'example/ios/**' '**/ci_ios.yml')"
-            echo "android=$(changed '**/android/**' '**/ci_android.yml')"
+            echo "windows=$(platform "$RUN_WINDOWS" '**/windows/**' '**/ci_windows.yml')"
+            echo "macos=$(platform "$RUN_MACOS" 'darwin/**' 'example/macos/**' '**/ci_macos.yml')"
+            echo "ios=$(platform "$RUN_IOS" 'darwin/**' 'example/ios/**' '**/ci_ios.yml')"
+            echo "android=$(platform "$RUN_ANDROID" '**/android/**' '**/ci_android.yml')"
           } | tee -a "$GITHUB_OUTPUT"
 
   windows:
     needs: filter
-    if: ${{ needs.filter.outputs.windows_changed == 'true' || needs.filter.outputs.common_changed == 'true' || inputs.run_all || inputs.run_windows }}
+    if: needs.filter.outputs.windows == 'true'
     uses: ./.github/workflows/ci_windows.yml
 
   macos:
     needs: filter
-    if: ${{ needs.filter.outputs.macos_changed == 'true' || needs.filter.outputs.common_changed == 'true' || inputs.run_all || inputs.run_macos }}
+    if: needs.filter.outputs.macos == 'true'
     uses: ./.github/workflows/ci_macos.yml
 
   ios:
     needs: filter
-    if: ${{ needs.filter.outputs.ios_changed == 'true' || needs.filter.outputs.common_changed == 'true' || inputs.run_all || inputs.run_ios }}
+    if: needs.filter.outputs.ios == 'true'
     uses: ./.github/workflows/ci_ios.yml
 
   android:
     needs: filter
-    if: ${{ needs.filter.outputs.android_changed == 'true' || needs.filter.outputs.common_changed == 'true' || inputs.run_all || inputs.run_android }}
+    if: needs.filter.outputs.android == 'true'
     uses: ./.github/workflows/ci_android.yml
 
-  # Unit tests and static checks are fast, so they run on every change
+  # Unit tests and static checks are fast, so they run on every change,
+  # on the latest stable Flutter and on the lowest Flutter that pubspec.yaml allows
   unit:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        flutter: [stable, minimum]
     steps:
       - name: Check out
         uses: actions/checkout@v7
 
+      # Reads 3.41.0 from `flutter: '>=3.41.0'`, and fails if the line is not found
+      - name: Read the minimum Flutter version
+        id: minimum
+        if: matrix.flutter == 'minimum'
+        run: |
+          version=$(grep -oP "^  flutter: '>=\K[0-9.]+" pubspec.yaml)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      # Without a version, the latest stable release is installed
       - name: Setup Flutter SDK
         timeout-minutes: 10
         uses: ./.github/actions/setup-flutter
         with:
           channel: stable
+          version: ${{ steps.minimum.outputs.version }}
           cache: true
 
       - name: Install dependencies
@@ -180,7 +157,9 @@ jobs:
       - name: Analyze
         run: dart analyze --fatal-infos
 
+      # The formatting changes between versions of Dart
       - name: Format
+        if: matrix.flutter == 'stable'
         run: dart format --set-exit-if-changed .
 
       - name: Run unit tests
