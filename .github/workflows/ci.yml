@@ -173,3 +173,16 @@ jobs:
       - name: Test dart fix
         working-directory: test_fixes
         run: dart fix --compare-to-golden
+
+  # The one check that main requires. It fails when a job failed or was cancelled, and passes when
+  # every job passed or was skipped, so platforms that a pull request does not touch do not block it.
+  # Add new jobs to needs.
+  result:
+    name: CI result
+    if: always()
+    needs: [filter, windows, macos, ios, android, unit]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the results of the jobs
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
