@@ -1,5 +1,5 @@
 name: gal
-description: Flutter plugin to save images/videos to photos gallery with permission handling
+description: Flutter plugin to save images and videos to the photo gallery, with albums and permission handling.
 version: 3.0.1
 homepage: https://pub.dev/packages/gal
 repository: https://github.com/natsuk4ze/gal
