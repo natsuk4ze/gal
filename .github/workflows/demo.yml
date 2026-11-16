@@ -170,13 +170,20 @@ jobs:
             [ "$(adb shell getprop sys.boot_completed 2> /dev/null | tr -d '\r')" = 1 ] && break
             sleep 2
           done
-          # The services start a while after the boot completes
-          for i in $(seq 60); do adb shell cmd input > /dev/null 2>&1 && break; sleep 2; done
-          sleep 30
+          # The services start a while after the boot completes. Waits until they have answered 10 times in a row.
+          ready=0
+          for i in $(seq 300); do
+            if adb shell service check window 2> /dev/null | grep -q ': found' && adb shell pm path android > /dev/null 2>&1; then
+              ready=$((ready + 1))
+            else
+              ready=0
+            fi
+            [ "$ready" -ge 10 ] && break
+            sleep 2
+          done
+          echo "Ready after about $((i * 2)) seconds"
           echo "Android $(adb shell getprop ro.build.version.release) (API $(adb shell getprop ro.build.version.sdk))"
           adb shell wm size
-          # So that the Play Store does not update apps meanwhile
-          adb shell pm disable-user --user 0 com.android.vending || true
 
       # A clean status bar, and touches shown for the tap in Google Photos
       - name: Set up the screen
@@ -254,6 +261,14 @@ jobs:
           pkill -f flutter_tools || true
           ls -la "$out"
 
+      - name: Save the logs
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/demo"
+          cp "$RUNNER_TEMP/emulator.log" "$RUNNER_TEMP/demo/" || true
+          adb logcat -d -b crash > "$RUNNER_TEMP/demo/crash.log" 2>&1 || true
+          adb logcat -d -t 3000 > "$RUNNER_TEMP/demo/logcat.log" 2>&1 || true
+
       - name: Upload the video
         if: always()
         uses: actions/upload-artifact@v7
@@ -300,9 +315,8 @@ jobs:
         working-directory: example/macos/Runner
         run: |
           sed -i '' 's/<rect key="contentRect" x="335" y="390" width="800" height="600"\/>/<rect key="contentRect" x="40" y="80" width="440" height="600"\/>/' Base.lproj/MainMenu.xib
-          sed -i '' 's/^PRODUCT_NAME = example$/PRODUCT_NAME = Gal/' Configs/AppInfo.xcconfig
+          plutil -replace CFBundleName -string Gal Info.plist
           grep -n contentRect Base.lproj/MainMenu.xib
-          grep -n PRODUCT_NAME Configs/AppInfo.xcconfig
 
       - name: Build
         working-directory: example
@@ -341,7 +355,7 @@ jobs:
             osascript "$RUNNER_TEMP/answer.applescript" || true
           done
           osascript -e 'tell application "Photos" to quit' || true
-          pkill -x Gal || true
+          pkill -x example || true
           pkill -f flutter_tools || true
           sleep 3
 
@@ -360,7 +374,7 @@ jobs:
           sleep 6
           screencapture -x "$out/end.png" || true
           wait "$recorder" || true
-          pkill -x Gal || true
+          pkill -x example || true
           pkill -f flutter_tools || true
           ls -la "$out"
 
