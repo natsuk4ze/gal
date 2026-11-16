@@ -1,0 +1,205 @@
+--------- beginning of crash
+11-16 08:10:29.756   590 10454 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+11-16 08:10:29.758   590 10454 F DEBUG   : Build fingerprint: 'google/sdk_gphone64_x86_64/emu64xa:17/CE2A.260420.051.A2/16418371:user/release-keys'
+11-16 08:10:29.758   590 10454 F DEBUG   : Kernel Release: '6.12.81-android16-6-g4f69fc7b210c-ab16167562'
+11-16 08:10:29.758   590 10454 F DEBUG   : Revision: '0'
+11-16 08:10:29.758   590 10454 F DEBUG   : ABI: 'x86_64'
+11-16 08:10:29.758   590 10454 F DEBUG   : Timestamp: 2026-11-16 08:10:29.326696088+0000
+11-16 08:10:29.758   590 10454 F DEBUG   : Process uptime: 255s
+11-16 08:10:29.758   590 10454 F DEBUG   : Executable: /apex/com.android.media.swcodec/bin/mediaswcodec
+11-16 08:10:29.758   590 10454 F DEBUG   : Cmdline: media.swcodec oid.media.swcodec/bin/mediaswcodec
+11-16 08:10:29.758   590 10454 F DEBUG   : pid: 590, ppid: 1, tid: 10454, name: oid.avc.encoder  >>> media.swcodec <<<
+11-16 08:10:29.758   590 10454 F DEBUG   : uid: 1046
+11-16 08:10:29.758   590 10454 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+11-16 08:10:29.758   590 10454 F DEBUG   : Abort message: 'Assertion failed: !rcEnc->featureInfo()->hasReadColorBufferDma'
+11-16 08:10:29.758   590 10454 F DEBUG   :     rax 0000000000000000  rbx 000000000000024e  rcx 00007cd71b6d5add  rdx 0000000000000006
+11-16 08:10:29.758   590 10454 F DEBUG   :     r8  00007cd464d99f80  r9  00007cd464d99f80  r10 00007cd464d99f20  r11 0000000000000203
+11-16 08:10:29.758   590 10454 F DEBUG   :     r12 0000000000000000  r13 00007cd47bd75010  r14 00000000000028d6  r15 00007cd464d99f20
+11-16 08:10:29.758   590 10454 F DEBUG   :     rdi 000000000000024e  rsi 00000000000028d6
+11-16 08:10:29.758   590 10454 F DEBUG   :     rbp 00007cd464d99fd0  rsp 00007cd464d99f20  rip 00007cd71b6d5add  err 0000000000000000
+11-16 08:10:29.758   590 10454 F DEBUG   : 23 total frames
+11-16 08:10:29.758   590 10454 F DEBUG   : backtrace:
+11-16 08:10:29.758   590 10454 F DEBUG   :       #00 pc 0000000000059add  /apex/com.android.runtime/lib64/bionic/libc.so (abort+189) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #01 pc 000000000000cbcd  /system/lib64/liblog.so (__android_log_default_aborter+13) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #02 pc 000000000000cedb  /system/lib64/liblog.so (__android_log_assert+315) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #03 pc 0000000000005adf  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::readFromHost(cb_handle_t const&) const+543) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #04 pc 00000000000055b0  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::GoldfishMapper()::'lambda'(native_handle const*, unsigned long, ARect, int, void**)::__invoke(native_handle const*, unsigned long, ARect, int, void**)+704) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #05 pc 0000000000049cde  /apex/com.android.media.swcodec/lib64/libui.so (android::Gralloc5Mapper::lock(native_handle const*, unsigned long, android::Rect const&, int, void**, int*, int*) const+62) (BuildId: bc5ae8758e12bcdc69de2b55247004cf)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #06 pc 00000000000357e2  /apex/com.android.media.swcodec/lib64/libui.so (android::GraphicBufferMapper::lock(native_handle const*, long, android::Rect const&, android::base::unique_fd_impl<android::base::DefaultCloser>&&)+194) (BuildId: bc5ae8758e12bcdc69de2b55247004cf)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #07 pc 00000000000355f8  /apex/com.android.media.swcodec/lib64/libui.so (android::GraphicBufferMapper::lock(native_handle const*, unsigned int, android::Rect const&, void**)+88) (BuildId: bc5ae8758e12bcdc69de2b55247004cf)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #08 pc 000000000005c940  /apex/com.android.media.swcodec/lib64/libcodec2_vndk.so (android::(anonymous namespace)::PopulatePlaneLayout(native_handle const*, android::Rect const&, unsigned int, unsigned long, unsigned int, C2PlanarLayout*, unsigned char**)+848) (BuildId: 85682147d4647aba40175df84a8b77e9)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #09 pc 000000000005c1ae  /apex/com.android.media.swcodec/lib64/libcodec2_vndk.so (android::C2AllocationGralloc::map(C2Rect, C2MemoryUsage, C2Fence*, C2PlanarLayout*, unsigned char**)+238) (BuildId: 85682147d4647aba40175df84a8b77e9)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #10 pc 00000000000664bf  /apex/com.android.media.swcodec/lib64/libcodec2_vndk.so (_C2MappingBlock2DImpl::Mapped::Mapped(std::__1::shared_ptr<_C2Block2DImpl> const&, bool, C2Fence*)+223) (BuildId: 85682147d4647aba40175df84a8b77e9)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #11 pc 00000000000661a4  /apex/com.android.media.swcodec/lib64/libcodec2_vndk.so (_C2MappingBlock2DImpl::map(bool, C2Fence*)+484) (BuildId: 85682147d4647aba40175df84a8b77e9)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #12 pc 0000000000065c84  /apex/com.android.media.swcodec/lib64/libcodec2_vndk.so (C2ConstGraphicBlock::map() const+100) (BuildId: 85682147d4647aba40175df84a8b77e9)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #13 pc 0000000000029aa1  /apex/com.android.media.swcodec/lib64/libcodec2_soft_avcenc.so (android::C2SoftAvcEnc::process(std::__1::unique_ptr<C2Work, std::__1::default_delete<C2Work>> const&, std::__1::shared_ptr<C2BlockPool> const&)+2273) (BuildId: 7b2b8d7c64a11541cd24425535a68bdc)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #14 pc 0000000000032d09  /apex/com.android.media.swcodec/lib64/libcodec2_soft_common.so (android::SimpleC2Component::processQueue()+1897) (BuildId: edb8889d9f4b4270e0488debffc11cf6)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #15 pc 0000000000032137  /apex/com.android.media.swcodec/lib64/libcodec2_soft_common.so (android::SimpleC2Component::WorkHandler::onMessageReceived(android::sp<android::AMessage> const&)+183) (BuildId: edb8889d9f4b4270e0488debffc11cf6)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #16 pc 000000000001c51c  /apex/com.android.media.swcodec/lib64/libstagefright_foundation.so (android::AHandler::deliverMessage(android::sp<android::AMessage> const&)+172) (BuildId: d9d4c38bd7893bcd8e07eeaa540e9502)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #17 pc 000000000002328c  /apex/com.android.media.swcodec/lib64/libstagefright_foundation.so (android::AMessage::deliver()+188) (BuildId: d9d4c38bd7893bcd8e07eeaa540e9502)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #18 pc 000000000001dbfc  /apex/com.android.media.swcodec/lib64/libstagefright_foundation.so (android::ALooper::loop()+796) (BuildId: d9d4c38bd7893bcd8e07eeaa540e9502)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #19 pc 000000000001a70b  /apex/com.android.media.swcodec/lib64/libutils.so (android::Thread::_threadLoop(void*)+347) (BuildId: ebf05d156c962931a4a8cdba20b93b0b)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #20 pc 000000000001bfaf  /apex/com.android.media.swcodec/lib64/libutils.so (libutil_thread_trampoline(void*) (.__uniq.226528677032898775202282855395389835431)+15) (BuildId: ebf05d156c962931a4a8cdba20b93b0b)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #21 pc 000000000008c7af  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*) (.__uniq.67847048707805468364044055584648682506)+63) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:10:29.758   590 10454 F DEBUG   :       #22 pc 000000000008670d  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+45) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:10:29.758   590 10454 F DEBUG   : Note: To display stack pointer information, use the pbtombstone tool:
+11-16 08:10:29.758   590 10454 F DEBUG   :         pbtombstone --display-sp tombstone_XX.pb
+11-16 08:10:36.860  7277  7553 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 7553 (TaskSnapshotPer), pid 7277 (system_server)
+11-16 08:10:37.145 10507 10507 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 10507 (screencap), pid 10507 (screencap)
+11-16 08:10:37.327 10514 10514 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+11-16 08:10:37.327 10514 10514 F DEBUG   : Build fingerprint: 'google/sdk_gphone64_x86_64/emu64xa:17/CE2A.260420.051.A2/16418371:user/release-keys'
+11-16 08:10:37.327 10514 10514 F DEBUG   : Kernel Release: '6.12.81-android16-6-g4f69fc7b210c-ab16167562'
+11-16 08:10:37.327 10514 10514 F DEBUG   : Revision: '0'
+11-16 08:10:37.327 10514 10514 F DEBUG   : ABI: 'x86_64'
+11-16 08:10:37.327 10514 10514 F DEBUG   : Timestamp: 2026-11-16 08:10:37.253129434+0000
+11-16 08:10:37.327 10514 10514 F DEBUG   : Process uptime: 1s
+11-16 08:10:37.327 10514 10514 F DEBUG   : Executable: /system/bin/screencap
+11-16 08:10:37.327 10514 10514 F DEBUG   : Cmdline: screencap -p
+11-16 08:10:37.327 10514 10514 F DEBUG   : pid: 10507, ppid: 10505, tid: 10507, name: screencap  >>> screencap <<<
+11-16 08:10:37.327 10514 10514 F DEBUG   : uid: 2000
+11-16 08:10:37.327 10514 10514 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+11-16 08:10:37.327 10514 10514 F DEBUG   : Abort message: 'Assertion failed: !rcEnc->featureInfo()->hasReadColorBufferDma'
+11-16 08:10:37.327 10514 10514 F DEBUG   :     rax 0000000000000000  rbx 000000000000290b  rcx 00007777bdc67add  rdx 0000000000000006
+11-16 08:10:37.327 10514 10514 F DEBUG   :     r8  00007ffc69cb04e0  r9  00007ffc69cb04e0  r10 00007ffc69cb0480  r11 0000000000000217
+11-16 08:10:37.327 10514 10514 F DEBUG   :     r12 0000000000000000  r13 0000777800aa1010  r14 000000000000290b  r15 00007ffc69cb0480
+11-16 08:10:37.327 10514 10514 F DEBUG   :     rdi 000000000000290b  rsi 000000000000290b
+11-16 08:10:37.327 10514 10514 F DEBUG   :     rbp 00007ffc69cb0530  rsp 00007ffc69cb0480  rip 00007777bdc67add  err 0000000000000000
+11-16 08:10:37.327 10514 10514 F DEBUG   : 11 total frames
+11-16 08:10:37.327 10514 10514 F DEBUG   : backtrace:
+11-16 08:10:37.327 10514 10514 F DEBUG   :       #00 pc 0000000000059add  /apex/com.android.runtime/lib64/bionic/libc.so (abort+189) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:10:37.327 10514 10514 F DEBUG   :       #01 pc 000000000000cbcd  /system/lib64/liblog.so (__android_log_default_aborter+13) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:10:37.327 10514 10514 F DEBUG   :       #02 pc 000000000000cedb  /system/lib64/liblog.so (__android_log_assert+315) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:10:37.327 10514 10514 F DEBUG   :       #03 pc 0000000000005adf  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::readFromHost(cb_handle_t const&) const+543) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:10:37.327 10514 10514 F DEBUG   :       #04 pc 00000000000055b0  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::GoldfishMapper()::'lambda'(native_handle const*, unsigned long, ARect, int, void**)::__invoke(native_handle const*, unsigned long, ARect, int, void**)+704) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:10:37.327 10514 10514 F DEBUG   :       #05 pc 00000000000498cf  /system/lib64/libui.so (android::Gralloc5Mapper::lock(native_handle const*, unsigned long, android::Rect const&, int, void**, int*, int*) const+63) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:10:37.327 10514 10514 F DEBUG   :       #06 pc 00000000000338d6  /system/lib64/libui.so (android::GraphicBufferMapper::lock(native_handle const*, long, android::Rect const&, android::base::unique_fd_impl<android::base::DefaultCloser>&&)+198) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:10:37.327 10514 10514 F DEBUG   :       #07 pc 000000000002a751  /system/lib64/libui.so (android::GraphicBuffer::lockAsync(unsigned long, unsigned long, android::Rect const&, void**, int, int*, int*)+545) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:10:37.327 10514 10514 F DEBUG   :       #08 pc 00000000000339a3  /system/lib64/libui.so (android::GraphicBuffer::lock(unsigned int, void**, int*, int*)+67) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:10:37.327 10514 10514 F DEBUG   :       #09 pc 0000000000004f56  /system/bin/screencap (main+2662) (BuildId: 0e7410c5c3311270e0ba64ddce88d8f8)
+11-16 08:10:37.327 10514 10514 F DEBUG   :       #10 pc 00000000000cbca7  /apex/com.android.runtime/lib64/bionic/libc.so (__libc_init+103) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:10:37.327 10514 10514 F DEBUG   : Note: To display stack pointer information, use the pbtombstone tool:
+11-16 08:10:37.327 10514 10514 F DEBUG   :         pbtombstone --display-sp tombstone_XX.pb
+11-16 08:10:38.429 10509 10509 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+11-16 08:10:38.429 10509 10509 F DEBUG   : Build fingerprint: 'google/sdk_gphone64_x86_64/emu64xa:17/CE2A.260420.051.A2/16418371:user/release-keys'
+11-16 08:10:38.429 10509 10509 F DEBUG   : Kernel Release: '6.12.81-android16-6-g4f69fc7b210c-ab16167562'
+11-16 08:10:38.429 10509 10509 F DEBUG   : Revision: '0'
+11-16 08:10:38.429 10509 10509 F DEBUG   : ABI: 'x86_64'
+11-16 08:10:38.429 10509 10509 F DEBUG   : Timestamp: 2026-11-16 08:10:37.681395805+0000
+11-16 08:10:38.429 10509 10509 F DEBUG   : Process uptime: 105s
+11-16 08:10:38.429 10509 10509 F DEBUG   : Executable: /system/bin/app_process64
+11-16 08:10:38.429 10509 10509 F DEBUG   : Cmdline: system_server
+11-16 08:10:38.429 10509 10509 F DEBUG   : pid: 7277, ppid: 7218, tid: 7553, name: TaskSnapshotPer  >>> system_server <<<
+11-16 08:10:38.429 10509 10509 F DEBUG   : uid: 1000
+11-16 08:10:38.429 10509 10509 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+11-16 08:10:38.429 10509 10509 F DEBUG   : Abort message: 'Assertion failed: !rcEnc->featureInfo()->hasReadColorBufferDma'
+11-16 08:10:38.429 10509 10509 F DEBUG   :     rax 0000000000000000  rbx 0000000000001c6d  rcx 00007ebb92919add  rdx 0000000000000006
+11-16 08:10:38.429 10509 10509 F DEBUG   :     r8  001a000000000029  r9  001a000000000029  r10 00007eb7ab9a6980  r11 0000000000000207
+11-16 08:10:38.429 10509 10509 F DEBUG   :     r12 0000000000000000  r13 00007eb7a823c010  r14 0000000000001d81  r15 00007eb7ab9a6980
+11-16 08:10:38.429 10509 10509 F DEBUG   :     rdi 0000000000001c6d  rsi 0000000000001d81
+11-16 08:10:38.429 10509 10509 F DEBUG   :     rbp 00007eb7ab9a6a30  rsp 00007eb7ab9a6980  rip 00007ebb92919add  err 0000000000000004
+11-16 08:10:38.429 10509 10509 F DEBUG   : 39 total frames
+11-16 08:10:38.429 10509 10509 F DEBUG   : backtrace:
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #00 pc 0000000000059add  /apex/com.android.runtime/lib64/bionic/libc.so (abort+189) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #01 pc 00000000008ea8f7  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+1607) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #02 pc 00000000000165be  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+62) (BuildId: 2ecca23d34d49b8e847226a61f55ed7d)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #03 pc 000000000000cedb  /system/lib64/liblog.so (__android_log_assert+315) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #04 pc 0000000000005adf  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::readFromHost(cb_handle_t const&) const+543) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #05 pc 00000000000055b0  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::GoldfishMapper()::'lambda'(native_handle const*, unsigned long, ARect, int, void**)::__invoke(native_handle const*, unsigned long, ARect, int, void**)+704) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #06 pc 00000000000498cf  /system/lib64/libui.so (android::Gralloc5Mapper::lock(native_handle const*, unsigned long, android::Rect const&, int, void**, int*, int*) const+63) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #07 pc 00000000000338d6  /system/lib64/libui.so (android::GraphicBufferMapper::lock(native_handle const*, long, android::Rect const&, android::base::unique_fd_impl<android::base::DefaultCloser>&&)+198) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #08 pc 000000000002a751  /system/lib64/libui.so (android::GraphicBuffer::lockAsync(unsigned long, unsigned long, android::Rect const&, void**, int, int*, int*)+545) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #09 pc 000000000002d4cd  /system/lib64/libui.so (android::GraphicBuffer::lockAsync(unsigned int, android::Rect const&, void**, int, int*, int*)+29) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #10 pc 000000000017e926  /system/lib64/libandroid_runtime.so (android::lockImageFromBuffer(android::sp<android::GraphicBuffer>, unsigned int, android::Rect const&, int, android::CpuConsumer::LockedBuffer*)+374) (BuildId: e2564b9361f25203d4d8bb218bfef57e)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #11 pc 000000000017e6f1  /system/lib64/libandroid_runtime.so (android::lockImageFromBuffer(android::BufferItem*, unsigned int, int, android::CpuConsumer::LockedBuffer*)+113) (BuildId: e2564b9361f25203d4d8bb218bfef57e)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #12 pc 00000000001000ee  /system/lib64/libandroid_runtime.so (Image_createSurfacePlanes(_JNIEnv*, _jobject*, int, int, unsigned long) (.__uniq.88697204270599846072908047188773788973)+302) (BuildId: e2564b9361f25203d4d8bb218bfef57e)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #13 pc 000000000083825e  /system/framework/x86_64/boot-framework.oat (art_jni_trampoline+142) (BuildId: 352c2c5738847a4a02974ce476488c8b226cafc1)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #14 pc 0000000000209f97  /apex/com.android.art/lib64/libart.so (nterp_helper+5643) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #15 pc 00000000004b4afa  /system/framework/framework.jar (offset 0x96b000) (android.media.ImageReader$SurfaceImage.getPlanes+50)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #16 pc 0000000000209824  /apex/com.android.art/lib64/libart.so (nterp_helper+3736) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #17 pc 000000000027ecc0  /system/framework/services.jar (offset 0x12f4000) (com.android.server.wm.TaskSnapshotConvertUtil.copyToSwBitmapDirect+56)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #18 pc 00000000002125d6  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+806) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #19 pc 0000000000476428  /apex/com.android.art/lib64/libart.so (art::ArtMethod::Invoke(art::Thread*, unsigned int*, unsigned int, art::JValue*, char const*)+264) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #20 pc 000000000061c02c  /apex/com.android.art/lib64/libart.so (bool art::interpreter::DoCall<false>(art::ArtMethod*, art::Thread*, art::ShadowFrame&, art::Instruction const*, unsigned short, bool, art::JValue*)+2300) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.429 10509 10509 F DEBUG   :       #21 pc 00000000002351f7  /apex/com.android.art/lib64/libart.so (void art::interpreter::ExecuteSwitchImplCpp<false>(art::interpreter::SwitchImplContext*)+16615) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #22 pc 0000000000210c55  /apex/com.android.art/lib64/libart.so (ExecuteSwitchImplAsm+5) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #23 pc 000000000027ec40  /system/framework/services.jar (offset 0x12f4000) (com.android.server.wm.TaskSnapshotConvertUtil.copySWBitmap+0)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #24 pc 0000000000613361  /apex/com.android.art/lib64/libart.so (art::interpreter::Execute(art::Thread*, art::CodeItemDataAccessor const&, art::ShadowFrame&, art::JValue, bool, bool) (.__uniq.112435418011751916792819755956732575238)+513) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #25 pc 0000000000a09149  /apex/com.android.art/lib64/libart.so (artQuickToInterpreterBridge+777) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #26 pc 000000000022ce3c  /apex/com.android.art/lib64/libart.so (art_quick_to_interpreter_bridge+140) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #27 pc 0000000000208a31  /apex/com.android.art/lib64/libart.so (nterp_helper+165) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #28 pc 0000000000266c42  /system/framework/services.jar (offset 0x12f4000) (com.android.server.wm.SnapshotPersistQueue$StoreWriteQueueItem.writeBuffer+66)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #29 pc 0000000000209824  /apex/com.android.art/lib64/libart.so (nterp_helper+3736) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #30 pc 00000000002671a8  /system/framework/services.jar (offset 0x12f4000) (com.android.server.wm.SnapshotPersistQueue$StoreWriteQueueItem.write+140)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #31 pc 0000000000209824  /apex/com.android.art/lib64/libart.so (nterp_helper+3736) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #32 pc 000000000026641e  /system/framework/services.jar (offset 0x12f4000) (com.android.server.wm.SnapshotPersistQueue$1.run+186)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #33 pc 0000000000212274  /apex/com.android.art/lib64/libart.so (art_quick_invoke_stub+756) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #34 pc 00000000004763e1  /apex/com.android.art/lib64/libart.so (art::ArtMethod::Invoke(art::Thread*, unsigned int*, unsigned int, art::JValue*, char const*)+193) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #35 pc 000000000093bf03  /apex/com.android.art/lib64/libart.so (art::Thread::CreateCallback(void*)+1603) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #36 pc 000000000093b8b8  /apex/com.android.art/lib64/libart.so (art::Thread::CreateCallbackWithUffdGc(void*)+8) (BuildId: ee39087e94b33f52a6702ae4ffb86dc0)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #37 pc 000000000008c7af  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*) (.__uniq.67847048707805468364044055584648682506)+63) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:10:38.430 10509 10509 F DEBUG   :       #38 pc 000000000008670d  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+45) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:10:38.430 10509 10509 F DEBUG   : Note: To display stack pointer information, use the pbtombstone tool:
+11-16 08:10:38.430 10509 10509 F DEBUG   :         pbtombstone --display-sp tombstone_XX.pb
+11-16 08:10:39.190  9258 10555 E AndroidRuntime: FATAL EXCEPTION: pool-9-thread-1
+11-16 08:10:39.190  9258 10555 E AndroidRuntime: Process: com.google.android.apps.photos, PID: 9258
+11-16 08:10:39.190  9258 10555 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+11-16 08:10:39.200  7854  7854 E AndroidRuntime: FATAL EXCEPTION: main
+11-16 08:10:39.200  7854  7854 E AndroidRuntime: Process: com.google.android.gms, PID: 7854
+11-16 08:10:39.200  7854  7854 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+11-16 08:10:39.238  7708  7708 E AndroidRuntime: FATAL EXCEPTION: main
+11-16 08:10:39.238  7708  7708 E AndroidRuntime: Process: com.android.phone, PID: 7708
+11-16 08:10:39.238  7708  7708 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+11-16 08:10:39.407  7677  7933 E AndroidRuntime: FATAL EXCEPTION: BluetoothScanManager
+11-16 08:10:39.407  7677  7933 E AndroidRuntime: Process: com.google.android.bluetooth, PID: 7677
+11-16 08:10:39.407  7677  7933 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+11-16 08:10:39.408  7583  7583 E AndroidRuntime: FATAL EXCEPTION: main
+11-16 08:10:39.408  7583  7583 E AndroidRuntime: Process: com.android.systemui, PID: 7583
+11-16 08:10:39.408  7583  7583 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+11-16 08:10:39.582  9002  9002 E AndroidRuntime: FATAL EXCEPTION: main
+11-16 08:10:39.582  9002  9002 E AndroidRuntime: Process: com.google.android.apps.wallpaper, PID: 9002
+11-16 08:10:39.582  9002  9002 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: FATAL EXCEPTION: main
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: PID: 10522
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: java.lang.IllegalStateException: Error while unregistering UiTestAutomationService
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: 	at android.app.UiAutomationConnection.unregisterUiTestAutomationServiceLocked(UiAutomationConnection.java:706)
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: 	at android.app.UiAutomationConnection.disconnect(UiAutomationConnection.java:132)
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: 	at android.app.UiAutomation.disconnect(UiAutomation.java:458)
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: 	at com.android.uiautomator.core.UiAutomationShellWrapper.disconnect(UiAutomationShellWrapper.java:70)
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: 	at com.android.commands.uiautomator.DumpCommand.run(DumpCommand.java:118)
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: 	at com.android.commands.uiautomator.Launcher.main(Launcher.java:83)
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit.nativeFinishInit(Native Method)
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit.main(RuntimeInit.java:367)
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: Caused by: android.os.DeadObjectException
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: 	at android.os.BinderProxy.transactNative(Native Method)
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: 	at android.os.BinderProxy.transact(BinderProxy.java:626)
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: 	at android.view.accessibility.IAccessibilityManager$Stub$Proxy.unregisterUiTestAutomationService(IAccessibilityManager.java:1214)
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: 	at android.app.UiAutomationConnection.unregisterUiTestAutomationServiceLocked(UiAutomationConnection.java:703)
+11-16 08:10:39.700 10522 10522 E AndroidRuntime: 	... 7 more
+11-16 08:10:39.702 10522 10522 E AndroidRuntime: Couldn't report crash. Here's the crash:
+11-16 08:10:39.702 10522 10522 E AndroidRuntime: java.lang.IllegalStateException: Error while unregistering UiTestAutomationService
+11-16 08:10:39.702 10522 10522 E AndroidRuntime: 	at android.app.UiAutomationConnection.unregisterUiTestAutomationServiceLocked(UiAutomationConnection.java:706)
+11-16 08:10:39.702 10522 10522 E AndroidRuntime: 	at android.app.UiAutomationConnection.disconnect(UiAutomationConnection.java:132)
+11-16 08:10:39.702 10522 10522 E AndroidRuntime: 	at android.app.UiAutomation.disconnect(UiAutomation.java:458)
+11-16 08:10:39.702 10522 10522 E AndroidRuntime: 	at com.android.uiautomator.core.UiAutomationShellWrapper.disconnect(UiAutomationShellWrapper.java:70)
+11-16 08:10:39.702 10522 10522 E AndroidRuntime: 	at com.android.commands.uiautomator.DumpCommand.run(DumpCommand.java:118)
+11-16 08:10:39.702 10522 10522 E AndroidRuntime: 	at com.android.commands.uiautomator.Launcher.main(Launcher.java:83)
+11-16 08:10:39.702 10522 10522 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit.nativeFinishInit(Native Method)
+11-16 08:10:39.702 10522 10522 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit.main(RuntimeInit.java:367)
+11-16 08:10:39.702 10522 10522 E AndroidRuntime: Caused by: android.os.DeadObjectException
+11-16 08:10:39.702 10522 10522 E AndroidRuntime: 	at android.os.BinderProxy.transactNative(Native Method)
+11-16 08:10:39.702 10522 10522 E AndroidRuntime: 	at android.os.BinderProxy.transact(BinderProxy.java:626)
+11-16 08:10:39.702 10522 10522 E AndroidRuntime: 	at android.view.accessibility.IAccessibilityManager$Stub$Proxy.unregisterUiTestAutomationService(IAccessibilityManager.java:1214)
+11-16 08:10:39.702 10522 10522 E AndroidRuntime: 	at android.app.UiAutomationConnection.unregisterUiTestAutomationServiceLocked(UiAutomationConnection.java:703)
+11-16 08:10:39.702 10522 10522 E AndroidRuntime: 	... 7 more
+11-16 08:10:39.703 10522 10522 E AndroidRuntime: Error reporting crash. Here's the error:
+11-16 08:10:39.703 10522 10522 E AndroidRuntime: java.lang.RuntimeException: Bad file descriptor
+11-16 08:10:39.703 10522 10522 E AndroidRuntime: 	at android.os.BinderProxy.transactNative(Native Method)
+11-16 08:10:39.703 10522 10522 E AndroidRuntime: 	at android.os.BinderProxy.transact(BinderProxy.java:626)
+11-16 08:10:39.703 10522 10522 E AndroidRuntime: 	at android.app.IActivityManager$Stub$Proxy.handleApplicationCrash(IActivityManager.java:6202)
+11-16 08:10:39.703 10522 10522 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$KillApplicationHandler.uncaughtException(RuntimeInit.java:166)
+11-16 08:10:39.703 10522 10522 E AndroidRuntime: 	at java.lang.ThreadGroup.uncaughtException(ThreadGroup.java:1098)
+11-16 08:10:39.703 10522 10522 E AndroidRuntime: 	at java.lang.ThreadGroup.uncaughtException(ThreadGroup.java:1093)
+11-16 08:10:39.703 10522 10522 E AndroidRuntime: 	at java.lang.Thread.dispatchUncaughtException(Thread.java:3387)
+11-16 08:10:39.783 10123 10123 E AndroidRuntime: FATAL EXCEPTION: main
+11-16 08:10:39.783 10123 10123 E AndroidRuntime: Process: com.google.android.settings.intelligence, PID: 10123
+11-16 08:10:39.783 10123 10123 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
