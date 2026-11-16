@@ -115,7 +115,10 @@ jobs:
           tap 311 593
           sleep 2
           shot warm_3
-          # Photos stays open in the background: launched while recording, it records all black
+          # Photos stays open in the background: launched while recording, it records all black.
+          # Home, so that the app does not show a link back to Photos.
+          idb ui button --udid "$UDID" HOME
+          sleep 2
 
       # The app built from the test runs the test when it launches, without flutter test
       - name: Record the demo
