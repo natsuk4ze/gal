@@ -81,9 +81,13 @@ jobs:
         run: |
           out="$RUNNER_TEMP/demo"
           mkdir -p "$out"
-          brew install displayplacer > /dev/null 2>&1 && displayplacer list > "$out/displays.txt" 2>&1 || true
+          # A taller display, for a larger simulator
+          brew install displayplacer > /dev/null 2>&1
+          screen=$(displayplacer list | awk '/Persistent screen id/ {print $4; exit}')
+          displayplacer "id:$screen res:1600x1200 hz:60 color_depth:7 enabled:true scaling:off origin:(0,0) degree:0" || true
+          system_profiler SPDisplaysDataType | grep -i resolution || true
           defaults write com.apple.iphonesimulator ShowChrome -bool false
-          open -a Simulator --args -CurrentDeviceUDID "$UDID"
+          open "$(xcode-select -p)/Applications/Simulator.app" --args -CurrentDeviceUDID "$UDID"
           sleep 15
           xcrun simctl io "$UDID" screenshot "$out/screen.png"
           cat > "$RUNNER_TEMP/frame.sh" <<'EOF'
