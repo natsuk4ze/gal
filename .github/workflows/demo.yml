@@ -716,30 +716,38 @@ jobs:
         run: |
           out="$RUNNER_TEMP/demo"
           mkdir -p "$out"
-          which ffmpeg || true
-          rt=$(xcrun simctl list runtimes -j | jq -r '[.runtimes[] | select(.identifier | test("SimRuntime\\.iOS-[0-9]+(-[0-9]+)*$"))] | last | .runtimeRoot')
-          echo "Runtime root: $rt"
-          ls "$rt/Applications" | grep -i -E 'slide|photo' || true
+          xcrun simctl addmedia "$UDID" example/assets/done.jpg
           {
-            strings "$rt/Applications/MobileSlideShow.app/MobileSlideShow" | grep -i -E 'whatsnew|what.s.new|onboard|welcome|splash' | sort -u | head -80
-            for f in $(find "$rt/System/Library/PrivateFrameworks" "$rt/System/Library/Frameworks" -maxdepth 1 -iname '*photo*' -name '*.framework'); do
-              b="$f/$(basename "$f" .framework)"
-              [ -f "$b" ] || continue
-              m=$(strings "$b" | grep -i -E 'whatsnew|what.s.new' | sort -u | head -40)
-              [ -z "$m" ] || { echo "== $f"; echo "$m"; }
-            done
-          } > "$out/strings.txt" 2>&1
-          wc -l "$out/strings.txt"
-          brew tap facebook/fb > "$out/idb.log" 2>&1 || true
-          brew install idb-companion >> "$out/idb.log" 2>&1 || true
-          pip3 install --break-system-packages fb-idb >> "$out/idb.log" 2>&1 || true
-          which idb idb_companion >> "$out/idb.log" 2>&1 || true
-          tail -20 "$out/idb.log"
-          xcrun simctl spawn "$UDID" defaults read com.apple.mobileslideshow > "$out/defaults_before.txt" 2>&1 || true
+            brew tap facebook/fb && brew trust facebook/fb && brew install facebook/fb/idb-companion
+            pip3 install --break-system-packages fb-idb
+            which idb idb_companion
+          } > "$out/idb.log" 2>&1 || true
+          tail -5 "$out/idb.log"
           xcrun simctl openurl "$UDID" photos-redirect://
           sleep 8
-          xcrun simctl spawn "$UDID" defaults read com.apple.mobileslideshow > "$out/defaults_after.txt" 2>&1 || true
-          xcrun simctl io "$UDID" screenshot "$out/whatsnew.png"
+          xcrun simctl io "$UDID" screenshot "$out/1_whatsnew.png"
+          idb ui describe-all --udid "$UDID" > "$out/describe.json" 2>&1 || true
+          head -c 3000 "$out/describe.json"
+          idb ui tap --udid "$UDID" 201 805 > "$out/tap.log" 2>&1 || true
+          cat "$out/tap.log"
+          sleep 4
+          xcrun simctl io "$UDID" screenshot "$out/2_after_tap.png"
+          xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$out/photos.mov" &
+          a=$!
+          sleep 3
+          idb ui tap --udid "$UDID" 60 300 >> "$out/tap.log" 2>&1 || true
+          sleep 4
+          xcrun simctl io "$UDID" screenshot "$out/3_after_second_tap.png"
+          kill -INT $a; wait $a || true
+          xcrun simctl terminate "$UDID" com.apple.mobileslideshow || true
+          xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$out/reopen.mov" &
+          a=$!
+          sleep 2
+          xcrun simctl openurl "$UDID" photos-redirect://
+          sleep 6
+          xcrun simctl io "$UDID" screenshot "$out/4_reopen.png"
+          kill -INT $a; wait $a || true
+          ls -la "$out"
 
       - name: Push the outputs
         if: always()
