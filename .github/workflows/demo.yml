@@ -719,18 +719,57 @@ jobs:
           git -c user.name=github-actions -c user.email=github-actions@github.com commit -q -m "Demo of $GITHUB_SHA on windows"
           git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-windows
 
-  # Temporary: looks around the Xcode 27 image
+  # Temporary: tries ways to record and tap the iOS simulator
   probe:
     if: ${{ contains(github.event.head_commit.message, 'probe]') }}
+    permissions:
+      contents: write
     runs-on: xcode-27
     steps:
-      - name: Look around
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Boot the simulator
         run: |
-          xcode-select -p
-          ls /Applications
-          ls "$(xcode-select -p)/Applications" || true
-          mdfind "kMDItemCFBundleIdentifier == 'com.apple.iphonesimulator'" || true
-          find /Applications /Library/Developer /System/Applications /System/Library/CoreServices -maxdepth 7 -iname "*Simulator*.app" 2> /dev/null | head -20
-          xcrun simctl help io 2>&1 | head -60
-          ls /System/Library/CoreServices/DefaultDesktop* "/System/Library/Desktop Pictures" || true
-          defaults read com.apple.universalaccess || true
+          udid=$(xcrun simctl list --json devices available | jq -r '[.devices | to_entries[] | select(.key | test("SimRuntime\\.iOS-[0-9]+(-[0-9]+)*$")) | .value[] | select(.name | test("^iPhone [0-9]+ Pro$"))] | last | .udid')
+          echo "UDID=$udid" >> "$GITHUB_ENV"
+          xcrun simctl boot "$udid"
+          perl -e 'alarm shift; exec @ARGV' 900 xcrun simctl bootstatus "$udid"
+          xcrun simctl io "$udid" enumerate || true
+
+      - name: Try
+        run: |
+          out="$RUNNER_TEMP/demo"
+          mkdir -p "$out"
+          xcrun simctl addmedia "$UDID" example/assets/done.jpg
+          (brew tap facebook/fb > /dev/null 2>&1 && brew install idb-companion > /dev/null 2>&1 && pip3 install --break-system-packages fb-idb > /dev/null 2>&1 && echo idb installed) || echo "no idb"
+          xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$out/h264.mov" 2> "$out/h264.log" &
+          a=$!
+          sleep 3
+          xcrun simctl openurl "$UDID" photos-redirect://
+          sleep 6
+          xcrun simctl io "$UDID" screenshot "$out/whatsnew.png"
+          idb ui describe-all --udid "$UDID" > "$out/describe.json" 2>&1 || true
+          idb ui tap --udid "$UDID" 201 805 > "$out/tap.log" 2>&1 || true
+          sleep 4
+          xcrun simctl io "$UDID" screenshot "$out/after_tap.png"
+          kill -INT $a; wait $a || true
+          xcrun simctl io "$UDID" recordVideo --force "$out/hevc.mov" 2> "$out/hevc.log" &
+          b=$!
+          sleep 6
+          kill -INT $b; wait $b || true
+          start=$(date +%s)
+          for i in $(seq 20); do xcrun simctl io "$UDID" screenshot --type=jpeg "$out/shot_$i.jpg" > /dev/null 2>&1; done
+          echo "20 screenshots in $(( $(date +%s) - start )) seconds" | tee "$out/shots.txt"
+          ls -la "$out"
+
+      - name: Push the outputs
+        if: always()
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          cd "$RUNNER_TEMP/demo"
+          git init -q
+          git add -A
+          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q -m "Probe"
+          git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-probe
