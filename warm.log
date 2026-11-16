@@ -1,0 +1,18 @@
+[IMPORTANT:flutter/shell/platform/embedder/embedder_surface_metal_impeller.mm(53)] Using the Impeller rendering backend (MetalSDF).
+flutter: The Dart VM service is listening on http://127.0.0.1:49216/LWijIHSIqJs=/
+flutter: 00:00 +0: demo
+flutter: DEMO: permission true
+flutter: 00:06 +1: (tearDownAll)
+flutter: Warning: integration_test plugin was not detected.
+flutter: 
+flutter: If you're running the tests with `flutter drive`, please make sure your tests
+flutter: are in the `integration_test/` directory of your package and use
+flutter: `flutter test $path_to_test` to run it instead.
+flutter: 
+flutter: If you're running the tests with Android instrumentation or XCTest, this means
+flutter: that you are not capturing test results properly! See the following link for
+flutter: how to set up the integration_test plugin:
+flutter: 
+flutter: https://docs.flutter.dev/testing/integration-tests
+flutter: 
+flutter: 00:06 +2: All tests passed!

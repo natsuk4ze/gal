@@ -1,0 +1,5 @@
+[IMPORTANT:flutter/shell/platform/embedder/embedder_surface_metal_impeller.mm(53)] Using the Impeller rendering backend (MetalSDF).
+flutter: The Dart VM service is listening on http://127.0.0.1:49219/xfl3Vt7gSYc=/
+flutter: 00:00 +0: demo
+flutter: DEMO: ready /Users/runner/Library/Containers/studio.midoridesign.example/Data/tmp
+flutter: DEMO: gallery
