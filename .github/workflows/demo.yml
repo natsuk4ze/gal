@@ -15,6 +15,7 @@ on:
 
 jobs:
   ios:
+    if: ${{ !contains(github.event.head_commit.message, '[only') || contains(github.event.head_commit.message, 'ios]') }}
     # The Xcode 27 image runs macOS 27, with the iOS 27 simulators
     permissions:
       contents: write
@@ -178,6 +179,7 @@ jobs:
           git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-ios
 
   android:
+    if: ${{ !contains(github.event.head_commit.message, '[only') || contains(github.event.head_commit.message, 'android]') }}
     permissions:
       contents: write
     runs-on: ubuntu-latest
@@ -392,6 +394,7 @@ jobs:
           git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-android-${{ matrix.variant }}
 
   macos:
+    if: ${{ !contains(github.event.head_commit.message, '[only') || contains(github.event.head_commit.message, 'macos]') }}
     permissions:
       contents: write
     runs-on: xcode-27
@@ -510,6 +513,7 @@ jobs:
           git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-macos
 
   windows:
+    if: ${{ !contains(github.event.head_commit.message, '[only') || contains(github.event.head_commit.message, 'windows]') }}
     # Windows Server 2025 is built on Windows 11 24H2
     permissions:
       contents: write
@@ -561,16 +565,16 @@ jobs:
           "@
           $out = "$env:RUNNER_TEMP\demo"
           New-Item -ItemType Directory -Force $out | Out-Null
-          Start-Process explorer.exe "$env:USERPROFILE\Pictures"
+          $pictures = "$env:USERPROFILE\Pictures"
+          Start-Process explorer.exe $pictures
           for ($i = 0; $i -lt 100 -and [Win32]::FindWindow('CabinetWClass', $null) -eq [IntPtr]::Zero; $i++) { Start-Sleep -Milliseconds 100 }
           Start-Sleep -Seconds 2
           $window = [Win32]::FindWindow('CabinetWClass', $null)
           [Win32]::SetWindowPos($window, [IntPtr]::Zero, 470, 10, 800, 650, 0x0040) | Out-Null
-          $shell = New-Object -ComObject WScript.Shell
-          $shell.AppActivate('Pictures') | Out-Null
-          Start-Sleep -Milliseconds 500
           # Extra large icons
-          $shell.SendKeys('^+1')
+          $view = (New-Object -ComObject Shell.Application).Windows() | Where-Object { $_.Document.Folder.Self.Path -eq $pictures } | Select-Object -First 1
+          $view.Document.CurrentViewMode = 1
+          $view.Document.IconSize = 256
           Start-Sleep -Seconds 2
           ffmpeg -hide_banner -loglevel warning -y -f gdigrab -i desktop -frames:v 1 "$out\explorer.png"
           [Win32]::PostMessage($window, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null
@@ -602,7 +606,9 @@ jobs:
             Write-Host "::warning::No $text in $seconds seconds"
           }
 
-          # Clears the desktop, such as the console of the runner
+          # Clears the desktop, such as the console of the runner and a dialog about the paging file
+          $dialog = [Win32]::FindWindow($null, 'System Properties')
+          if ($dialog -ne [IntPtr]::Zero) { [Win32]::PostMessage($dialog, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null }
           (New-Object -ComObject Shell.Application).MinimizeAll()
           Start-Sleep -Seconds 1
           $env:DEMO_LOG = $log
@@ -613,10 +619,21 @@ jobs:
           Start-Sleep -Seconds 2
           New-Item -ItemType File -Force "$temp\demo_go" | Out-Null
           Wait-For 'DEMO: gallery' 60
-          # Keeps File Explorer next to the app, in case it opens elsewhere
+          # Keeps File Explorer next to the app with extra large icons, in case it does not open so
+          $pictures = "$env:USERPROFILE\Pictures"
+          $shell = New-Object -ComObject Shell.Application
+          $styled = $false
           for ($i = 0; $i -lt 150; $i++) {
             $window = [Win32]::FindWindow('CabinetWClass', $null)
             if ($window -ne [IntPtr]::Zero) { [Win32]::SetWindowPos($window, [IntPtr]::Zero, 470, 10, 800, 650, 0x0040) | Out-Null }
+            if (-not $styled) {
+              $view = $shell.Windows() | Where-Object { $_.Document.Folder.Self.Path -eq $pictures } | Select-Object -First 1
+              if ($view) {
+                if ($view.Document.CurrentViewMode -ne 1) { $view.Document.CurrentViewMode = 1 }
+                if ($view.Document.IconSize -ne 256) { $view.Document.IconSize = 256 }
+                $styled = $true
+              }
+            }
             Start-Sleep -Milliseconds 20
           }
           $ffmpeg.WaitForExit()
