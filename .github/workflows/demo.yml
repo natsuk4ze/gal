@@ -96,8 +96,12 @@ jobs:
           mkdir -p "$out"
           # Screenshots fail for a while after the boot, with "Timeout waiting for screen surfaces"
           shot() { for i in 1 2 3 4 5 6; do xcrun simctl io "$UDID" screenshot "$out/$1.png" && return 0; sleep 10; done; return 1; }
-          # Taps the simulator at x and y in thousandths of its screen
-          tap() { idb ui tap --udid "$UDID" $((width * $1 / 1000 / 3)) $((height * $2 / 1000 / 3)); }
+          # Taps the simulator at x and y in thousandths of its screen. The companion of idb sometimes sees it shut down
+          # for a moment, so this tries again.
+          idb_companion --udid "$UDID" > "$out/companion.log" 2>&1 &
+          sleep 5
+          idb connect localhost 10882
+          tap() { for i in 1 2 3 4 5; do idb ui tap --udid "$UDID" $((width * $1 / 1000 / 3)) $((height * $2 / 1000 / 3)) && return 0; sleep 5; done; return 1; }
 
           xcrun simctl openurl "$UDID" photos-redirect://
           sleep 8
