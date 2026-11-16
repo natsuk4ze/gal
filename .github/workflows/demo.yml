@@ -1,6 +1,7 @@
 # Records the demo videos in the README on the latest OS of each platform.
 # example/integration_test/demo_test.dart taps the example app, and each job records the screen meanwhile.
-# The test prints "DEMO: start" and "DEMO: gallery", which tell the jobs when to start and stop recording.
+# The test prints "DEMO: ready" with its temporary folder, and waits until the job has started recording and created
+# demo_go there. Then it saves an image, opens the gallery and prints "DEMO: gallery", and the job stops recording later.
 name: Demo
 
 permissions:
@@ -95,11 +96,14 @@ jobs:
           xcrun simctl spawn "$UDID" log stream --style compact --predicate 'eventMessage CONTAINS "DEMO:"' > "$out/stream.log" 2>&1 &
           sleep 2
           xcrun simctl launch --console-pty "$UDID" studio.midoridesign.galExample > "$log" 2>&1 &
-          wait_for 'DEMO: start' 120
+          wait_for 'DEMO: ready' 120
+          temp=$(grep -ho 'DEMO: ready .*' "$log" "$out/stream.log" 2> /dev/null | head -1 | sed 's/^DEMO: ready //' | tr -d '\r')
           xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$out/ios.mov" &
           recorder=$!
+          sleep 2
+          touch "$temp/demo_go"
           wait_for 'DEMO: gallery' 60
-          sleep 7
+          sleep 6
           limit 30 xcrun simctl io "$UDID" screenshot "$out/end.png" || true
           kill -INT "$recorder"
           wait "$recorder" || true
@@ -186,11 +190,12 @@ jobs:
           } >> "$ANDROID_AVD_HOME/demo.avd/config.ini"
 
           "$ANDROID_HOME/emulator/emulator" -port 5554 -avd demo -accel on -no-snapshot-save -no-window \
-            -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none > "$RUNNER_TEMP/emulator.log" 2>&1 &
+            -gpu swiftshader_indirect -feature -ReadColorBufferDma -noaudio -no-boot-anim -camera-back none -camera-front none > "$RUNNER_TEMP/emulator.log" 2>&1 &
           for i in $(seq 450); do
             [ "$(adb shell getprop sys.boot_completed 2> /dev/null | tr -d '\r')" = 1 ] && break
             sleep 2
           done
+          # With ReadColorBufferDma, surfaceflinger aborts in its region sampling on the Google Play image.
           # The services start a while after the boot completes. Waits until they have answered 10 times in a row.
           ready=0
           for i in $(seq 300); do
@@ -269,14 +274,17 @@ jobs:
           adb logcat -c
           adb logcat -s flutter:I > "$log" 2>&1 &
           adb shell am start -n studio.midoridesign.gal_example/.MainActivity
-          wait_for 'DEMO: start' 120
+          wait_for 'DEMO: ready' 120
+          temp=$(grep -o 'DEMO: ready .*' "$log" | head -1 | sed 's/^DEMO: ready //' | tr -d '\r')
           adb shell screenrecord --bit-rate 12000000 /sdcard/demo.mp4 &
           recorder=$!
+          sleep 2
+          adb shell run-as studio.midoridesign.gal_example touch "$temp/demo_go" || adb shell touch "$temp/demo_go"
           wait_for 'DEMO: gallery' 60
           sleep 3
           shot gallery
-          tap_view '.*video.*' || true
-          sleep 5
+          tap_view '(photo|image).*' '.*(photo|image) taken.*' || true
+          sleep 4
           shot end
           adb shell pkill -INT screenrecord || true
           wait "$recorder" || true
@@ -327,27 +335,6 @@ jobs:
           channel: stable
           cache: true
 
-      # The user has no TCC database yet, so make one with the schema of the system one.
-      # TCC checks the process responsible for the app, which is the agent running the job.
-      - name: Allow access to the photo library
-        run: |
-          sw_vers
-          system_profiler SPDisplaysDataType | grep -i resolution || true
-          agent=$(sudo launchctl procinfo $$ | sed -n 's/^[[:space:]]*responsible path = //p')
-          echo "Agent: $agent"
-          dir="$HOME/Library/Application Support/com.apple.TCC"
-          if [ ! -f "$dir/TCC.db" ]; then
-            mkdir -p "$dir"
-            sudo sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" .schema | sqlite3 "$dir/TCC.db"
-            version=$(sudo sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" 'PRAGMA user_version')
-            sqlite3 "$dir/TCC.db" "PRAGMA user_version = $version"
-          fi
-          for service in kTCCServicePhotos kTCCServicePhotosAdd; do
-            sqlite3 -cmd '.timeout 10000' "$dir/TCC.db" \
-              "INSERT OR REPLACE INTO access (service, client, client_type, auth_value, auth_reason, auth_version) VALUES ('$service', '$agent', 1, 2, 3, 1)"
-          done
-          launchctl kickstart -k "gui/$(id -u)/com.apple.tccd" || killall tccd || true
-
       # A window like a phone, named Gal
       - name: Set up the window
         working-directory: example/macos/Runner
@@ -360,8 +347,8 @@ jobs:
         working-directory: example
         run: flutter build macos --debug --target integration_test/demo_test.dart
 
-      # Answers the dialogs on the first launch of Photos
-      - name: Warm up Photos
+      # Answers the permission dialog, and the dialogs on the first launch of Photos
+      - name: Warm up
         run: |
           out="$RUNNER_TEMP/demo"
           mkdir -p "$out"
@@ -369,7 +356,7 @@ jobs:
           on run
             set answers to {"Allow", "Continue", "Get Started", "Not Now", "OK"}
             tell application "System Events"
-              repeat with p in (every process whose visible is true)
+              repeat with p in (every process)
                 try
                   repeat with w in (every window of p)
                     repeat with b in (every button of w)
@@ -385,6 +372,16 @@ jobs:
             return ""
           end run
           EOF
+          # Asks for the permission once, so that the dialog is not in the demo
+          DEMO_WARM_UP=1 example/build/macos/Build/Products/Debug/example.app/Contents/MacOS/example > "$out/warm.log" 2>&1 &
+          for i in $(seq 30); do
+            sleep 2
+            [ "$i" = 3 ] && screencapture -x "$out/permission.png"
+            osascript "$RUNNER_TEMP/answer.applescript" || true
+            grep -q 'DEMO: permission' "$out/warm.log" 2> /dev/null && break
+          done
+          cat "$out/warm.log" || true
+          pkill -x example || true
           open -a Photos
           for i in $(seq 8); do
             sleep 4
@@ -407,11 +404,13 @@ jobs:
           app=$!
           sleep 1
           osascript -e 'tell application "System Events" to set frontmost of process "example" to true' || true
-          wait_for 'DEMO: start' 120
-          screencapture -v -x -V 16 "$out/macos.mov" &
+          wait_for 'DEMO: ready' 120
+          # The app is sandboxed, so its temporary folder is in its container
+          temp=$(grep -o 'DEMO: ready .*' "$log" | head -1 | sed 's/^DEMO: ready //')
+          screencapture -v -x -V 14 "$out/macos.mov" &
           recorder=$!
-          # Answers a permission dialog, in case TCC asks after all
-          for i in $(seq 12); do osascript "$RUNNER_TEMP/answer.applescript" > /dev/null 2>&1 || true; grep -q 'DEMO: gallery' "$log" && break; sleep 0.5; done
+          sleep 2
+          touch "$temp/demo_go"
           wait_for 'DEMO: gallery' 60
           sleep 6
           screencapture -x "$out/end.png" || true
@@ -455,7 +454,7 @@ jobs:
           channel: stable
           cache: true
 
-      # A window like a phone, named Gal
+      # A window like a phone, named Gal, and File Explorer showing large thumbnails
       - name: Set up the screen
         shell: pwsh
         run: |
@@ -463,11 +462,21 @@ jobs:
           choco install ffmpeg -y --no-progress | Select-Object -Last 1
           $main = 'example/windows/runner/main.cpp'
           (Get-Content $main) -replace 'size\(1280, 720\)', 'size(440, 600)' -replace 'Create\(L"example"', 'Create(L"Gal"' | Set-Content $main
+          # The folder types Generic and Pictures
+          foreach ($type in '{5C4F28B5-F869-4E84-8E60-F11DB97C5CC7}', '{B3690E58-E961-423B-B687-386EBFD83239}') {
+            $key = "HKCU:\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell\$type"
+            New-Item -Path $key -Force | Out-Null
+            Set-ItemProperty -Path $key -Name LogicalViewMode -Value 3 -Type DWord
+            Set-ItemProperty -Path $key -Name Mode -Value 1 -Type DWord
+            Set-ItemProperty -Path $key -Name IconSize -Value 256 -Type DWord
+          }
 
       - name: Build
         working-directory: example
-        run: flutter build windows --debug --target integration_test/demo_test.dart
+        run: flutter build windows --debug --target integration_test/demo_test.dart --dart-define=DEMO_SHOW=explorer
 
+      # The app built from the test runs the test when it launches, without flutter test.
+      # It writes the lines for the workflow to DEMO_LOG.
       - name: Record the demo
         working-directory: example
         shell: pwsh
@@ -481,7 +490,7 @@ jobs:
           }
           "@
           $out = "$env:RUNNER_TEMP\demo"
-          $log = "$out\flutter.log"
+          $log = "$out\app.log"
           New-Item -ItemType Directory -Force $out | Out-Null
           function Wait-For($text, $seconds) {
             for ($i = 0; $i -lt $seconds * 20; $i++) {
@@ -494,20 +503,23 @@ jobs:
           # Clears the desktop, such as the console of the runner
           (New-Object -ComObject Shell.Application).MinimizeAll()
           Start-Sleep -Seconds 1
-          $test = Start-Process cmd -ArgumentList '/c', "flutter test -d windows integration_test/demo_test.dart --dart-define=DEMO_SHOW=explorer `"--dart-define=DEMO_BUTTON=Save Image from file path`" > `"$log`" 2>&1" -PassThru -NoNewWindow
-          Wait-For 'DEMO: start' 600
+          $env:DEMO_LOG = $log
+          $app = Start-Process build\windows\x64\runner\Debug\example.exe -PassThru
+          Wait-For 'DEMO: ready' 120
+          $temp = ((Select-String -Path $log -Pattern 'DEMO: ready (.*)').Matches[0].Groups[1].Value).Trim()
           $ffmpeg = Start-Process ffmpeg -ArgumentList '-hide_banner', '-loglevel', 'warning', '-y', '-f', 'gdigrab', '-framerate', '30', '-t', '14', '-i', 'desktop', '-c:v', 'libx264', '-preset', 'veryfast', '-pix_fmt', 'yuv420p', "$out\windows.mp4" -PassThru -NoNewWindow
+          Start-Sleep -Seconds 2
+          New-Item -ItemType File -Force "$temp\demo_go" | Out-Null
           Wait-For 'DEMO: gallery' 60
           # Puts File Explorer next to the app as soon as it opens
           for ($i = 0; $i -lt 200; $i++) {
             $window = [Win32]::FindWindow('CabinetWClass', $null)
-            if ($window -ne [IntPtr]::Zero) { [Win32]::SetWindowPos($window, [IntPtr]::Zero, 470, 10, 790, 640, 0x0040) | Out-Null; break }
+            if ($window -ne [IntPtr]::Zero) { [Win32]::SetWindowPos($window, [IntPtr]::Zero, 470, 10, 800, 650, 0x0040) | Out-Null; break }
             Start-Sleep -Milliseconds 20
           }
           $ffmpeg.WaitForExit()
           Get-ChildItem "$env:USERPROFILE\Pictures" | Format-Table Name, Length
-          Stop-Process -Name example -ErrorAction SilentlyContinue
-          Stop-Process -Id $test.Id -ErrorAction SilentlyContinue
+          Stop-Process -Id $app.Id -ErrorAction SilentlyContinue
           Get-ChildItem $out
 
       - name: Upload the video
