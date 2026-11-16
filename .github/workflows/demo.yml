@@ -15,6 +15,8 @@ on:
 jobs:
   ios:
     # The Xcode 27 image runs macOS 27, with the iOS 27 simulators
+    permissions:
+      contents: write
     runs-on: xcode-27
     timeout-minutes: 60
     steps:
@@ -80,23 +82,27 @@ jobs:
           for i in 1 2 3; do sleep 4; xcrun simctl io "$UDID" screenshot "$out/warm_$i.png"; done
           xcrun simctl terminate "$UDID" com.apple.mobileslideshow || true
 
+      # The app built from the test runs the test when it launches, without flutter test
       - name: Record the demo
         working-directory: example
         run: |
           out="$RUNNER_TEMP/demo"
-          log="$out/flutter.log"
-          wait_for() { for i in $(seq $(($2 * 4))); do grep -q "$1" "$log" && return 0; sleep 0.25; done; echo "::warning::No $1 in $2 seconds"; return 1; }
+          log="$out/app.log"
+          limit() { perl -e 'alarm shift; exec @ARGV' "$@"; }
+          wait_for() { for i in $(seq $(($2 * 4))); do grep -q "$1" "$log" "$out/stream.log" 2> /dev/null && return 0; sleep 0.25; done; echo "::warning::No $1 in $2 seconds"; return 1; }
 
-          flutter test --no-uninstall -d "$UDID" integration_test/demo_test.dart > "$log" 2>&1 &
-          wait_for 'DEMO: start' 900
+          limit 300 xcrun simctl install "$UDID" build/ios/iphonesimulator/Runner.app
+          xcrun simctl spawn "$UDID" log stream --style compact --predicate 'eventMessage CONTAINS "DEMO:"' > "$out/stream.log" 2>&1 &
+          sleep 2
+          xcrun simctl launch --console-pty "$UDID" studio.midoridesign.galExample > "$log" 2>&1 &
+          wait_for 'DEMO: start' 120
           xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$out/ios.mov" &
           recorder=$!
           wait_for 'DEMO: gallery' 60
           sleep 7
-          xcrun simctl io "$UDID" screenshot "$out/end.png"
+          limit 30 xcrun simctl io "$UDID" screenshot "$out/end.png" || true
           kill -INT "$recorder"
           wait "$recorder" || true
-          pkill -f flutter_tools || true
           ls -la "$out"
 
       - name: Upload the video
@@ -106,7 +112,22 @@ jobs:
           name: demo-ios
           path: ${{ runner.temp }}/demo
 
+      # Artifacts cannot be downloaded everywhere, so the outputs also go to a branch
+      - name: Push the outputs
+        if: always()
+        shell: bash
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          cd "$RUNNER_TEMP/demo"
+          git init -q
+          git add -A
+          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q -m "Demo of $GITHUB_SHA on ios"
+          git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-ios
+
   android:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
@@ -188,15 +209,15 @@ jobs:
       # A clean status bar, and touches shown for the tap in Google Photos
       - name: Set up the screen
         run: |
-          demo() { adb shell am broadcast -a com.android.systemui.demo -e command "$@" > /dev/null; }
-          adb shell settings put global sysui_demo_allowed 1
+          demo() { adb shell am broadcast -a com.android.systemui.demo -e command "$@" || echo "::warning::demo $1 failed"; }
+          adb shell settings put global sysui_demo_allowed 1 || echo "::warning::sysui_demo_allowed failed"
           demo enter
           demo clock -e hhmm 0941
           demo battery -e level 100 -e plugged false
           demo network -e wifi show -e level 4 -e fully true
           demo network -e mobile show -e datatype none -e level 4 -e fully true
           demo notifications -e visible false
-          adb shell settings put system show_touches 1
+          adb shell settings put system show_touches 1 || echo "::warning::show_touches failed"
 
       - name: Write the helpers
         run: |
@@ -240,12 +261,15 @@ jobs:
         working-directory: example
         run: |
           out="$RUNNER_TEMP/demo"
-          log="$out/flutter.log"
+          log="$out/app.log"
           . "$RUNNER_TEMP/helpers.sh"
           wait_for() { for i in $(seq $(($2 * 4))); do grep -q "$1" "$log" && return 0; sleep 0.25; done; echo "::warning::No $1 in $2 seconds"; return 1; }
 
-          flutter test --no-uninstall integration_test/demo_test.dart > "$log" 2>&1 &
-          wait_for 'DEMO: start' 900
+          adb install -r -g build/app/outputs/flutter-apk/app-debug.apk
+          adb logcat -c
+          adb logcat -s flutter:I > "$log" 2>&1 &
+          adb shell am start -n studio.midoridesign.gal_example/.MainActivity
+          wait_for 'DEMO: start' 120
           adb shell screenrecord --bit-rate 12000000 /sdcard/demo.mp4 &
           recorder=$!
           wait_for 'DEMO: gallery' 60
@@ -258,7 +282,6 @@ jobs:
           wait "$recorder" || true
           sleep 2
           adb pull /sdcard/demo.mp4 "$out/android.mp4"
-          pkill -f flutter_tools || true
           ls -la "$out"
 
       - name: Save the logs
@@ -276,7 +299,22 @@ jobs:
           name: demo-android
           path: ${{ runner.temp }}/demo
 
+      # Artifacts cannot be downloaded everywhere, so the outputs also go to a branch
+      - name: Push the outputs
+        if: always()
+        shell: bash
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          cd "$RUNNER_TEMP/demo"
+          git init -q
+          git add -A
+          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q -m "Demo of $GITHUB_SHA on android"
+          git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-android
+
   macos:
+    permissions:
+      contents: write
     runs-on: xcode-27
     timeout-minutes: 30
     steps:
@@ -322,9 +360,8 @@ jobs:
         working-directory: example
         run: flutter build macos --debug --target integration_test/demo_test.dart
 
-      # Answers the dialogs on the first launch of Photos, and any permission dialog
+      # Answers the dialogs on the first launch of Photos
       - name: Warm up Photos
-        working-directory: example
         run: |
           out="$RUNNER_TEMP/demo"
           mkdir -p "$out"
@@ -348,34 +385,38 @@ jobs:
             return ""
           end run
           EOF
-          flutter test -d macos integration_test/demo_test.dart --dart-define=DEMO_WARM_UP=true > "$out/warm.log" 2>&1 &
-          for i in $(seq 12); do
-            sleep 5
+          open -a Photos
+          for i in $(seq 8); do
+            sleep 4
             screencapture -x "$out/warm_$i.png" || true
             osascript "$RUNNER_TEMP/answer.applescript" || true
           done
           osascript -e 'tell application "Photos" to quit' || true
-          pkill -x example || true
-          pkill -f flutter_tools || true
           sleep 3
 
+      # The app built from the test runs the test when it launches, without flutter test.
+      # Started from the shell, the agent is responsible for it, and TCC allows it the photo library.
       - name: Record the demo
         working-directory: example
         run: |
           out="$RUNNER_TEMP/demo"
-          log="$out/flutter.log"
+          log="$out/app.log"
           wait_for() { for i in $(seq $(($2 * 4))); do grep -q "$1" "$log" && return 0; sleep 0.25; done; echo "::warning::No $1 in $2 seconds"; return 1; }
 
-          flutter test -d macos integration_test/demo_test.dart > "$log" 2>&1 &
-          wait_for 'DEMO: start' 600
+          build/macos/Build/Products/Debug/example.app/Contents/MacOS/example > "$log" 2>&1 &
+          app=$!
+          sleep 1
+          osascript -e 'tell application "System Events" to set frontmost of process "example" to true' || true
+          wait_for 'DEMO: start' 120
           screencapture -v -x -V 16 "$out/macos.mov" &
           recorder=$!
+          # Answers a permission dialog, in case TCC asks after all
+          for i in $(seq 12); do osascript "$RUNNER_TEMP/answer.applescript" > /dev/null 2>&1 || true; grep -q 'DEMO: gallery' "$log" && break; sleep 0.5; done
           wait_for 'DEMO: gallery' 60
           sleep 6
           screencapture -x "$out/end.png" || true
           wait "$recorder" || true
-          pkill -x example || true
-          pkill -f flutter_tools || true
+          kill "$app" || true
           ls -la "$out"
 
       - name: Upload the video
@@ -385,8 +426,23 @@ jobs:
           name: demo-macos
           path: ${{ runner.temp }}/demo
 
+      # Artifacts cannot be downloaded everywhere, so the outputs also go to a branch
+      - name: Push the outputs
+        if: always()
+        shell: bash
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          cd "$RUNNER_TEMP/demo"
+          git init -q
+          git add -A
+          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q -m "Demo of $GITHUB_SHA on macos"
+          git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-macos
+
   windows:
     # Windows Server 2025 is built on Windows 11 24H2
+    permissions:
+      contents: write
     runs-on: windows-2025
     timeout-minutes: 30
     steps:
@@ -461,26 +517,15 @@ jobs:
           name: demo-windows
           path: ${{ runner.temp }}/demo
 
-  # Artifacts cannot be downloaded everywhere, so the videos also go to the demo-output branch
-  collect:
-    needs: [ios, android, macos, windows]
-    if: always()
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Download the videos
-        uses: actions/download-artifact@v8
-        with:
-          pattern: demo-*
-          path: demo
-
-      - name: Push them to the demo-output branch
-        working-directory: demo
+      # Artifacts cannot be downloaded everywhere, so the outputs also go to a branch
+      - name: Push the outputs
+        if: always()
+        shell: bash
         env:
           TOKEN: ${{ github.token }}
         run: |
-          git init -q -b demo-output
+          cd "$RUNNER_TEMP/demo"
+          git init -q
           git add -A
-          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q -m "Demo videos of $GITHUB_SHA"
-          git push -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" demo-output
+          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q -m "Demo of $GITHUB_SHA on windows"
+          git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-windows

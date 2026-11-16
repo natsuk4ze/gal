@@ -5,7 +5,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gal/gal.dart';
 import 'package:gal_example/main.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -20,10 +19,6 @@ const button = String.fromEnvironment(
 /// instead, for the Windows Server runners, which have no Photos app.
 const show = String.fromEnvironment('DEMO_SHOW', defaultValue: 'gallery');
 
-/// Only asks for the permission and opens the gallery app, so that their
-/// first-run dialogs are answered before the demo is recorded.
-const warmUp = bool.fromEnvironment('DEMO_WARM_UP');
-
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   // Draws every frame, so that the animations play as they do in the app.
@@ -32,13 +27,6 @@ void main() {
   testWidgets('demo', (tester) async {
     WidgetsApp.debugAllowBannerOverride = false;
     await tester.pumpWidget(const App());
-    if (warmUp) {
-      await Gal.requestPermission();
-      await Gal.open();
-      debugPrint('DEMO: gallery');
-      await wait(const Duration(seconds: 60));
-      return;
-    }
     await wait(const Duration(milliseconds: 500));
     debugPrint('DEMO: start');
     await wait(const Duration(seconds: 3));
