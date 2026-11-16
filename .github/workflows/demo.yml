@@ -565,7 +565,20 @@ jobs:
           Stop-Process -Name explorer -Force
           Start-Sleep -Seconds 3
           if (-not (Get-Process explorer -ErrorAction SilentlyContinue)) { Start-Process explorer.exe }
-          Start-Sleep -Seconds 3
+          # When the shell starts, it shows a dialog about the paging file of the runner
+          Add-Type @"
+          using System;
+          using System.Runtime.InteropServices;
+          public static class Dialog {
+            [DllImport("user32.dll")] public static extern IntPtr FindWindow(string className, string title);
+            [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr hWnd, uint message, IntPtr wParam, IntPtr lParam);
+          }
+          "@
+          for ($i = 0; $i -lt 60; $i++) {
+            $dialog = [Dialog]::FindWindow('#32770', 'System Properties')
+            if ($dialog -ne [IntPtr]::Zero) { [Dialog]::PostMessage($dialog, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null; Write-Host "Closed the dialog"; break }
+            Start-Sleep -Milliseconds 500
+          }
 
       - name: Build
         working-directory: example
@@ -641,7 +654,7 @@ jobs:
           }
 
           # Clears the desktop, such as the console of the runner and a dialog about the paging file
-          $dialog = [Win32]::FindWindow($null, 'System Properties')
+          $dialog = [Win32]::FindWindow('#32770', 'System Properties')
           if ($dialog -ne [IntPtr]::Zero) { [Win32]::PostMessage($dialog, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null }
           (New-Object -ComObject Shell.Application).MinimizeAll()
           Start-Sleep -Seconds 1
@@ -656,15 +669,16 @@ jobs:
           # Keeps File Explorer next to the app with extra large icons, in case it does not open so
           $pictures = "$env:USERPROFILE\Pictures"
           $shell = New-Object -ComObject Shell.Application
-          for ($i = 0; $i -lt 100; $i++) {
+          $watch = [Diagnostics.Stopwatch]::StartNew()
+          while ($watch.ElapsedMilliseconds -lt 5000) {
             $window = [Win32]::FindWindow('CabinetWClass', $null)
             if ($window -ne [IntPtr]::Zero) { [Win32]::SetWindowPos($window, [IntPtr]::Zero, 470, 10, 800, 650, 0x0040) | Out-Null }
-            $view = $shell.Windows() | Where-Object { $_.Document.Folder.Self.Path -eq $pictures } | Select-Object -First 1
-            if ($view) {
-              if ($view.Document.CurrentViewMode -ne 1) { $view.Document.CurrentViewMode = 1 }
-              if ($view.Document.IconSize -ne 256) { $view.Document.IconSize = 256 }
-            }
-            Start-Sleep -Milliseconds 30
+            $view = $null
+            foreach ($w in $shell.Windows()) { if ($w.Document -and $w.Document.Folder.Self.Path -eq $pictures) { $view = $w } }
+            $mode = if ($view) { $view.Document.CurrentViewMode } else { 'none' }
+            "$($watch.ElapsedMilliseconds) $window $mode" | Add-Content "$out\view.log"
+            if ($view -and $mode -ne 1) { $view.Document.CurrentViewMode = 1; $view.Document.IconSize = 256 }
+            Start-Sleep -Milliseconds 50
           }
           $ffmpeg.WaitForExit()
           Get-ChildItem "$env:USERPROFILE\Pictures" | Format-Table Name, Length
