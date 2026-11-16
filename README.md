@@ -80,6 +80,10 @@ Linux is available through [`gal_linux`](https://pub.dev/packages/gal_linux), a 
 | :-: | :-----: |
 | <img src="https://github.com/natsuk4ze/gal/raw/main/assets/ios.gif" width="260" alt="Gal on iOS"> | <img src="https://github.com/natsuk4ze/gal/raw/main/assets/android.gif" width="260" alt="Gal on Android"> |
 
+| macOS | Windows |
+| :---: | :-----: |
+| <img src="https://github.com/natsuk4ze/gal/raw/main/assets/macos.gif" width="400" alt="Gal on macOS"> | <img src="https://github.com/natsuk4ze/gal/raw/main/assets/windows.gif" width="400" alt="Gal on Windows"> |
+
 </div>
 
 ## 🚀 Getting Started
