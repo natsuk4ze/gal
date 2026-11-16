@@ -134,8 +134,14 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [swangle, guest, nav3, googleapis]
     env:
       ANDROID_SERIAL: emulator-5554
+      TAG: ${{ matrix.variant == 'googleapis' && 'google_apis' || 'google_apis_playstore' }}
+      GPU: ${{ matrix.variant == 'swangle' && 'swangle_indirect' || matrix.variant == 'guest' && 'guest' || 'swiftshader_indirect' }}
     steps:
       - name: Check out
         uses: actions/checkout@v7
@@ -175,7 +181,7 @@ jobs:
           mkdir -p "$ANDROID_AVD_HOME"
 
           yes | sdkmanager --licenses > /dev/null
-          image=$(sdkmanager --list --channel=0 2>/dev/null | grep -oE 'system-images;android-[0-9.]+;google_apis_playstore;x86_64' | sort -uV | tail -1)
+          image=$(sdkmanager --list --channel=0 2>/dev/null | grep -oE "system-images;android-[0-9.]+;$TAG;x86_64" | sort -uV | tail -1)
           echo "Image: $image"
           sdkmanager --install emulator "$image" --channel=0 > /dev/null
 
@@ -190,12 +196,14 @@ jobs:
           } >> "$ANDROID_AVD_HOME/demo.avd/config.ini"
 
           "$ANDROID_HOME/emulator/emulator" -port 5554 -avd demo -accel on -no-snapshot-save -no-window \
-            -gpu swiftshader_indirect -feature -ReadColorBufferDma -noaudio -no-boot-anim -camera-back none -camera-front none > "$RUNNER_TEMP/emulator.log" 2>&1 &
+            -gpu "$GPU" -noaudio -no-boot-anim -camera-back none -camera-front none > "$RUNNER_TEMP/emulator.log" 2>&1 &
+          grep -iE 'dma' "$ANDROID_HOME/emulator/lib/advancedFeatures.ini" || true
           for i in $(seq 450); do
             [ "$(adb shell getprop sys.boot_completed 2> /dev/null | tr -d '\r')" = 1 ] && break
             sleep 2
           done
-          # With ReadColorBufferDma, surfaceflinger aborts in its region sampling on the Google Play image.
+          # The navigation handle of gestures samples the screen under it
+          [ "${{ matrix.variant }}" != nav3 ] || adb shell cmd overlay enable com.android.internal.systemui.navbar.threebutton || true
           # The services start a while after the boot completes. Waits until they have answered 10 times in a row.
           ready=0
           for i in $(seq 300); do
@@ -304,7 +312,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: demo-android
+          name: demo-android-${{ matrix.variant }}
           path: ${{ runner.temp }}/demo
 
       # Artifacts cannot be downloaded everywhere, so the outputs also go to a branch
@@ -318,7 +326,7 @@ jobs:
           git init -q
           git add -A
           git -c user.name=github-actions -c user.email=github-actions@github.com commit -q -m "Demo of $GITHUB_SHA on android"
-          git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-android
+          git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-android-${{ matrix.variant }}
 
   macos:
     permissions:
@@ -475,6 +483,36 @@ jobs:
         working-directory: example
         run: flutter build windows --debug --target integration_test/demo_test.dart --dart-define=DEMO_SHOW=explorer
 
+      # File Explorer opens a folder where it was last closed, and as the folder was last shown
+      - name: Warm up File Explorer
+        shell: pwsh
+        run: |
+          Add-Type @"
+          using System;
+          using System.Runtime.InteropServices;
+          public static class Win32 {
+            [DllImport("user32.dll")] public static extern IntPtr FindWindow(string className, string title);
+            [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr after, int x, int y, int width, int height, uint flags);
+            [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr hWnd, uint message, IntPtr wParam, IntPtr lParam);
+          }
+          "@
+          $out = "$env:RUNNER_TEMP\demo"
+          New-Item -ItemType Directory -Force $out | Out-Null
+          Start-Process explorer.exe "$env:USERPROFILE\Pictures"
+          for ($i = 0; $i -lt 100 -and [Win32]::FindWindow('CabinetWClass', $null) -eq [IntPtr]::Zero; $i++) { Start-Sleep -Milliseconds 100 }
+          Start-Sleep -Seconds 2
+          $window = [Win32]::FindWindow('CabinetWClass', $null)
+          [Win32]::SetWindowPos($window, [IntPtr]::Zero, 470, 10, 800, 650, 0x0040) | Out-Null
+          $shell = New-Object -ComObject WScript.Shell
+          $shell.AppActivate('Pictures') | Out-Null
+          Start-Sleep -Milliseconds 500
+          # Extra large icons
+          $shell.SendKeys('^+1')
+          Start-Sleep -Seconds 2
+          ffmpeg -hide_banner -loglevel warning -y -f gdigrab -i desktop -frames:v 1 "$out\explorer.png"
+          [Win32]::PostMessage($window, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null
+          Start-Sleep -Seconds 2
+
       # The app built from the test runs the test when it launches, without flutter test.
       # It writes the lines for the workflow to DEMO_LOG.
       - name: Record the demo
@@ -487,6 +525,7 @@ jobs:
           public static class Win32 {
             [DllImport("user32.dll")] public static extern IntPtr FindWindow(string className, string title);
             [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr after, int x, int y, int width, int height, uint flags);
+            [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr hWnd, uint message, IntPtr wParam, IntPtr lParam);
           }
           "@
           $out = "$env:RUNNER_TEMP\demo"
@@ -511,10 +550,10 @@ jobs:
           Start-Sleep -Seconds 2
           New-Item -ItemType File -Force "$temp\demo_go" | Out-Null
           Wait-For 'DEMO: gallery' 60
-          # Puts File Explorer next to the app as soon as it opens
-          for ($i = 0; $i -lt 200; $i++) {
+          # Keeps File Explorer next to the app, in case it opens elsewhere
+          for ($i = 0; $i -lt 150; $i++) {
             $window = [Win32]::FindWindow('CabinetWClass', $null)
-            if ($window -ne [IntPtr]::Zero) { [Win32]::SetWindowPos($window, [IntPtr]::Zero, 470, 10, 800, 650, 0x0040) | Out-Null; break }
+            if ($window -ne [IntPtr]::Zero) { [Win32]::SetWindowPos($window, [IntPtr]::Zero, 470, 10, 800, 650, 0x0040) | Out-Null }
             Start-Sleep -Milliseconds 20
           }
           $ffmpeg.WaitForExit()
