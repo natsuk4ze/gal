@@ -1,0 +1,159 @@
+INFO         | Android emulator version 37.3.9.0 (build_id 16863232) (CL:N/A)
+INFO         | Graphics backend: gfxstream
+INFO         | Found systemPath /usr/local/lib/android/sdk/system-images/android-37.0/google_apis_playstore/x86_64/
+INFO         | Saving last run QEMU version for the AVD to 2
+INFO         | Guest usage of host flag 'VulkanVirtualQueue' will be ignored.
+##############################################################################
+##                        WARNING - ACTION REQUIRED                         ##
+##  Consider using the '-metrics-collection' flag to help improve the       ##
+##  emulator by sending anonymized usage data. Or use the '-no-metrics'     ##
+##  flag to bypass this warning and turn off the metrics collection.        ##
+##  In a future release this warning will turn into a one-time blocking     ##
+##  prompt to ask for explicit user input regarding metrics collection.     ##
+##                                                                          ##
+##  Please see '-help-metrics-collection' for more details. You can use     ##
+##  '-metrics-to-file' or '-metrics-to-console' flags to see what type of   ##
+##  data is being collected by emulator as part of usage statistics.        ##
+##############################################################################
+INFO         | Guest GLES Driver: Auto (ext controls)
+INFO         | emuglConfig_init: vulkan_mode_selected:swiftshader gles_mode_selected:swiftshader
+INFO         | Checking system compatibility:
+INFO         |   Checking: hasSufficientDiskSpace
+INFO         |      Ok: Disk space requirements to run avd: `demo` are met
+INFO         |   Checking: hasSufficientHwGpu
+INFO         |      Ok: Hardware GPU compatibility checks are not required
+INFO         |   Checking: hasSufficientSystem
+INFO         |      Ok: System requirements to run avd: `demo` are met
+WARNING      | Feature QuickbootFileBacked is disabled due to stability issues, if you really want that, the environment variable ANDROID_EMU_FORCE_QUICKBOOT_FILE_BACKED need to set to 1
+INFO         | Storing crashdata in: /tmp/android-runner/emu-crash-37.3.9.db, detection is enabled for process: 2744
+INFO         | Initializing gfxstream backend
+INFO         | startOpenglesRendererImpl: gpu info
+INFO         | 
+INFO         | SharedLibrary::open for [libX11]
+WARNING      | Could not open libX11.so, try libX11.so.6
+INFO         | SharedLibrary::open for [libX11.so.6]
+INFO         | SharedLibrary::open for [libX11-xcb]
+WARNING      | Could not open libX11-xcb.so, try libX11-xcb.so.1
+INFO         | SharedLibrary::open for [libX11-xcb.so.1]
+INFO         | queryConfigs: Host EGL config 0x10 was not added
+INFO         | queryConfigs: Host EGL config 0x11 was not added
+INFO         | queryConfigs: Host EGL config 0x12 was not added
+INFO         | queryConfigs: Host EGL config 0x13 was not added
+INFO         | queryConfigs: Host EGL config 0x14 was not added
+INFO         | queryConfigs: Host EGL config 0x15 was not added
+INFO         | queryConfigs: Host EGL config 0x17 was not added
+INFO         | queryConfigs: Host EGL config 0x18 was not added
+INFO         | queryConfigs: Host EGL config 0x19 was not added
+INFO         | queryConfigs: Host EGL config 0x1a was not added
+INFO         | queryConfigs: Host EGL config 0x1b was not added
+INFO         | queryConfigs: Host EGL config 0x1c was not added
+INFO         | queryConfigs: Host EGL config 0x1d was not added
+INFO         | queryConfigs: Host EGL config 0x1e was not added
+INFO         | queryConfigs: Host EGL config 0x1f was not added
+INFO         | queryConfigs: Host EGL config 0x21 was not added
+INFO         | queryConfigs: Host EGL config 0x22 was not added
+INFO         | queryConfigs: Host EGL config 0x23 was not added
+INFO         | queryConfigs: Host EGL config 0x24 was not added
+INFO         | queryConfigs: Host EGL config 0x25 was not added
+INFO         | queryConfigs: Host EGL config 0x26 was not added
+INFO         | queryConfigs: Host EGL config 0x27 was not added
+INFO         | queryConfigs: Host EGL config 0x28 was not added
+INFO         | queryConfigs: Host EGL config 0x29 was not added
+INFO         | queryConfigs: Host EGL config 0x2a was not added
+INFO         | queryConfigs: Host EGL config 0x2b was not added
+INFO         | queryConfigs: Host EGL config 0x2c was not added
+INFO         | queryConfigs: Host EGL config 0x2d was not added
+INFO         | queryConfigs: Host EGL config 0x2e was not added
+INFO         | queryConfigs: Host EGL config 0x2f was not added
+INFO         | queryConfigs: Host EGL config 0x30 was not added
+INFO         | queryConfigs: Host EGL config 0x31 was not added
+INFO         | queryConfigs: Host EGL config 0x32 was not added
+INFO         | queryConfigs: Host EGL config 0x33 was not added
+INFO         | queryConfigs: Host EGL config 0x35 was not added
+INFO         | queryConfigs: Host EGL config 0x36 was not added
+INFO         | queryConfigs: Host EGL config 0x37 was not added
+INFO         | queryConfigs: Host EGL config 0x38 was not added
+INFO         | queryConfigs: Host EGL config 0x39 was not added
+INFO         | queryConfigs: Host EGL config 0x3a was not added
+INFO         | queryConfigs: Host EGL config 0x3b was not added
+INFO         | queryConfigs: Host EGL config 0x3c was not added
+INFO         | queryConfigs: Host EGL config 0x3d was not added
+INFO         | queryConfigs: Host EGL config 0x3f was not added
+INFO         | queryConfigs: Host EGL config 0x40 was not added
+INFO         | queryConfigs: Host EGL config 0x41 was not added
+INFO         | queryConfigs: Host EGL config 0x42 was not added
+INFO         | queryConfigs: Host EGL config 0x43 was not added
+INFO         | queryConfigs: Host EGL config 0x44 was not added
+INFO         | queryConfigs: Host EGL config 0x45 was not added
+INFO         | queryConfigs: Host EGL config 0x46 was not added
+INFO         | queryConfigs: Host EGL config 0x47 was not added
+INFO         | queryConfigs: Host EGL config 0x48 was not added
+INFO         | queryConfigs: Host EGL config 0x49 was not added
+INFO         | queryConfigs: Host EGL config 0x4a was not added
+INFO         | queryConfigs: Host EGL config 0x4b was not added
+INFO         | queryConfigs: Host EGL config 0x1 was not added
+INFO         | queryConfigs: Host EGL config 0x2 was not added
+INFO         | queryConfigs: Host EGL config 0x3 was not added
+INFO         | queryConfigs: Host EGL config 0x5 was not added
+INFO         | queryConfigs: Host EGL config 0x6 was not added
+INFO         | queryConfigs: Host EGL config 0x7 was not added
+INFO         | queryConfigs: Host EGL config 0x8 was not added
+INFO         | queryConfigs: Host EGL config 0xa was not added
+INFO         | queryConfigs: Host EGL config 0xb was not added
+INFO         | queryConfigs: Host EGL config 0xc was not added
+INFO         | queryConfigs: Host EGL config 0xd was not added
+INFO         | queryConfigs: Host EGL config 0xe was not added
+INFO         | queryConfigs: Host EGL config 0xf was not added
+INFO         | Graphics Adapter Vendor Google (Google Inc.)
+INFO         | Graphics Adapter Android Emulator OpenGL ES Translator (Google SwiftShader)
+INFO         | Graphics API Version OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1)
+INFO         | Graphics API Extensions GL_OES_EGL_sync GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_depth24 GL_OES_depth32 GL_OES_element_index_uint GL_OES_texture_float GL_OES_texture_float_linear GL_OES_compressed_paletted_texture GL_OES_compressed_ETC1_RGB8_texture GL_OES_depth_texture GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_packed_depth_stencil GL_OES_vertex_half_float GL_OES_standard_derivatives GL_OES_texture_npot GL_OES_rgb8_rgba8 GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_texture_format_BGRA8888 GL_APPLE_texture_format_BGRA8888 
+INFO         | Graphics Device Extensions N/A
+INFO         | Sending adb public key [QAAAAP269+GrTeijPKUukmDO15lyULo1RJfQ2L8OW5Q2p9qcoFiaARGxH4H5brVKZOu8rBR1fNGvPWsJsY+99EirUbeiac3FMgSg8lLeqQNoq9c0oUC/sTmtES6PLgCcEsE4rf55YHsTPUQcgNReuEpvEb1troduY7Z8r7tcnNZ43mnM9FiF+Eby3a0RPuqEoonf+yixtEocQ1LqdBVRuhXzy8xyK+QRgAkmG3a065r5Gp1LBIEiMXlsV//EhMSSpSvUO+bc0/i23LaKoww0LOuPSr/FHuC7L2JooghpsR1BgZRPyFkEiLDIc+4QqtR0yRHouSL4fQIKERjZcpqXGk9FzuWpKle5OU03oZa/vAExGIf3UDHedjCVmax+5Ft4Wi4aAyXSQ9XjTFou5F/3NMF4pO8E6JbnT84rv4Y4NWOedhIRuvh7lqQe4xIjB424fI41hg+Ftl/gpJc3W/BnZ5ay+uneqVAS69uaQOAK0OqJ3YmVf95p8sYeHYDjyWRPxNpC8gh+FhbFN123SMLAdYV+/koeNDC0Nply90bz1BfZg+6Y38i3XzGeDcNVCSQs7ReFgPZ2y9xxqWjRAJx5HU5AG+BXNJR0/NMgD44rP0sULIsJrYcQ+RTWJ5akMAF5Tda5ASAMBHcYM1pughK2efG0ngBIF4rdfse6x9TFEfym5wKomkXecwEAAQA= runner@unknown]
+INFO         | Userspace boot properties:
+INFO         |   androidboot.boot_devices=pci0000:00/0000:00:03.0 pci0000:00/0000:00:06.0
+INFO         |   androidboot.dalvik.vm.heapsize=576m
+INFO         |   androidboot.debug.hwui.renderer=skiagl
+INFO         |   androidboot.debug.sf.nobootanimation=1
+INFO         |   androidboot.hardware=ranchu
+INFO         |   androidboot.hardware.gltransport=pipe
+INFO         |   androidboot.logcat=*:V
+INFO         |   androidboot.opengles.version=196608
+INFO         |   androidboot.qemu=1
+INFO         |   androidboot.qemu.adb.pubkey=QAAAAP269+GrTeijPKUukmDO15lyULo1RJfQ2L8OW5Q2p9qcoFiaARGxH4H5brVKZOu8rBR1fNGvPWsJsY+99EirUbeiac3FMgSg8lLeqQNoq9c0oUC/sTmtES6PLgCcEsE4rf55YHsTPUQcgNReuEpvEb1troduY7Z8r7tcnNZ43mnM9FiF+Eby3a0RPuqEoonf+yixtEocQ1LqdBVRuhXzy8xyK+QRgAkmG3a065r5Gp1LBIEiMXlsV//EhMSSpSvUO+bc0/i23LaKoww0LOuPSr/FHuC7L2JooghpsR1BgZRPyFkEiLDIc+4QqtR0yRHouSL4fQIKERjZcpqXGk9FzuWpKle5OU03oZa/vAExGIf3UDHedjCVmax+5Ft4Wi4aAyXSQ9XjTFou5F/3NMF4pO8E6JbnT84rv4Y4NWOedhIRuvh7lqQe4xIjB424fI41hg+Ftl/gpJc3W/BnZ5ay+uneqVAS69uaQOAK0OqJ3YmVf95p8sYeHYDjyWRPxNpC8gh+FhbFN123SMLAdYV+/koeNDC0Nply90bz1BfZg+6Y38i3XzGeDcNVCSQs7ReFgPZ2y9xxqWjRAJx5HU5AG+BXNJR0/NMgD44rP0sULIsJrYcQ+RTWJ5akMAF5Tda5ASAMBHcYM1pughK2efG0ngBIF4rdfse6x9TFEfym5wKomkXecwEAAQA= runner@unknown
+INFO         |   androidboot.qemu.avd_name=demo
+INFO         |   androidboot.qemu.camera_hq_edge_processing=0
+INFO         |   androidboot.qemu.cpuvulkan.version=4202496
+INFO         |   androidboot.qemu.gltransport.drawFlushInterval=800
+INFO         |   androidboot.qemu.gltransport.name=pipe
+INFO         |   androidboot.qemu.hwcodec.avcdec=2
+INFO         |   androidboot.qemu.hwcodec.hevcdec=2
+INFO         |   androidboot.qemu.hwcodec.vpxdec=2
+INFO         |   androidboot.qemu.settings.system.screen_off_timeout=2147483647
+INFO         |   androidboot.qemu.skin=1080x2400
+INFO         |   androidboot.qemu.virtiowifi=1
+INFO         |   androidboot.qemu.vsync=60
+INFO         |   androidboot.serialno=EMULATOR37X3X9X0
+INFO         |   androidboot.vbmeta.digest=cecab551759182545a2e397e70677665d4e151538e0acc7e756806a821b5e2d8
+INFO         |   androidboot.vbmeta.hash_alg=sha256
+INFO         |   androidboot.vbmeta.size=6784
+WARNING: cannnot unmap ptr 0x7fdcb5001000 as it is in the protected range from 0x7fdb35000000 to 0x7fdcb5200000
+pc_memory_init: above 4g size: c0000000
+INFO         | Monitoring duration of emulator setup.
+INFO         | Activated packet streamer for uwb emulation
+INFO         | Activated packet streamer for bluetooth emulation
+INFO         | Successfully initialized netsim WiFi
+INFO         | Setting display: 0 configuration to: 1080x2400, dpi: 420x420 
+INFO         | setDisplayActiveConfig: id:0, 1080x2400
+INFO         | emulatorSetupEnvironment: Environment scene is not required
+INFO         | Loading snapshot 'default_boot'...
+WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+WARNING      | Device 'system' does not have the requested snapshot 'default_boot'
+
+WARNING      | Failed to load snapshot 'default_boot'
+USER_INFO    | The emulator is performing a cold boot without a saved state because there's no snapshot and you have configured it not to save on exit.
+WARNING      | Failed to process .ini file /home/runner/.android/emu-update-last-check.ini for reading.
+INFO         | Boot completed in 44406 ms
+INFO         | Increasing screen off timeout, logcat buffer size to 2M.
+WARNING      | adb command '/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put system screen_off_timeout 2147483647 ' failed: 'adb: device offline'
+WARNING      | adb command '/usr/local/lib/android/sdk/platform-tools/adb -s emulator-5554 shell settings put system screen_off_timeout 2147483647 ' failed: 'adb: device offline'

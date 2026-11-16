@@ -1,0 +1,217 @@
+--------- beginning of crash
+11-16 08:28:54.533   515   558 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 558 (RegionSampling), pid 515 (surfaceflinger)
+11-16 08:28:54.915  1655  1655 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+11-16 08:28:54.915  1655  1655 F DEBUG   : Build fingerprint: 'google/sdk_gphone64_x86_64/emu64xa:17/CE2A.260420.051.A2/16418371:user/release-keys'
+11-16 08:28:54.915  1655  1655 F DEBUG   : Kernel Release: '6.12.81-android16-6-g4f69fc7b210c-ab16167562'
+11-16 08:28:54.915  1655  1655 F DEBUG   : Revision: '0'
+11-16 08:28:54.915  1655  1655 F DEBUG   : ABI: 'x86_64'
+11-16 08:28:54.915  1655  1655 F DEBUG   : Timestamp: 2026-11-16 08:28:54.686746746+0000
+11-16 08:28:54.915  1655  1655 F DEBUG   : Process uptime: 26s
+11-16 08:28:54.915  1655  1655 F DEBUG   : Executable: /system/bin/surfaceflinger
+11-16 08:28:54.915  1655  1655 F DEBUG   : Cmdline: /system/bin/surfaceflinger
+11-16 08:28:54.915  1655  1655 F DEBUG   : pid: 515, ppid: 1, tid: 558, name: RegionSampling  >>> /system/bin/surfaceflinger <<<
+11-16 08:28:54.915  1655  1655 F DEBUG   : uid: 1000
+11-16 08:28:54.915  1655  1655 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+11-16 08:28:54.915  1655  1655 F DEBUG   : Abort message: 'Assertion failed: !rcEnc->featureInfo()->hasReadColorBufferDma'
+11-16 08:28:54.915  1655  1655 F DEBUG   :     rax 0000000000000000  rbx 0000000000000203  rcx 000074c02d8daadd  rdx 0000000000000006
+11-16 08:28:54.915  1655  1655 F DEBUG   :     r8  000074bd94075940  r9  000074bd94075940  r10 000074bd940758e0  r11 0000000000000207
+11-16 08:28:54.915  1655  1655 F DEBUG   :     r12 0000000000000000  r13 000074bd94d6a010  r14 000000000000022e  r15 000074bd940758e0
+11-16 08:28:54.915  1655  1655 F DEBUG   :     rdi 0000000000000203  rsi 000000000000022e
+11-16 08:28:54.915  1655  1655 F DEBUG   :     rbp 000074bd94075990  rsp 000074bd940758e0  rip 000074c02d8daadd  err 0000000000000000
+11-16 08:28:54.915  1655  1655 F DEBUG   : 13 total frames
+11-16 08:28:54.915  1655  1655 F DEBUG   : backtrace:
+11-16 08:28:54.915  1655  1655 F DEBUG   :       #00 pc 0000000000059add  /apex/com.android.runtime/lib64/bionic/libc.so (abort+189) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:28:54.915  1655  1655 F DEBUG   :       #01 pc 000000000000cbcd  /system/lib64/liblog.so (__android_log_default_aborter+13) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:28:54.915  1655  1655 F DEBUG   :       #02 pc 000000000000cedb  /system/lib64/liblog.so (__android_log_assert+315) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:28:54.915  1655  1655 F DEBUG   :       #03 pc 0000000000005adf  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::readFromHost(cb_handle_t const&) const+543) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:28:54.915  1655  1655 F DEBUG   :       #04 pc 00000000000055b0  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::GoldfishMapper()::'lambda'(native_handle const*, unsigned long, ARect, int, void**)::__invoke(native_handle const*, unsigned long, ARect, int, void**)+704) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:28:54.915  1655  1655 F DEBUG   :       #05 pc 00000000000498cf  /system/lib64/libui.so (android::Gralloc5Mapper::lock(native_handle const*, unsigned long, android::Rect const&, int, void**, int*, int*) const+63) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:28:54.915  1655  1655 F DEBUG   :       #06 pc 00000000000338d6  /system/lib64/libui.so (android::GraphicBufferMapper::lock(native_handle const*, long, android::Rect const&, android::base::unique_fd_impl<android::base::DefaultCloser>&&)+198) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:28:54.915  1655  1655 F DEBUG   :       #07 pc 000000000002a751  /system/lib64/libui.so (android::GraphicBuffer::lockAsync(unsigned long, unsigned long, android::Rect const&, void**, int, int*, int*)+545) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:28:54.915  1655  1655 F DEBUG   :       #08 pc 00000000000339a3  /system/lib64/libui.so (android::GraphicBuffer::lock(unsigned int, void**, int*, int*)+67) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:28:54.915  1655  1655 F DEBUG   :       #09 pc 000000000042059b  /system/bin/surfaceflinger (android::RegionSamplingThread::threadMain()+2571) (BuildId: 25d13f27c4a5b6e198dbf71cb2b70894)
+11-16 08:28:54.915  1655  1655 F DEBUG   :       #10 pc 00000000004c9727  /system/bin/surfaceflinger (void* std::__1::__thread_proxy[abi:nn220000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, android::RegionSamplingThread::RegionSamplingThread(android::SurfaceFlinger&, android::RegionSamplingThread::TimingTunables const&)::$_2>>(void*) (.__uniq.22835156453571511455795338659787558893)+39) (BuildId: 25d13f27c4a5b6e198dbf71cb2b70894)
+11-16 08:28:54.915  1655  1655 F DEBUG   :       #11 pc 000000000008c7af  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*) (.__uniq.67847048707805468364044055584648682506)+63) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:28:54.915  1655  1655 F DEBUG   :       #12 pc 000000000008670d  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+45) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:28:54.915  1655  1655 F DEBUG   : Note: To display stack pointer information, use the pbtombstone tool:
+11-16 08:28:54.915  1655  1655 F DEBUG   :         pbtombstone --display-sp tombstone_XX.pb
+11-16 08:29:19.072  1693  1739 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 1739 (RegionSampling), pid 1693 (surfaceflinger)
+11-16 08:29:19.695  3762  3762 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+11-16 08:29:19.696  3762  3762 F DEBUG   : Build fingerprint: 'google/sdk_gphone64_x86_64/emu64xa:17/CE2A.260420.051.A2/16418371:user/release-keys'
+11-16 08:29:19.696  3762  3762 F DEBUG   : Kernel Release: '6.12.81-android16-6-g4f69fc7b210c-ab16167562'
+11-16 08:29:19.696  3762  3762 F DEBUG   : Revision: '0'
+11-16 08:29:19.696  3762  3762 F DEBUG   : ABI: 'x86_64'
+11-16 08:29:19.696  3762  3762 F DEBUG   : Timestamp: 2026-11-16 08:29:19.180506518+0000
+11-16 08:29:19.696  3762  3762 F DEBUG   : Process uptime: 25s
+11-16 08:29:19.696  3762  3762 F DEBUG   : Executable: /system/bin/surfaceflinger
+11-16 08:29:19.696  3762  3762 F DEBUG   : Cmdline: /system/bin/surfaceflinger
+11-16 08:29:19.696  3762  3762 F DEBUG   : pid: 1693, ppid: 1, tid: 1739, name: RegionSampling  >>> /system/bin/surfaceflinger <<<
+11-16 08:29:19.696  3762  3762 F DEBUG   : uid: 1000
+11-16 08:29:19.696  3762  3762 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+11-16 08:29:19.696  3762  3762 F DEBUG   : Abort message: 'Assertion failed: !rcEnc->featureInfo()->hasReadColorBufferDma'
+11-16 08:29:19.696  3762  3762 F DEBUG   :     rax 0000000000000000  rbx 000000000000069d  rcx 00007fc5a82a4add  rdx 0000000000000006
+11-16 08:29:19.696  3762  3762 F DEBUG   :     r8  00007fc3117c4940  r9  00007fc3117c4940  r10 00007fc3117c48e0  r11 0000000000000207
+11-16 08:29:19.696  3762  3762 F DEBUG   :     r12 0000000000000000  r13 00007fc3123e9010  r14 00000000000006cb  r15 00007fc3117c48e0
+11-16 08:29:19.696  3762  3762 F DEBUG   :     rdi 000000000000069d  rsi 00000000000006cb
+11-16 08:29:19.696  3762  3762 F DEBUG   :     rbp 00007fc3117c4990  rsp 00007fc3117c48e0  rip 00007fc5a82a4add  err 0000000000000000
+11-16 08:29:19.696  3762  3762 F DEBUG   : 13 total frames
+11-16 08:29:19.696  3762  3762 F DEBUG   : backtrace:
+11-16 08:29:19.696  3762  3762 F DEBUG   :       #00 pc 0000000000059add  /apex/com.android.runtime/lib64/bionic/libc.so (abort+189) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:29:19.696  3762  3762 F DEBUG   :       #01 pc 000000000000cbcd  /system/lib64/liblog.so (__android_log_default_aborter+13) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:29:19.707  3762  3762 F DEBUG   :       #02 pc 000000000000cedb  /system/lib64/liblog.so (__android_log_assert+315) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:29:19.707  3762  3762 F DEBUG   :       #03 pc 0000000000005adf  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::readFromHost(cb_handle_t const&) const+543) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:29:19.707  3762  3762 F DEBUG   :       #04 pc 00000000000055b0  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::GoldfishMapper()::'lambda'(native_handle const*, unsigned long, ARect, int, void**)::__invoke(native_handle const*, unsigned long, ARect, int, void**)+704) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:29:19.707  3762  3762 F DEBUG   :       #05 pc 00000000000498cf  /system/lib64/libui.so (android::Gralloc5Mapper::lock(native_handle const*, unsigned long, android::Rect const&, int, void**, int*, int*) const+63) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:29:19.707  3762  3762 F DEBUG   :       #06 pc 00000000000338d6  /system/lib64/libui.so (android::GraphicBufferMapper::lock(native_handle const*, long, android::Rect const&, android::base::unique_fd_impl<android::base::DefaultCloser>&&)+198) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:29:19.707  3762  3762 F DEBUG   :       #07 pc 000000000002a751  /system/lib64/libui.so (android::GraphicBuffer::lockAsync(unsigned long, unsigned long, android::Rect const&, void**, int, int*, int*)+545) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:29:19.707  3762  3762 F DEBUG   :       #08 pc 00000000000339a3  /system/lib64/libui.so (android::GraphicBuffer::lock(unsigned int, void**, int*, int*)+67) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:29:19.707  3762  3762 F DEBUG   :       #09 pc 000000000042059b  /system/bin/surfaceflinger (android::RegionSamplingThread::threadMain()+2571) (BuildId: 25d13f27c4a5b6e198dbf71cb2b70894)
+11-16 08:29:19.707  3762  3762 F DEBUG   :       #10 pc 00000000004c9727  /system/bin/surfaceflinger (void* std::__1::__thread_proxy[abi:nn220000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, android::RegionSamplingThread::RegionSamplingThread(android::SurfaceFlinger&, android::RegionSamplingThread::TimingTunables const&)::$_2>>(void*) (.__uniq.22835156453571511455795338659787558893)+39) (BuildId: 25d13f27c4a5b6e198dbf71cb2b70894)
+11-16 08:29:19.707  3762  3762 F DEBUG   :       #11 pc 000000000008c7af  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*) (.__uniq.67847048707805468364044055584648682506)+63) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:29:19.707  3762  3762 F DEBUG   :       #12 pc 000000000008670d  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+45) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:29:19.707  3762  3762 F DEBUG   : Note: To display stack pointer information, use the pbtombstone tool:
+11-16 08:29:19.707  3762  3762 F DEBUG   :         pbtombstone --display-sp tombstone_XX.pb
+11-16 08:29:42.648  3862  3915 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 3915 (RegionSampling), pid 3862 (surfaceflinger)
+11-16 08:29:42.846  6081  6081 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+11-16 08:29:42.846  6081  6081 F DEBUG   : Build fingerprint: 'google/sdk_gphone64_x86_64/emu64xa:17/CE2A.260420.051.A2/16418371:user/release-keys'
+11-16 08:29:42.846  6081  6081 F DEBUG   : Kernel Release: '6.12.81-android16-6-g4f69fc7b210c-ab16167562'
+11-16 08:29:42.846  6081  6081 F DEBUG   : Revision: '0'
+11-16 08:29:42.846  6081  6081 F DEBUG   : ABI: 'x86_64'
+11-16 08:29:42.846  6081  6081 F DEBUG   : Timestamp: 2026-11-16 08:29:42.699839052+0000
+11-16 08:29:42.846  6081  6081 F DEBUG   : Process uptime: 23s
+11-16 08:29:42.846  6081  6081 F DEBUG   : Executable: /system/bin/surfaceflinger
+11-16 08:29:42.846  6081  6081 F DEBUG   : Cmdline: /system/bin/surfaceflinger
+11-16 08:29:42.846  6081  6081 F DEBUG   : pid: 3862, ppid: 1, tid: 3915, name: RegionSampling  >>> /system/bin/surfaceflinger <<<
+11-16 08:29:42.846  6081  6081 F DEBUG   : uid: 1000
+11-16 08:29:42.846  6081  6081 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+11-16 08:29:42.846  6081  6081 F DEBUG   : Abort message: 'Assertion failed: !rcEnc->featureInfo()->hasReadColorBufferDma'
+11-16 08:29:42.846  6081  6081 F DEBUG   :     rax 0000000000000000  rbx 0000000000000f16  rcx 00007cc1478a9add  rdx 0000000000000006
+11-16 08:29:42.846  6081  6081 F DEBUG   :     r8  00007cbea893d940  r9  00007cbea893d940  r10 00007cbea893d8e0  r11 0000000000000207
+11-16 08:29:42.846  6081  6081 F DEBUG   :     r12 0000000000000000  r13 00007cbea95a0010  r14 0000000000000f4b  r15 00007cbea893d8e0
+11-16 08:29:42.846  6081  6081 F DEBUG   :     rdi 0000000000000f16  rsi 0000000000000f4b
+11-16 08:29:42.846  6081  6081 F DEBUG   :     rbp 00007cbea893d990  rsp 00007cbea893d8e0  rip 00007cc1478a9add  err 0000000000000000
+11-16 08:29:42.846  6081  6081 F DEBUG   : 13 total frames
+11-16 08:29:42.846  6081  6081 F DEBUG   : backtrace:
+11-16 08:29:42.846  6081  6081 F DEBUG   :       #00 pc 0000000000059add  /apex/com.android.runtime/lib64/bionic/libc.so (abort+189) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:29:42.846  6081  6081 F DEBUG   :       #01 pc 000000000000cbcd  /system/lib64/liblog.so (__android_log_default_aborter+13) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:29:42.846  6081  6081 F DEBUG   :       #02 pc 000000000000cedb  /system/lib64/liblog.so (__android_log_assert+315) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:29:42.846  6081  6081 F DEBUG   :       #03 pc 0000000000005adf  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::readFromHost(cb_handle_t const&) const+543) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:29:42.846  6081  6081 F DEBUG   :       #04 pc 00000000000055b0  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::GoldfishMapper()::'lambda'(native_handle const*, unsigned long, ARect, int, void**)::__invoke(native_handle const*, unsigned long, ARect, int, void**)+704) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:29:42.846  6081  6081 F DEBUG   :       #05 pc 00000000000498cf  /system/lib64/libui.so (android::Gralloc5Mapper::lock(native_handle const*, unsigned long, android::Rect const&, int, void**, int*, int*) const+63) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:29:42.846  6081  6081 F DEBUG   :       #06 pc 00000000000338d6  /system/lib64/libui.so (android::GraphicBufferMapper::lock(native_handle const*, long, android::Rect const&, android::base::unique_fd_impl<android::base::DefaultCloser>&&)+198) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:29:42.846  6081  6081 F DEBUG   :       #07 pc 000000000002a751  /system/lib64/libui.so (android::GraphicBuffer::lockAsync(unsigned long, unsigned long, android::Rect const&, void**, int, int*, int*)+545) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:29:42.846  6081  6081 F DEBUG   :       #08 pc 00000000000339a3  /system/lib64/libui.so (android::GraphicBuffer::lock(unsigned int, void**, int*, int*)+67) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:29:42.846  6081  6081 F DEBUG   :       #09 pc 000000000042059b  /system/bin/surfaceflinger (android::RegionSamplingThread::threadMain()+2571) (BuildId: 25d13f27c4a5b6e198dbf71cb2b70894)
+11-16 08:29:42.846  6081  6081 F DEBUG   :       #10 pc 00000000004c9727  /system/bin/surfaceflinger (void* std::__1::__thread_proxy[abi:nn220000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, android::RegionSamplingThread::RegionSamplingThread(android::SurfaceFlinger&, android::RegionSamplingThread::TimingTunables const&)::$_2>>(void*) (.__uniq.22835156453571511455795338659787558893)+39) (BuildId: 25d13f27c4a5b6e198dbf71cb2b70894)
+11-16 08:29:42.846  6081  6081 F DEBUG   :       #11 pc 000000000008c7af  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*) (.__uniq.67847048707805468364044055584648682506)+63) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:29:42.846  6081  6081 F DEBUG   :       #12 pc 000000000008670d  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+45) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:29:42.846  6081  6081 F DEBUG   : Note: To display stack pointer information, use the pbtombstone tool:
+11-16 08:29:42.846  6081  6081 F DEBUG   :         pbtombstone --display-sp tombstone_XX.pb
+11-16 08:30:05.261  6116  6156 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 6156 (RegionSampling), pid 6116 (surfaceflinger)
+11-16 08:30:05.974  8276  8276 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+11-16 08:30:05.974  8276  8276 F DEBUG   : Build fingerprint: 'google/sdk_gphone64_x86_64/emu64xa:17/CE2A.260420.051.A2/16418371:user/release-keys'
+11-16 08:30:05.974  8276  8276 F DEBUG   : Kernel Release: '6.12.81-android16-6-g4f69fc7b210c-ab16167562'
+11-16 08:30:05.974  8276  8276 F DEBUG   : Revision: '0'
+11-16 08:30:05.974  8276  8276 F DEBUG   : ABI: 'x86_64'
+11-16 08:30:05.974  8276  8276 F DEBUG   : Timestamp: 2026-11-16 08:30:05.400861913+0000
+11-16 08:30:05.974  8276  8276 F DEBUG   : Process uptime: 22s
+11-16 08:30:05.974  8276  8276 F DEBUG   : Executable: /system/bin/surfaceflinger
+11-16 08:30:05.974  8276  8276 F DEBUG   : Cmdline: /system/bin/surfaceflinger
+11-16 08:30:05.974  8276  8276 F DEBUG   : pid: 6116, ppid: 1, tid: 6156, name: RegionSampling  >>> /system/bin/surfaceflinger <<<
+11-16 08:30:05.974  8276  8276 F DEBUG   : uid: 1000
+11-16 08:30:05.974  8276  8276 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+11-16 08:30:05.974  8276  8276 F DEBUG   : Abort message: 'Assertion failed: !rcEnc->featureInfo()->hasReadColorBufferDma'
+11-16 08:30:05.975  8276  8276 F DEBUG   :     rax 0000000000000000  rbx 00000000000017e4  rcx 00007ccd578dcadd  rdx 0000000000000006
+11-16 08:30:05.975  8276  8276 F DEBUG   :     r8  00007ccabcec1940  r9  00007ccabcec1940  r10 00007ccabcec18e0  r11 0000000000000207
+11-16 08:30:05.975  8276  8276 F DEBUG   :     r12 0000000000000000  r13 00007ccabdbb6010  r14 000000000000180c  r15 00007ccabcec18e0
+11-16 08:30:05.975  8276  8276 F DEBUG   :     rdi 00000000000017e4  rsi 000000000000180c
+11-16 08:30:05.975  8276  8276 F DEBUG   :     rbp 00007ccabcec1990  rsp 00007ccabcec18e0  rip 00007ccd578dcadd  err 0000000000000000
+11-16 08:30:05.975  8276  8276 F DEBUG   : 13 total frames
+11-16 08:30:05.975  8276  8276 F DEBUG   : backtrace:
+11-16 08:30:05.975  8276  8276 F DEBUG   :       #00 pc 0000000000059add  /apex/com.android.runtime/lib64/bionic/libc.so (abort+189) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:30:05.975  8276  8276 F DEBUG   :       #01 pc 000000000000cbcd  /system/lib64/liblog.so (__android_log_default_aborter+13) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:30:05.975  8276  8276 F DEBUG   :       #02 pc 000000000000cedb  /system/lib64/liblog.so (__android_log_assert+315) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:30:05.975  8276  8276 F DEBUG   :       #03 pc 0000000000005adf  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::readFromHost(cb_handle_t const&) const+543) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:30:05.975  8276  8276 F DEBUG   :       #04 pc 00000000000055b0  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::GoldfishMapper()::'lambda'(native_handle const*, unsigned long, ARect, int, void**)::__invoke(native_handle const*, unsigned long, ARect, int, void**)+704) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:30:05.975  8276  8276 F DEBUG   :       #05 pc 00000000000498cf  /system/lib64/libui.so (android::Gralloc5Mapper::lock(native_handle const*, unsigned long, android::Rect const&, int, void**, int*, int*) const+63) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:30:05.975  8276  8276 F DEBUG   :       #06 pc 00000000000338d6  /system/lib64/libui.so (android::GraphicBufferMapper::lock(native_handle const*, long, android::Rect const&, android::base::unique_fd_impl<android::base::DefaultCloser>&&)+198) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:30:05.975  8276  8276 F DEBUG   :       #07 pc 000000000002a751  /system/lib64/libui.so (android::GraphicBuffer::lockAsync(unsigned long, unsigned long, android::Rect const&, void**, int, int*, int*)+545) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:30:05.975  8276  8276 F DEBUG   :       #08 pc 00000000000339a3  /system/lib64/libui.so (android::GraphicBuffer::lock(unsigned int, void**, int*, int*)+67) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:30:05.975  8276  8276 F DEBUG   :       #09 pc 000000000042059b  /system/bin/surfaceflinger (android::RegionSamplingThread::threadMain()+2571) (BuildId: 25d13f27c4a5b6e198dbf71cb2b70894)
+11-16 08:30:05.975  8276  8276 F DEBUG   :       #10 pc 00000000004c9727  /system/bin/surfaceflinger (void* std::__1::__thread_proxy[abi:nn220000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, android::RegionSamplingThread::RegionSamplingThread(android::SurfaceFlinger&, android::RegionSamplingThread::TimingTunables const&)::$_2>>(void*) (.__uniq.22835156453571511455795338659787558893)+39) (BuildId: 25d13f27c4a5b6e198dbf71cb2b70894)
+11-16 08:30:05.975  8276  8276 F DEBUG   :       #11 pc 000000000008c7af  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*) (.__uniq.67847048707805468364044055584648682506)+63) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:30:05.975  8276  8276 F DEBUG   :       #12 pc 000000000008670d  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+45) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:30:05.975  8276  8276 F DEBUG   : Note: To display stack pointer information, use the pbtombstone tool:
+11-16 08:30:05.975  8276  8276 F DEBUG   :         pbtombstone --display-sp tombstone_XX.pb
+11-16 08:30:27.739  8340  8387 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 8387 (RegionSampling), pid 8340 (surfaceflinger)
+11-16 08:30:28.358 10421 10421 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+11-16 08:30:28.358 10421 10421 F DEBUG   : Build fingerprint: 'google/sdk_gphone64_x86_64/emu64xa:17/CE2A.260420.051.A2/16418371:user/release-keys'
+11-16 08:30:28.358 10421 10421 F DEBUG   : Kernel Release: '6.12.81-android16-6-g4f69fc7b210c-ab16167562'
+11-16 08:30:28.358 10421 10421 F DEBUG   : Revision: '0'
+11-16 08:30:28.358 10421 10421 F DEBUG   : ABI: 'x86_64'
+11-16 08:30:28.358 10421 10421 F DEBUG   : Timestamp: 2026-11-16 08:30:28.097668565+0000
+11-16 08:30:28.358 10421 10421 F DEBUG   : Process uptime: 22s
+11-16 08:30:28.358 10421 10421 F DEBUG   : Executable: /system/bin/surfaceflinger
+11-16 08:30:28.358 10421 10421 F DEBUG   : Cmdline: /system/bin/surfaceflinger
+11-16 08:30:28.358 10421 10421 F DEBUG   : pid: 8340, ppid: 1, tid: 8387, name: RegionSampling  >>> /system/bin/surfaceflinger <<<
+11-16 08:30:28.358 10421 10421 F DEBUG   : uid: 1000
+11-16 08:30:28.358 10421 10421 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+11-16 08:30:28.358 10421 10421 F DEBUG   : Abort message: 'Assertion failed: !rcEnc->featureInfo()->hasReadColorBufferDma'
+11-16 08:30:28.358 10421 10421 F DEBUG   :     rax 0000000000000000  rbx 0000000000002094  rcx 00007b7aeaeedadd  rdx 0000000000000006
+11-16 08:30:28.358 10421 10421 F DEBUG   :     r8  00007b78527ad940  r9  00007b78527ad940  r10 00007b78527ad8e0  r11 0000000000000207
+11-16 08:30:28.358 10421 10421 F DEBUG   :     r12 0000000000000000  r13 00007b7853426010  r14 00000000000020c3  r15 00007b78527ad8e0
+11-16 08:30:28.358 10421 10421 F DEBUG   :     rdi 0000000000002094  rsi 00000000000020c3
+11-16 08:30:28.358 10421 10421 F DEBUG   :     rbp 00007b78527ad990  rsp 00007b78527ad8e0  rip 00007b7aeaeedadd  err 0000000000000000
+11-16 08:30:28.358 10421 10421 F DEBUG   : 13 total frames
+11-16 08:30:28.358 10421 10421 F DEBUG   : backtrace:
+11-16 08:30:28.358 10421 10421 F DEBUG   :       #00 pc 0000000000059add  /apex/com.android.runtime/lib64/bionic/libc.so (abort+189) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:30:28.358 10421 10421 F DEBUG   :       #01 pc 000000000000cbcd  /system/lib64/liblog.so (__android_log_default_aborter+13) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:30:28.358 10421 10421 F DEBUG   :       #02 pc 000000000000cedb  /system/lib64/liblog.so (__android_log_assert+315) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:30:28.358 10421 10421 F DEBUG   :       #03 pc 0000000000005adf  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::readFromHost(cb_handle_t const&) const+543) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:30:28.358 10421 10421 F DEBUG   :       #04 pc 00000000000055b0  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::GoldfishMapper()::'lambda'(native_handle const*, unsigned long, ARect, int, void**)::__invoke(native_handle const*, unsigned long, ARect, int, void**)+704) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:30:28.358 10421 10421 F DEBUG   :       #05 pc 00000000000498cf  /system/lib64/libui.so (android::Gralloc5Mapper::lock(native_handle const*, unsigned long, android::Rect const&, int, void**, int*, int*) const+63) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:30:28.358 10421 10421 F DEBUG   :       #06 pc 00000000000338d6  /system/lib64/libui.so (android::GraphicBufferMapper::lock(native_handle const*, long, android::Rect const&, android::base::unique_fd_impl<android::base::DefaultCloser>&&)+198) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:30:28.358 10421 10421 F DEBUG   :       #07 pc 000000000002a751  /system/lib64/libui.so (android::GraphicBuffer::lockAsync(unsigned long, unsigned long, android::Rect const&, void**, int, int*, int*)+545) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:30:28.358 10421 10421 F DEBUG   :       #08 pc 00000000000339a3  /system/lib64/libui.so (android::GraphicBuffer::lock(unsigned int, void**, int*, int*)+67) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:30:28.358 10421 10421 F DEBUG   :       #09 pc 000000000042059b  /system/bin/surfaceflinger (android::RegionSamplingThread::threadMain()+2571) (BuildId: 25d13f27c4a5b6e198dbf71cb2b70894)
+11-16 08:30:28.358 10421 10421 F DEBUG   :       #10 pc 00000000004c9727  /system/bin/surfaceflinger (void* std::__1::__thread_proxy[abi:nn220000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, android::RegionSamplingThread::RegionSamplingThread(android::SurfaceFlinger&, android::RegionSamplingThread::TimingTunables const&)::$_2>>(void*) (.__uniq.22835156453571511455795338659787558893)+39) (BuildId: 25d13f27c4a5b6e198dbf71cb2b70894)
+11-16 08:30:28.358 10421 10421 F DEBUG   :       #11 pc 000000000008c7af  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*) (.__uniq.67847048707805468364044055584648682506)+63) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:30:28.358 10421 10421 F DEBUG   :       #12 pc 000000000008670d  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+45) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:30:28.358 10421 10421 F DEBUG   : Note: To display stack pointer information, use the pbtombstone tool:
+11-16 08:30:28.358 10421 10421 F DEBUG   :         pbtombstone --display-sp tombstone_XX.pb
+11-16 08:30:52.537 10453 10508 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 10508 (RegionSampling), pid 10453 (surfaceflinger)
+11-16 08:30:53.007 12737 12737 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+11-16 08:30:53.007 12737 12737 F DEBUG   : Build fingerprint: 'google/sdk_gphone64_x86_64/emu64xa:17/CE2A.260420.051.A2/16418371:user/release-keys'
+11-16 08:30:53.007 12737 12737 F DEBUG   : Kernel Release: '6.12.81-android16-6-g4f69fc7b210c-ab16167562'
+11-16 08:30:53.007 12737 12737 F DEBUG   : Revision: '0'
+11-16 08:30:53.007 12737 12737 F DEBUG   : ABI: 'x86_64'
+11-16 08:30:53.007 12737 12737 F DEBUG   : Timestamp: 2026-11-16 08:30:52.810535335+0000
+11-16 08:30:53.007 12737 12737 F DEBUG   : Process uptime: 25s
+11-16 08:30:53.007 12737 12737 F DEBUG   : Executable: /system/bin/surfaceflinger
+11-16 08:30:53.007 12737 12737 F DEBUG   : Cmdline: /system/bin/surfaceflinger
+11-16 08:30:53.007 12737 12737 F DEBUG   : pid: 10453, ppid: 1, tid: 10508, name: RegionSampling  >>> /system/bin/surfaceflinger <<<
+11-16 08:30:53.007 12737 12737 F DEBUG   : uid: 1000
+11-16 08:30:53.007 12737 12737 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+11-16 08:30:53.007 12737 12737 F DEBUG   : Abort message: 'Assertion failed: !rcEnc->featureInfo()->hasReadColorBufferDma'
+11-16 08:30:53.007 12737 12737 F DEBUG   :     rax 0000000000000000  rbx 00000000000028d5  rcx 00007f92984cbadd  rdx 0000000000000006
+11-16 08:30:53.007 12737 12737 F DEBUG   :     r8  00007f9001a88940  r9  00007f9001a88940  r10 00007f9001a888e0  r11 0000000000000207
+11-16 08:30:53.007 12737 12737 F DEBUG   :     r12 0000000000000000  r13 00007f90026ea010  r14 000000000000290c  r15 00007f9001a888e0
+11-16 08:30:53.007 12737 12737 F DEBUG   :     rdi 00000000000028d5  rsi 000000000000290c
+11-16 08:30:53.007 12737 12737 F DEBUG   :     rbp 00007f9001a88990  rsp 00007f9001a888e0  rip 00007f92984cbadd  err 0000000000000000
+11-16 08:30:53.007 12737 12737 F DEBUG   : 13 total frames
+11-16 08:30:53.007 12737 12737 F DEBUG   : backtrace:
+11-16 08:30:53.007 12737 12737 F DEBUG   :       #00 pc 0000000000059add  /apex/com.android.runtime/lib64/bionic/libc.so (abort+189) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:30:53.007 12737 12737 F DEBUG   :       #01 pc 000000000000cbcd  /system/lib64/liblog.so (__android_log_default_aborter+13) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:30:53.007 12737 12737 F DEBUG   :       #02 pc 000000000000cedb  /system/lib64/liblog.so (__android_log_assert+315) (BuildId: 6191acd83d42e910e67f3b5247021a2f)
+11-16 08:30:53.008 12737 12737 F DEBUG   :       #03 pc 0000000000005adf  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::readFromHost(cb_handle_t const&) const+543) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:30:53.008 12737 12737 F DEBUG   :       #04 pc 00000000000055b0  /vendor/lib64/hw/mapper.ranchu.so ((anonymous namespace)::GoldfishMapper::GoldfishMapper()::'lambda'(native_handle const*, unsigned long, ARect, int, void**)::__invoke(native_handle const*, unsigned long, ARect, int, void**)+704) (BuildId: 7b353e53a651ae1223cbe45b0946e22b)
+11-16 08:30:53.008 12737 12737 F DEBUG   :       #05 pc 00000000000498cf  /system/lib64/libui.so (android::Gralloc5Mapper::lock(native_handle const*, unsigned long, android::Rect const&, int, void**, int*, int*) const+63) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:30:53.008 12737 12737 F DEBUG   :       #06 pc 00000000000338d6  /system/lib64/libui.so (android::GraphicBufferMapper::lock(native_handle const*, long, android::Rect const&, android::base::unique_fd_impl<android::base::DefaultCloser>&&)+198) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:30:53.008 12737 12737 F DEBUG   :       #07 pc 000000000002a751  /system/lib64/libui.so (android::GraphicBuffer::lockAsync(unsigned long, unsigned long, android::Rect const&, void**, int, int*, int*)+545) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:30:53.008 12737 12737 F DEBUG   :       #08 pc 00000000000339a3  /system/lib64/libui.so (android::GraphicBuffer::lock(unsigned int, void**, int*, int*)+67) (BuildId: b1f5ff732233939b9394d7d0e4dfca13)
+11-16 08:30:53.008 12737 12737 F DEBUG   :       #09 pc 000000000042059b  /system/bin/surfaceflinger (android::RegionSamplingThread::threadMain()+2571) (BuildId: 25d13f27c4a5b6e198dbf71cb2b70894)
+11-16 08:30:53.008 12737 12737 F DEBUG   :       #10 pc 00000000004c9727  /system/bin/surfaceflinger (void* std::__1::__thread_proxy[abi:nn220000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, android::RegionSamplingThread::RegionSamplingThread(android::SurfaceFlinger&, android::RegionSamplingThread::TimingTunables const&)::$_2>>(void*) (.__uniq.22835156453571511455795338659787558893)+39) (BuildId: 25d13f27c4a5b6e198dbf71cb2b70894)
+11-16 08:30:53.008 12737 12737 F DEBUG   :       #11 pc 000000000008c7af  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*) (.__uniq.67847048707805468364044055584648682506)+63) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:30:53.008 12737 12737 F DEBUG   :       #12 pc 000000000008670d  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+45) (BuildId: aa76614279c09bc4bbbbbec6ba4a811e)
+11-16 08:30:53.008 12737 12737 F DEBUG   : Note: To display stack pointer information, use the pbtombstone tool:
+11-16 08:30:53.008 12737 12737 F DEBUG   :         pbtombstone --display-sp tombstone_XX.pb
