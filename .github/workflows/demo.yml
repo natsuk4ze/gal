@@ -716,27 +716,30 @@ jobs:
         run: |
           out="$RUNNER_TEMP/demo"
           mkdir -p "$out"
-          xcrun simctl addmedia "$UDID" example/assets/done.jpg
-          (brew tap facebook/fb > /dev/null 2>&1 && brew install idb-companion > /dev/null 2>&1 && pip3 install --break-system-packages fb-idb > /dev/null 2>&1 && echo idb installed) || echo "no idb"
-          xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$out/h264.mov" 2> "$out/h264.log" &
-          a=$!
-          sleep 3
+          which ffmpeg || true
+          rt=$(xcrun simctl list runtimes -j | jq -r '[.runtimes[] | select(.identifier | test("SimRuntime\\.iOS-[0-9]+(-[0-9]+)*$"))] | last | .runtimeRoot')
+          echo "Runtime root: $rt"
+          ls "$rt/Applications" | grep -i -E 'slide|photo' || true
+          {
+            strings "$rt/Applications/MobileSlideShow.app/MobileSlideShow" | grep -i -E 'whatsnew|what.s.new|onboard|welcome|splash' | sort -u | head -80
+            for f in $(find "$rt/System/Library/PrivateFrameworks" "$rt/System/Library/Frameworks" -maxdepth 1 -iname '*photo*' -name '*.framework'); do
+              b="$f/$(basename "$f" .framework)"
+              [ -f "$b" ] || continue
+              m=$(strings "$b" | grep -i -E 'whatsnew|what.s.new' | sort -u | head -40)
+              [ -z "$m" ] || { echo "== $f"; echo "$m"; }
+            done
+          } > "$out/strings.txt" 2>&1
+          wc -l "$out/strings.txt"
+          brew tap facebook/fb > "$out/idb.log" 2>&1 || true
+          brew install idb-companion >> "$out/idb.log" 2>&1 || true
+          pip3 install --break-system-packages fb-idb >> "$out/idb.log" 2>&1 || true
+          which idb idb_companion >> "$out/idb.log" 2>&1 || true
+          tail -20 "$out/idb.log"
+          xcrun simctl spawn "$UDID" defaults read com.apple.mobileslideshow > "$out/defaults_before.txt" 2>&1 || true
           xcrun simctl openurl "$UDID" photos-redirect://
-          sleep 6
+          sleep 8
+          xcrun simctl spawn "$UDID" defaults read com.apple.mobileslideshow > "$out/defaults_after.txt" 2>&1 || true
           xcrun simctl io "$UDID" screenshot "$out/whatsnew.png"
-          idb ui describe-all --udid "$UDID" > "$out/describe.json" 2>&1 || true
-          idb ui tap --udid "$UDID" 201 805 > "$out/tap.log" 2>&1 || true
-          sleep 4
-          xcrun simctl io "$UDID" screenshot "$out/after_tap.png"
-          kill -INT $a; wait $a || true
-          xcrun simctl io "$UDID" recordVideo --force "$out/hevc.mov" 2> "$out/hevc.log" &
-          b=$!
-          sleep 6
-          kill -INT $b; wait $b || true
-          start=$(date +%s)
-          for i in $(seq 20); do xcrun simctl io "$UDID" screenshot --type=jpeg "$out/shot_$i.jpg" > /dev/null 2>&1; done
-          echo "20 screenshots in $(( $(date +%s) - start )) seconds" | tee "$out/shots.txt"
-          ls -la "$out"
 
       - name: Push the outputs
         if: always()
