@@ -625,13 +625,19 @@ jobs:
 
       # From just before the tap until a while after the gallery opened. When the gallery records black,
       # as Photos on the iOS simulator can, the GIF fades to the screenshot taken at the end instead.
+      # Then the frames in which nothing happens are cut: before the first change on the screen and
+      # after the last, but for LEAD and TAIL seconds, and stills between longer than STILL seconds.
       - name: Make the GIFs
         shell: python
         run: |
-          import os, subprocess
+          import os, subprocess, sys
           subprocess.run('sudo apt-get install -y -qq ffmpeg > /dev/null', shell=True, check=True)
+          subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', 'numpy'], check=True)
+          import numpy as np
+
+          FPS, LEAD, TAIL, STILL = 15, 0.5, 2, 1.5
           os.makedirs('gifs', exist_ok=True)
-          # Platform, video, width, seconds shown after the gallery opened, dither
+          # Platform, video, width, seconds recorded after the gallery opened, dither
           for platform, video, width, hold, dither in [
               ('ios', 'ios.mov', 400, 5, 'sierra2_4a'),
               ('android', 'android.mp4', 400, 8, 'sierra2_4a'),
@@ -646,22 +652,44 @@ jobs:
               t = dict(line.strip().split('=') for line in open(timing) if '=' in line)
               start, go, gallery = (float(t[k]) for k in ('start', 'go', 'gallery'))
               begin, shown = go - start + 0.5, gallery - go - 0.5
+              size = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v', '-show_entries', 'stream=width,height',
+                                     '-of', 'csv=p=0', video], capture_output=True, text=True).stdout.split()[0]
+              w, h = (int(n) for n in size.split(','))
+              height = round(width * h / w / 2) * 2
               # The mean brightness of the video at the end of the GIF
               frame = subprocess.run(['ffmpeg', '-v', 'error', '-ss', str(begin + shown + hold - 0.5), '-i', video, '-frames:v', '1',
                                       '-vf', 'scale=1:1,format=gray', '-f', 'rawvideo', '-'], capture_output=True).stdout
               black = len(frame) == 1 and frame[0] < 16 and os.path.exists(f'{folder}/end.png')
-              palette = f'split[a][b];[a]palettegen=max_colors=192:stats_mode=full[p];[b][p]paletteuse=dither={dither}:diff_mode=rectangle'
-              each = f'fps=15,scale={width}:-1:flags=lanczos,setsar=1'
+              each = f'fps={FPS},scale={width}:{height}:flags=lanczos,setsar=1'
               if black:
-                  cut = shown + 0.3
-                  inputs = ['-ss', str(begin), '-t', str(cut), '-i', video, '-loop', '1', '-t', str(hold), '-i', f'{folder}/end.png']
-                  graph = f'[0]{each}[v];[1]{each}[e];[v][e]xfade=transition=fade:duration=0.4:offset={cut - 0.4},{palette}'
+                  fade = shown + 0.3
+                  inputs = ['-ss', str(begin), '-t', str(fade), '-i', video, '-loop', '1', '-t', str(hold), '-i', f'{folder}/end.png']
+                  graph = f'[0]{each}[v];[1]{each}[e];[v][e]xfade=transition=fade:duration=0.4:offset={fade - 0.4}'
               else:
                   inputs = ['-ss', str(begin), '-t', str(shown + hold), '-i', video]
-                  graph = f'{each},{palette}'
-              print(f'{platform}: from {begin:.2f} s, the gallery at {shown:.2f} s, black: {black}')
-              subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-y', *inputs, '-filter_complex', graph, '-loop', '0',
-                              f'gifs/{platform}.gif'], check=True)
+                  graph = each
+
+              raw = subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', *inputs, '-filter_complex', f'{graph},format=gray',
+                                    '-f', 'rawvideo', '-'], capture_output=True, check=True).stdout
+              frames = np.frombuffer(raw, np.uint8).reshape(-1, height, width).astype(np.int16)
+              def differ(a, b, share): return (np.abs(a - b) > 10).mean(axis=(-2, -1)) > share
+              # The first frame that differs from the first, and the frame after the last that differs from the last
+              after, before = np.flatnonzero(differ(frames, frames[0], 0.001)), np.flatnonzero(differ(frames, frames[-1], 0.001))
+              first, last = (after[0], before[-1] + 1) if len(after) and len(before) else (0, len(frames))
+              keep, still = [], 0
+              for i in range(max(first - int(LEAD * FPS), 0), min(last + int(TAIL * FPS), len(frames))):
+                  # A still lasts while the frames differ from its first frame in at most 0.2% of the pixels
+                  if differ(frames[i], frames[still], 0.002):
+                      still = i
+                  if not (first < i < last and i - still >= STILL * FPS):
+                      keep.append(i)
+              select = '+'.join(f'eq(n,{i})' for i in keep)
+
+              palette = f'split[a][b];[a]palettegen=max_colors=192:stats_mode=full[p];[b][p]paletteuse=dither={dither}:diff_mode=rectangle'
+              print(f'{platform}: from {begin:.2f} s, the gallery at {shown:.2f} s, black: {black}, '
+                    f'moves from {first / FPS:.2f} s to {last / FPS:.2f} s, keeps {len(keep) / FPS:.2f} s of {len(frames) / FPS:.2f} s')
+              subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-y', *inputs, '-filter_complex',
+                              f"{graph},select='{select}',setpts=N/{FPS}/TB,{palette}", '-loop', '0', f'gifs/{platform}.gif'], check=True)
           subprocess.run('ls -la gifs', shell=True)
 
       - name: Upload the GIFs
