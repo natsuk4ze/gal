@@ -1,0 +1,30 @@
+
+All plugins found for ios are Swift Packages, but your project still has CocoaPods integration. Your project uses a non-standard Podfile and will need to be migrated to Swift Package Manager manually. Some steps you may need to complete include:
+  * In the ios/ directory run "pod deintegrate"
+  * Transition any Pod dependencies to Swift Package equivalents. See https://developer.apple.com/documentation/xcode/adding-package-dependencies-to-your-app
+  * Transition any custom logic
+  * Remove the include to "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig" in your ios/Flutter/Debug.xcconfig
+  * Remove the include to "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig" in your ios/Flutter/Release.xcconfig
+
+Removing CocoaPods integration will improve the project's build time.
+Warning: Missing build name (CFBundleShortVersionString).
+Warning: Missing build number (CFBundleVersion).
+Action Required: You must set a build name and number in the pubspec.yaml file version field before submitting to the App Store.
+Running Xcode build...                                          
+Xcode build done.                                           118.3s
+Unable to install /Users/runner/work/gal/gal/example/build/ios/iphonesimulator/Runner.app on 900A5BAA-B5B5-4706-B7C3-D0C89A4F6B80. This is sometimes caused by a malformed plist file:
+ProcessException: Process exited abnormally with exit code 53:
+An error was encountered processing the command (domain=NSPOSIXErrorDomain, code=53):
+Error returned in reply from CoreSimulatorService: Connection interrupted
+Software caused connection abort
+  Command: /usr/bin/arch -arm64e xcrun simctl install 900A5BAA-B5B5-4706-B7C3-D0C89A4F6B80 /Users/runner/work/gal/gal/example/build/ios/iphonesimulator/Runner.app
+::group::❌ loading /Users/runner/work/gal/gal/example/integration_test/demo_test.dart (failed)
+Failed to load "/Users/runner/work/gal/gal/example/integration_test/demo_test.dart": Unable to start the app on the device.
+package:flutter_tools/src/test/integration_test_device.dart 67:86  IntegrationTestTestDevice.start
+===== asynchronous gap ===========================
+package:flutter_tools/src/test/flutter_platform.dart 686:51        FlutterPlatform._startTest.<fn>
+===== asynchronous gap ===========================
+package:flutter_tools/src/base/async_guard.dart 108:24             asyncGuard.<fn>
+::endgroup::
+
+::error::0 tests passed, 1 failed.

@@ -1,0 +1,10 @@
+
+Building Windows application...                                    13.3s
+√ Built build\windows\x64\runner\Debug\example.exe
+::group::✅ Passing tests
+✅ demo
+DEMO: start
+DEMO: gallery
+::endgroup::
+
+🎉 1 test passed.
