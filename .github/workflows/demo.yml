@@ -43,7 +43,7 @@ jobs:
           xcrun simctl list runtimes
           device=$(xcrun simctl list --json devices available | jq -r '
             [.devices | to_entries[]
-              | select(.key | test("SimRuntime\\.iOS-"))
+              | select(.key | test("SimRuntime\\.iOS-[0-9]+(-[0-9]+)*$"))
               | (.key | ltrimstr("com.apple.CoreSimulator.SimRuntime.iOS-") | split("-") | map(tonumber)) as $v
               | .value[] | {udid, name, state, v: $v}]
             | (map(.v) | max) as $latest
@@ -164,9 +164,12 @@ jobs:
             [ "$(adb -s emulator-5554 shell getprop sys.boot_completed 2> /dev/null | tr -d '\r')" = 1 ] && break
             sleep 2
           done
+          # The services start a while after the boot completes
+          for i in $(seq 60); do adb -s emulator-5554 shell cmd input > /dev/null 2>&1 && break; sleep 2; done
+          sleep 10
           adb -s emulator-5554 shell getprop ro.build.version.release
           adb -s emulator-5554 shell getprop ro.build.version.sdk
-          adb -s emulator-5554 shell input keyevent 82
+          adb -s emulator-5554 shell input keyevent 82 || true
           adb -s emulator-5554 shell wm size
           adb -s emulator-5554 shell pm list packages | grep -iE 'photos|gallery' || true
 
@@ -254,14 +257,20 @@ jobs:
 
       # The same as in ci_macos.yml, and the screen recording too
       - name: Allow access to the photo library and the screen
+        continue-on-error: true
         run: |
           sw_vers
+          csrutil status || true
+          whoami
           system_profiler SPDisplaysDataType | grep -i resolution || true
+          ls -la "$HOME/Library/Application Support/com.apple.TCC" || true
+          sudo ls -la "$HOME/Library/Application Support/com.apple.TCC" || true
+          sudo sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" "SELECT service, client, auth_value FROM access" || true
           agent=$(sudo launchctl procinfo $$ | sed -n 's/^[[:space:]]*responsible path = //p')
           echo "Agent: $agent"
           for service in kTCCServicePhotos kTCCServicePhotosAdd; do
-            sqlite3 -cmd '.timeout 10000' "$HOME/Library/Application Support/com.apple.TCC/TCC.db" \
-              "INSERT OR REPLACE INTO access (service, client, client_type, auth_value, auth_reason, auth_version) VALUES ('$service', '$agent', 1, 2, 3, 1)"
+            sudo sqlite3 -cmd '.timeout 10000' "$HOME/Library/Application Support/com.apple.TCC/TCC.db" \
+              "INSERT OR REPLACE INTO access (service, client, client_type, auth_value, auth_reason, auth_version) VALUES ('$service', '$agent', 1, 2, 3, 1)" || true
           done
           for client in "$agent" /usr/sbin/screencapture; do
             sudo sqlite3 -cmd '.timeout 10000' "/Library/Application Support/com.apple.TCC/TCC.db" \
@@ -282,6 +291,7 @@ jobs:
           screencapture -v -x -V 30 "$out/macos.mov" &
           recorder=$!
           for i in 1 2 3 4 5 6; do sleep 4; screencapture -x "$out/screen_$i.png" || true; done
+          osascript -e 'tell application "System Events" to get name of every window of every process whose visible is true' || true
           wait "$recorder" || true
           pkill -x example || true
           pkill -f 'flutter_tools' || true
@@ -344,3 +354,29 @@ jobs:
         with:
           name: demo-windows
           path: ${{ runner.temp }}/demo
+
+  # Artifacts cannot be downloaded everywhere, so the videos also go to the demo-output branch
+  collect:
+    needs: [ios, android, macos, windows]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download the videos
+        uses: actions/download-artifact@v8
+        with:
+          pattern: demo-*
+          path: demo
+
+      - name: Push them to the demo-output branch
+        working-directory: demo
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          ls -laR
+          git init -q -b demo-output
+          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q --allow-empty -m "Demo videos of $GITHUB_SHA"
+          git add -A
+          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q --amend -m "Demo videos of $GITHUB_SHA"
+          git push -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" demo-output
