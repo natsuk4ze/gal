@@ -555,9 +555,11 @@ jobs:
             [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr hWnd, uint message, IntPtr wParam, IntPtr lParam);
           }
           "@
-          for ($i = 0; $i -lt 60; $i++) {
+          # Closing it can leave System Properties behind it, with the same title, so this closes both
+          $closed = 0
+          for ($i = 0; $i -lt 60 -and $closed -lt 2; $i++) {
             $dialog = [Dialog]::FindWindow('#32770', 'System Properties')
-            if ($dialog -ne [IntPtr]::Zero) { [Dialog]::PostMessage($dialog, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null; Write-Host "Closed the dialog"; break }
+            if ($dialog -ne [IntPtr]::Zero) { [Dialog]::PostMessage($dialog, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null; $closed++; Write-Host "Closed a dialog" }
             Start-Sleep -Milliseconds 500
           }
 
@@ -635,8 +637,12 @@ jobs:
           }
 
           # Clears the desktop, such as the console of the runner and a dialog about the paging file
-          $dialog = [Win32]::FindWindow('#32770', 'System Properties')
-          if ($dialog -ne [IntPtr]::Zero) { [Win32]::PostMessage($dialog, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null }
+          for ($i = 0; $i -lt 10; $i++) {
+            $dialog = [Win32]::FindWindow('#32770', 'System Properties')
+            if ($dialog -eq [IntPtr]::Zero) { break }
+            [Win32]::PostMessage($dialog, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null
+            Start-Sleep -Milliseconds 500
+          }
           (New-Object -ComObject Shell.Application).MinimizeAll()
           Start-Sleep -Seconds 1
           $env:DEMO_LOG = $log
