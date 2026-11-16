@@ -74,13 +74,56 @@ jobs:
         working-directory: example
         run: flutter build ios --simulator --debug --target integration_test/demo_test.dart
 
-      # Opens Photos once, so that what it shows on its first launch is not in the demo
-      - name: Warm up Photos
+      # simctl io recordVideo records the Photos app all black, so the job records the window of the Simulator app.
+      # The window has no bezel, so the screen of the simulator fills it below the title bar.
+      - name: Open the Simulator app
         run: |
           out="$RUNNER_TEMP/demo"
           mkdir -p "$out"
+          brew install displayplacer > /dev/null 2>&1 && displayplacer list > "$out/displays.txt" 2>&1 || true
+          defaults write com.apple.iphonesimulator ShowChrome -bool false
+          open -a Simulator --args -CurrentDeviceUDID "$UDID"
+          sleep 15
+          xcrun simctl io "$UDID" screenshot "$out/screen.png"
+          cat > "$RUNNER_TEMP/frame.sh" <<'EOF'
+          # Prints the frame of the screen of the simulator on the Mac screen: x y width height
+          window=$(osascript -e 'tell application "System Events" to tell process "Simulator" to get {position, size} of window 1' | tr -d ' ')
+          IFS=, read -r x y w h <<< "$window"
+          read -r pw ph <<< "$(sips -g pixelWidth -g pixelHeight "$RUNNER_TEMP/demo/screen.png" | awk '/pixel/ {printf "%s ", $2}')"
+          sh=$((w * ph / pw))
+          echo "$x $((y + h - sh)) $w $sh"
+          EOF
+          cat > "$RUNNER_TEMP/tap.js" <<'EOF'
+          // Clicks the Mac screen at x, y
+          ObjC.import('CoreGraphics');
+          function run(argv) {
+            const point = { x: Number(argv[0]), y: Number(argv[1]) };
+            for (const type of [$.kCGEventLeftMouseDown, $.kCGEventLeftMouseUp]) {
+              $.CGEventPost($.kCGHIDEventTap, $.CGEventCreateMouseEvent(null, type, point, $.kCGMouseButtonLeft));
+              delay(0.05);
+            }
+          }
+          EOF
+          osascript -e 'tell application "System Events" to tell process "Simulator" to get {position, size} of window 1'
+          bash "$RUNNER_TEMP/frame.sh" | tee "$out/frame.txt"
+          screencapture -x "$out/simulator.png"
+
+      # Opens Photos once and taps Continue in What's New, so that it is not in the demo
+      - name: Warm up Photos
+        run: |
+          out="$RUNNER_TEMP/demo"
+          # Taps the simulator at x and y in thousandths of its screen
+          tap() {
+            read -r fx fy fw fh <<< "$(bash "$RUNNER_TEMP/frame.sh")"
+            osascript -l JavaScript "$RUNNER_TEMP/tap.js" $((fx + fw * $1 / 1000)) $((fy + fh * $2 / 1000))
+          }
           xcrun simctl openurl "$UDID" photos-redirect://
-          for i in 1 2 3; do sleep 4; xcrun simctl io "$UDID" screenshot "$out/warm_$i.png"; done
+          sleep 8
+          xcrun simctl io "$UDID" screenshot "$out/warm_1.png"
+          tap 500 926
+          sleep 4
+          xcrun simctl io "$UDID" screenshot "$out/warm_2.png"
+          screencapture -x "$out/warm_mac.png"
           xcrun simctl terminate "$UDID" com.apple.mobileslideshow || true
 
       # The app built from the test runs the test when it launches, without flutter test
@@ -98,6 +141,9 @@ jobs:
           xcrun simctl launch --console-pty "$UDID" studio.midoridesign.galExample > "$log" 2>&1 &
           wait_for 'DEMO: ready' 120
           temp=$(grep -ho 'DEMO: ready .*' "$log" "$out/stream.log" 2> /dev/null | head -1 | sed 's/^DEMO: ready //' | tr -d '\r')
+          bash "$RUNNER_TEMP/frame.sh" > "$out/frame.txt"
+          screencapture -v -x -V 15 "$out/ios_screen.mov" &
+          screen_recorder=$!
           xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$out/ios.mov" &
           recorder=$!
           sleep 2
@@ -107,6 +153,8 @@ jobs:
           limit 30 xcrun simctl io "$UDID" screenshot "$out/end.png" || true
           kill -INT "$recorder"
           wait "$recorder" || true
+          wait "$screen_recorder" || true
+          cat "$out/frame.txt"
           ls -la "$out"
 
       - name: Upload the video
@@ -137,11 +185,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variant: [swangle, guest, nav3, googleapis]
+        variant: [dma, dma2]
     env:
       ANDROID_SERIAL: emulator-5554
-      TAG: ${{ matrix.variant == 'googleapis' && 'google_apis' || 'google_apis_playstore' }}
-      GPU: ${{ matrix.variant == 'swangle' && 'swangle_indirect' || matrix.variant == 'guest' && 'guest' || 'swiftshader_indirect' }}
+      TAG: google_apis_playstore
+      FEATURES: ${{ matrix.variant == 'dma' && '-GLDMA,-GLDMA2' || '-GLDMA2' }}
     steps:
       - name: Check out
         uses: actions/checkout@v7
@@ -196,14 +244,12 @@ jobs:
           } >> "$ANDROID_AVD_HOME/demo.avd/config.ini"
 
           "$ANDROID_HOME/emulator/emulator" -port 5554 -avd demo -accel on -no-snapshot-save -no-window \
-            -gpu "$GPU" -noaudio -no-boot-anim -camera-back none -camera-front none > "$RUNNER_TEMP/emulator.log" 2>&1 &
+            -gpu swiftshader_indirect -feature "$FEATURES" -noaudio -no-boot-anim -camera-back none -camera-front none > "$RUNNER_TEMP/emulator.log" 2>&1 &
           grep -iE 'dma' "$ANDROID_HOME/emulator/lib/advancedFeatures.ini" || true
           for i in $(seq 450); do
             [ "$(adb shell getprop sys.boot_completed 2> /dev/null | tr -d '\r')" = 1 ] && break
             sleep 2
           done
-          # The navigation handle of gestures samples the screen under it
-          [ "${{ matrix.variant }}" != nav3 ] || adb shell cmd overlay enable com.android.internal.systemui.navbar.threebutton || true
           # The services start a while after the boot completes. Waits until they have answered 10 times in a row.
           ready=0
           for i in $(seq 300); do
@@ -298,6 +344,23 @@ jobs:
           wait "$recorder" || true
           sleep 2
           adb pull /sdcard/demo.mp4 "$out/android.mp4"
+
+          # Ways around the sign-in of Google Photos, to compare
+          adb shell input keyevent BACK
+          sleep 3
+          shot after_back
+          adb shell am start -a android.intent.action.VIEW -d content://media/external/images/media -t vnd.android.cursor.dir/image
+          sleep 5
+          shot reopen
+          adb shell content query --uri content://media/external/images/media --projection _id:_display_name:relative_path > "$out/media.txt" || true
+          id=$(grep -o '_id=[0-9]*' "$out/media.txt" | tail -1 | cut -d= -f2)
+          adb shell am start -a android.intent.action.VIEW -d "content://media/external/images/media/$id" -t image/jpeg
+          sleep 5
+          shot single
+          adb shell am start -a android.intent.action.VIEW -d "content://media/external/images/media/$id" -t image/jpeg -p com.google.android.apps.photos
+          sleep 5
+          shot single_photos
+          adb shell pm query-activities -a android.intent.action.VIEW -t vnd.android.cursor.dir/image > "$out/handlers.txt" || true
           ls -la "$out"
 
       - name: Save the logs
