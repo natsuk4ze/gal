@@ -560,6 +560,12 @@ jobs:
             Set-ItemProperty -Path $key -Name Mode -Value 1 -Type DWord
             Set-ItemProperty -Path $key -Name IconSize -Value 256 -Type DWord
           }
+          # Thumbnails instead of icons, which Windows Server shows by default
+          Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name IconsOnly -Value 0 -Type DWord
+          Stop-Process -Name explorer -Force
+          Start-Sleep -Seconds 3
+          if (-not (Get-Process explorer -ErrorAction SilentlyContinue)) { Start-Process explorer.exe }
+          Start-Sleep -Seconds 3
 
       - name: Build
         working-directory: example
@@ -650,19 +656,15 @@ jobs:
           # Keeps File Explorer next to the app with extra large icons, in case it does not open so
           $pictures = "$env:USERPROFILE\Pictures"
           $shell = New-Object -ComObject Shell.Application
-          $styled = $false
-          for ($i = 0; $i -lt 150; $i++) {
+          for ($i = 0; $i -lt 100; $i++) {
             $window = [Win32]::FindWindow('CabinetWClass', $null)
             if ($window -ne [IntPtr]::Zero) { [Win32]::SetWindowPos($window, [IntPtr]::Zero, 470, 10, 800, 650, 0x0040) | Out-Null }
-            if (-not $styled) {
-              $view = $shell.Windows() | Where-Object { $_.Document.Folder.Self.Path -eq $pictures } | Select-Object -First 1
-              if ($view) {
-                if ($view.Document.CurrentViewMode -ne 1) { $view.Document.CurrentViewMode = 1 }
-                if ($view.Document.IconSize -ne 256) { $view.Document.IconSize = 256 }
-                $styled = $true
-              }
+            $view = $shell.Windows() | Where-Object { $_.Document.Folder.Self.Path -eq $pictures } | Select-Object -First 1
+            if ($view) {
+              if ($view.Document.CurrentViewMode -ne 1) { $view.Document.CurrentViewMode = 1 }
+              if ($view.Document.IconSize -ne 256) { $view.Document.IconSize = 256 }
             }
-            Start-Sleep -Milliseconds 20
+            Start-Sleep -Milliseconds 30
           }
           $ffmpeg.WaitForExit()
           Get-ChildItem "$env:USERPROFILE\Pictures" | Format-Table Name, Length
