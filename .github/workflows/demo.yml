@@ -718,3 +718,19 @@ jobs:
           git add -A
           git -c user.name=github-actions -c user.email=github-actions@github.com commit -q -m "Demo of $GITHUB_SHA on windows"
           git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-windows
+
+  # Temporary: looks around the Xcode 27 image
+  probe:
+    if: ${{ contains(github.event.head_commit.message, 'probe]') }}
+    runs-on: xcode-27
+    steps:
+      - name: Look around
+        run: |
+          xcode-select -p
+          ls /Applications
+          ls "$(xcode-select -p)/Applications" || true
+          mdfind "kMDItemCFBundleIdentifier == 'com.apple.iphonesimulator'" || true
+          find /Applications /Library/Developer /System/Applications /System/Library/CoreServices -maxdepth 7 -iname "*Simulator*.app" 2> /dev/null | head -20
+          xcrun simctl help io 2>&1 | head -60
+          ls /System/Library/CoreServices/DefaultDesktop* "/System/Library/Desktop Pictures" || true
+          defaults read com.apple.universalaccess || true
