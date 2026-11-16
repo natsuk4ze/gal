@@ -1,0 +1,346 @@
+# Records the demo videos in the README on the latest OS of each platform.
+# Run it by hand, and download the videos from the artifacts of the run.
+# example/integration_test/demo_test.dart taps the example app, and each job records the screen meanwhile.
+name: Demo
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - demo-videos
+
+jobs:
+  ios:
+    # The Xcode 27 image runs macOS 27, with the iOS 27 simulators
+    runs-on: xcode-27
+    timeout-minutes: 45
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Setup Flutter SDK
+        uses: ./.github/actions/setup-flutter
+        with:
+          channel: stable
+          cache: true
+
+      # The same patch as in ci_ios.yml (flutter/flutter#181771)
+      - name: Patch the Flutter tool
+        run: |
+          cd "$FLUTTER_ROOT"
+          if ! grep -q '_ready' packages/flutter_tools/lib/src/ios/simulators.dart; then
+            curl -sfL https://github.com/flutter/flutter/commit/c3ed85ef987759ee54a6bce275490cde2a238dc1.diff | git apply --include='packages/flutter_tools/lib/*'
+            rm -f bin/cache/flutter_tools.stamp
+          fi
+          flutter --version
+
+      # Picks the newest iPhone Pro on the newest iOS runtime
+      - name: Boot the simulator
+        run: |
+          xcrun simctl list runtimes
+          device=$(xcrun simctl list --json devices available | jq -r '
+            [.devices | to_entries[]
+              | select(.key | test("SimRuntime\\.iOS-"))
+              | (.key | ltrimstr("com.apple.CoreSimulator.SimRuntime.iOS-") | split("-") | map(tonumber)) as $v
+              | .value[] | {udid, name, state, v: $v}]
+            | (map(.v) | max) as $latest
+            | map(select(.v == $latest))
+            | (map(select(.name | test("^iPhone [0-9]+ Pro$")))
+                | sort_by(.name | capture("(?<n>[0-9]+)").n | tonumber) | reverse)
+              + map(select(.name | startswith("iPhone")))
+            | first | "\(.udid) \(.state) \(.v | map(tostring) | join(".")) \(.name)"')
+          read -r udid state version name <<< "$device"
+          echo "Picked $name (iOS $version) [$udid] - $state"
+          echo "UDID=$udid" >> "$GITHUB_ENV"
+          [ "$state" = Shutdown ] || xcrun simctl shutdown "$udid"
+          xcrun simctl erase "$udid"
+          xcrun simctl boot "$udid"
+          perl -e 'alarm shift; exec @ARGV' 600 xcrun simctl bootstatus "$udid"
+          xcrun simctl status_bar "$udid" override --time 9:41 --dataNetwork wifi --wifiMode active --wifiBars 3 \
+            --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100
+
+      # The same as in ci_ios.yml
+      - name: Grant permission
+        run: |
+          xcrun simctl privacy "$UDID" grant photos studio.midoridesign.galExample
+          sqlite3 "$(xcrun simctl getenv "$UDID" HOME)/Library/TCC/TCC.db" \
+            "UPDATE access SET auth_version = 2 WHERE service = 'kTCCServicePhotos'"
+
+      - name: Build
+        working-directory: example
+        run: flutter build ios --simulator --debug --target integration_test/demo_test.dart
+
+      - name: Record the demo
+        working-directory: example
+        run: |
+          out="$RUNNER_TEMP/demo"
+          mkdir -p "$out"
+          running() { xcrun simctl spawn "$UDID" launchctl list | grep -q "UIKitApplication:$1"; }
+
+          flutter test --no-uninstall -d "$UDID" integration_test/demo_test.dart > "$out/flutter.log" 2>&1 &
+          for i in $(seq 600); do running studio.midoridesign.galExample && break; sleep 0.5; done
+          xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$out/ios.mov" &
+          recorder=$!
+
+          for i in $(seq 120); do running com.apple.mobileslideshow && break; sleep 0.5; done
+          for i in 1 2 3 4 5; do sleep 2; xcrun simctl io "$UDID" screenshot "$out/photos_$i.png"; done
+
+          kill -INT "$recorder"
+          wait "$recorder" || true
+          pkill -f 'flutter_tools' || true
+          ls -la "$out"
+
+      - name: Upload the video
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: demo-ios
+          path: ${{ runner.temp }}/demo
+
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      # The same as in ci_android.yml
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost && df -h /
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Setup Flutter SDK
+        uses: ./.github/actions/setup-flutter
+        with:
+          channel: stable
+          cache: true
+
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@v6.4.1
+
+      # The newest stable image with Google Play, which has Google Photos
+      - name: Start the emulator
+        run: |
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          export ANDROID_AVD_HOME="$HOME/.android/avd"
+          echo "ANDROID_AVD_HOME=$ANDROID_AVD_HOME" >> "$GITHUB_ENV"
+          mkdir -p "$ANDROID_AVD_HOME"
+
+          yes | sdkmanager --licenses > /dev/null
+          image=$(sdkmanager --list --channel=0 2>/dev/null | grep -oE 'system-images;android-[0-9.]+;google_apis_playstore;x86_64' | sort -uV | tail -1)
+          echo "Image: $image"
+          sdkmanager --install emulator "$image" --channel=0 > /dev/null
+
+          avdmanager list device -c
+          device=$(avdmanager list device -c | grep -xE 'pixel_(10|9|8)' | sort -V | tail -1)
+          echo "Device: $device"
+          echo no | avdmanager create avd --force -n demo --package "$image" ${device:+--device "$device"}
+          {
+            echo "hw.cpu.ncore=4"
+            echo "hw.ramSize=4096"
+            echo "disk.dataPartition.size=6GB"
+            echo "hw.keyboard=no"
+          } >> "$ANDROID_AVD_HOME/demo.avd/config.ini"
+          cat "$ANDROID_AVD_HOME/demo.avd/config.ini"
+
+          "$ANDROID_HOME/emulator/emulator" -port 5554 -avd demo -accel on -no-snapshot-save -no-window \
+            -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none > "$RUNNER_TEMP/emulator.log" 2>&1 &
+          for i in $(seq 450); do
+            [ "$(adb -s emulator-5554 shell getprop sys.boot_completed 2> /dev/null | tr -d '\r')" = 1 ] && break
+            sleep 2
+          done
+          adb -s emulator-5554 shell getprop ro.build.version.release
+          adb -s emulator-5554 shell getprop ro.build.version.sdk
+          adb -s emulator-5554 shell input keyevent 82
+          adb -s emulator-5554 shell wm size
+          adb -s emulator-5554 shell pm list packages | grep -iE 'photos|gallery' || true
+
+      # A clean status bar, and touches shown for the taps in Google Photos
+      - name: Set up the screen
+        env:
+          ANDROID_SERIAL: emulator-5554
+        run: |
+          demo() { adb shell am broadcast -a com.android.systemui.demo -e command "$@" > /dev/null; }
+          adb shell settings put global sysui_demo_allowed 1
+          demo enter
+          demo clock -e hhmm 0941
+          demo battery -e level 100 -e plugged false
+          demo network -e wifi show -e level 4 -e fully true
+          demo network -e mobile show -e datatype none -e level 4 -e fully true
+          demo notifications -e visible false
+          adb shell settings put system show_touches 1
+
+      - name: Build
+        working-directory: example
+        run: flutter build apk --debug --target integration_test/demo_test.dart
+
+      - name: Record the demo
+        working-directory: example
+        env:
+          ANDROID_SERIAL: emulator-5554
+        run: |
+          out="$RUNNER_TEMP/demo"
+          mkdir -p "$out"
+          focus() { adb shell dumpsys window | grep -m1 mCurrentFocus; }
+          shot() { adb exec-out screencap -p > "$out/$1.png"; adb shell uiautomator dump /sdcard/ui.xml > /dev/null; adb pull /sdcard/ui.xml "$out/$1.xml" > /dev/null; }
+          # Prints the center of the first view whose text or description matches $1
+          find_view() {
+            adb shell uiautomator dump /sdcard/ui.xml > /dev/null
+            adb exec-out cat /sdcard/ui.xml | python3 -c '
+          import re, sys, xml.etree.ElementTree as ET
+          pattern = re.compile(sys.argv[1], re.I)
+          for node in ET.parse(sys.stdin).iter("node"):
+              if pattern.search(node.get("content-desc", "")) or pattern.search(node.get("text", "")):
+                  x1, y1, x2, y2 = map(int, re.findall(r"\d+", node.get("bounds")))
+                  print((x1 + x2) // 2, (y1 + y2) // 2)
+                  break' "$1"
+          }
+
+          flutter test --no-uninstall integration_test/demo_test.dart > "$out/flutter.log" 2>&1 &
+          for i in $(seq 900); do focus | grep -q gal_example && break; sleep 0.5; done
+          adb shell screenrecord --bit-rate 12000000 /sdcard/demo.mp4 &
+          recorder=$!
+
+          for i in $(seq 120); do focus | grep -q gal_example || break; sleep 0.5; done
+          focus
+          sleep 2
+          shot gallery_1
+          position=$(find_view 'video')
+          echo "Video at: $position"
+          [ -z "$position" ] || adb shell input tap $position
+          for i in 2 3 4; do sleep 2; shot "gallery_$i"; done
+
+          adb shell pkill -INT screenrecord || true
+          wait "$recorder" || true
+          sleep 2
+          adb pull /sdcard/demo.mp4 "$out/android.mp4"
+          pkill -f 'flutter_tools' || true
+          ls -la "$out"
+
+      - name: Upload the video
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: demo-android
+          path: ${{ runner.temp }}/demo
+
+  macos:
+    runs-on: xcode-27
+    timeout-minutes: 30
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Setup Flutter SDK
+        uses: ./.github/actions/setup-flutter
+        with:
+          channel: stable
+          cache: true
+
+      # The same as in ci_macos.yml, and the screen recording too
+      - name: Allow access to the photo library and the screen
+        run: |
+          sw_vers
+          system_profiler SPDisplaysDataType | grep -i resolution || true
+          agent=$(sudo launchctl procinfo $$ | sed -n 's/^[[:space:]]*responsible path = //p')
+          echo "Agent: $agent"
+          for service in kTCCServicePhotos kTCCServicePhotosAdd; do
+            sqlite3 -cmd '.timeout 10000' "$HOME/Library/Application Support/com.apple.TCC/TCC.db" \
+              "INSERT OR REPLACE INTO access (service, client, client_type, auth_value, auth_reason, auth_version) VALUES ('$service', '$agent', 1, 2, 3, 1)"
+          done
+          for client in "$agent" /usr/sbin/screencapture; do
+            sudo sqlite3 -cmd '.timeout 10000' "/Library/Application Support/com.apple.TCC/TCC.db" \
+              "INSERT OR REPLACE INTO access (service, client, client_type, auth_value, auth_reason, auth_version) VALUES ('kTCCServiceScreenCapture', '$client', 1, 2, 4, 1)" || true
+          done
+
+      - name: Build
+        working-directory: example
+        run: flutter build macos --debug --target integration_test/demo_test.dart
+
+      - name: Record the demo
+        working-directory: example
+        run: |
+          out="$RUNNER_TEMP/demo"
+          mkdir -p "$out"
+          flutter test -d macos integration_test/demo_test.dart > "$out/flutter.log" 2>&1 &
+          for i in $(seq 900); do pgrep -x example > /dev/null && break; sleep 0.5; done
+          screencapture -v -x -V 30 "$out/macos.mov" &
+          recorder=$!
+          for i in 1 2 3 4 5 6; do sleep 4; screencapture -x "$out/screen_$i.png" || true; done
+          wait "$recorder" || true
+          pkill -x example || true
+          pkill -f 'flutter_tools' || true
+          ls -la "$out"
+
+      - name: Upload the video
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: demo-macos
+          path: ${{ runner.temp }}/demo
+
+  windows:
+    # Windows Server 2025 is built on Windows 11 24H2
+    runs-on: windows-2025
+    timeout-minutes: 30
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Setup Flutter SDK
+        uses: ./.github/actions/setup-flutter
+        with:
+          channel: stable
+          cache: true
+
+      - name: Set up the screen
+        shell: pwsh
+        run: |
+          try { Set-DisplayResolution -Width 1920 -Height 1080 -Force } catch { Write-Host "Set-DisplayResolution: $_" }
+          Add-Type -AssemblyName System.Windows.Forms
+          [System.Windows.Forms.Screen]::AllScreens | Format-List
+          Get-AppxPackage *Photos* | Select-Object Name, Version
+          choco install ffmpeg -y --no-progress | Select-Object -Last 2
+          # A window like a phone, titled Gal
+          $main = 'example/windows/runner/main.cpp'
+          (Get-Content $main) -replace 'size\(1280, 720\)', 'size(440, 700)' -replace 'Create\(L"example"', 'Create(L"Gal"' | Set-Content $main
+
+      - name: Build
+        working-directory: example
+        run: flutter build windows --debug --target integration_test/demo_test.dart
+
+      - name: Record the demo
+        working-directory: example
+        shell: pwsh
+        run: |
+          $out = "$env:RUNNER_TEMP\demo"
+          New-Item -ItemType Directory -Force $out | Out-Null
+          $test = Start-Process cmd -ArgumentList '/c', "flutter test -d windows integration_test/demo_test.dart --dart-define=DEMO_SHOW=explorer `"--dart-define=DEMO_BUTTON=Save Image from file path`" > `"$out\flutter.log`" 2>&1" -PassThru -NoNewWindow
+          for ($i = 0; $i -lt 1800 -and -not (Get-Process example -ErrorAction SilentlyContinue); $i++) { Start-Sleep -Milliseconds 500 }
+          ffmpeg -hide_banner -loglevel warning -y -f gdigrab -framerate 30 -t 25 -i desktop -c:v libx264 -preset veryfast -pix_fmt yuv420p "$out\windows.mp4"
+          Get-ChildItem "$env:USERPROFILE\Pictures" | Format-Table Name, Length
+          Stop-Process -Name example -ErrorAction SilentlyContinue
+          Stop-Process -Id $test.Id -ErrorAction SilentlyContinue
+          Get-ChildItem $out
+
+      - name: Upload the video
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: demo-windows
+          path: ${{ runner.temp }}/demo
