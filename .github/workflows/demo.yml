@@ -1,0 +1,802 @@
+# Records the demo videos in the README on the latest OS of each platform, and makes the GIFs from them.
+# Run it by hand, and take the GIFs from the artifact named gifs.
+# Each job writes the demo in DEMO_TEST to example/integration_test/demo_test.dart, which taps the example app,
+# and records the screen meanwhile.
+# The test prints "DEMO: ready" with its temporary folder, and waits until the job has started recording and created
+# demo_go there. Then it saves an image, opens the gallery and prints "DEMO: gallery", and the job stops recording later.
+name: Demo
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      android-api:
+        description: API level of Android. API 37 (Android 17) crashes on the emulator when the screen is captured.
+        default: '36'
+
+env:
+  # The demo, which taps the example app as a person would, and checks nothing
+  DEMO_TEST: |
+    // Plays the demo in the README, which .github/workflows/demo.yml records.
+    // It taps the example app as a person would, and checks nothing.
+    //
+    // The workflow and the demo signal each other: the demo prints lines that
+    // start with DEMO, and waits for the workflow to create the file demo_go in
+    // the temporary folder of the app, which it prints, once recording started.
+    import 'dart:io';
+
+    import 'package:flutter/widgets.dart';
+    import 'package:flutter_test/flutter_test.dart';
+    import 'package:gal/gal.dart';
+    import 'package:gal_example/main.dart';
+    import 'package:integration_test/integration_test.dart';
+
+    /// How the demo shows the saved image. `gallery` taps the snack bar, which
+    /// opens the gallery app. `explorer` opens the Pictures folder in File
+    /// Explorer instead, for the Windows Server runners, which have no Photos app.
+    /// `viewer` leaves it to the workflow, which opens the image in Google Photos,
+    /// as its gallery asks to sign in on the emulator.
+    const show = String.fromEnvironment('DEMO_SHOW', defaultValue: 'gallery');
+
+    void main() {
+      final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+      // Draws every frame, so that the animations play as they do in the app.
+      binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
+
+      testWidgets('demo', (tester) async {
+        // Only asks for the permission, so that its dialog is answered before
+        // the demo is recorded.
+        if (Platform.environment.containsKey('DEMO_WARM_UP')) {
+          mark('permission ${await Gal.requestPermission()}');
+          return;
+        }
+
+        WidgetsApp.debugAllowBannerOverride = false;
+        await tester.pumpWidget(const App());
+        await wait(const Duration(milliseconds: 500));
+
+        final temp = Directory.systemTemp.path;
+        mark('ready $temp');
+        final go = File('$temp/demo_go');
+        for (var i = 0; i < 1200 && !go.existsSync(); i++) {
+          await wait(const Duration(milliseconds: 100));
+        }
+        await wait(const Duration(milliseconds: 1500));
+
+        await tester.tap(find.text('Save Image from file path'));
+        await waitFor(find.text('Saved! ✅'));
+        await wait(const Duration(milliseconds: 1500));
+
+        if (show == 'explorer') {
+          final pictures = '${Platform.environment['USERPROFILE']}\\Pictures';
+          await Process.start('explorer.exe', [pictures]);
+        } else if (show == 'gallery') {
+          await tester.tap(find.text('Gallery ->'));
+        }
+        mark('gallery');
+        // Keeps the app running while the recording goes on.
+        await wait(const Duration(seconds: 60));
+      });
+    }
+
+    /// Prints a line for the workflow. It also appends the line to the file in
+    /// DEMO_LOG if it is set, as the output of a desktop app may not reach it.
+    void mark(String step) {
+      final line = 'DEMO: $step';
+      debugPrint(line);
+      final path = Platform.environment['DEMO_LOG'];
+      if (path != null) {
+        final file = File(path);
+        file.writeAsStringSync('$line\n', mode: FileMode.append, flush: true);
+      }
+    }
+
+    Future<void> wait(Duration duration) => Future<void>.delayed(duration);
+
+    /// Waits until [finder] finds a widget, for up to 30 seconds.
+    Future<void> waitFor(Finder finder) async {
+      for (var i = 0; i < 300 && finder.evaluate().isEmpty; i++) {
+        await wait(const Duration(milliseconds: 100));
+      }
+    }
+
+jobs:
+  ios:
+    # The Xcode 27 image runs macOS 27, with the iOS 27 simulators
+    runs-on: xcode-27
+    timeout-minutes: 60
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Write the demo
+        shell: bash
+        run: printf '%s\n' "$DEMO_TEST" > example/integration_test/demo_test.dart
+
+      - name: Setup Flutter SDK
+        uses: ./.github/actions/setup-flutter
+        with:
+          channel: stable
+          cache: true
+
+      # The same patch as in ci_ios.yml (flutter/flutter#181771)
+      - name: Patch the Flutter tool
+        run: |
+          cd "$FLUTTER_ROOT"
+          if ! grep -q '_ready' packages/flutter_tools/lib/src/ios/simulators.dart; then
+            curl -sfL https://github.com/flutter/flutter/commit/c3ed85ef987759ee54a6bce275490cde2a238dc1.diff | git apply --include='packages/flutter_tools/lib/*'
+            rm -f bin/cache/flutter_tools.stamp
+          fi
+          flutter --version
+
+      # Picks the newest iPhone Pro on the newest iOS runtime
+      - name: Boot the simulator
+        run: |
+          xcrun simctl list runtimes
+          device=$(xcrun simctl list --json devices available | jq -r '
+            [.devices | to_entries[]
+              | select(.key | test("SimRuntime\\.iOS-[0-9]+(-[0-9]+)*$"))
+              | (.key | ltrimstr("com.apple.CoreSimulator.SimRuntime.iOS-") | split("-") | map(tonumber)) as $v
+              | .value[] | {udid, name, state, v: $v}]
+            | (map(.v) | max) as $latest
+            | map(select(.v == $latest))
+            | (map(select(.name | test("^iPhone [0-9]+ Pro$")))
+                | sort_by(.name | capture("(?<n>[0-9]+)").n | tonumber) | reverse)
+              + map(select(.name | startswith("iPhone")))
+            | first | "\(.udid) \(.state) \(.v | map(tostring) | join(".")) \(.name)"')
+          read -r udid state version name <<< "$device"
+          echo "Picked $name (iOS $version) [$udid] - $state"
+          echo "UDID=$udid" >> "$GITHUB_ENV"
+          [ "$state" = Booted ] || xcrun simctl boot "$udid"
+          perl -e 'alarm shift; exec @ARGV' 900 xcrun simctl bootstatus "$udid"
+          xcrun simctl status_bar "$udid" override --time 9:41 --dataNetwork wifi --wifiMode active --wifiBars 3 \
+            --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100
+
+      # The same as in ci_ios.yml
+      - name: Grant permission
+        run: |
+          xcrun simctl privacy "$UDID" grant photos studio.midoridesign.galExample
+          sqlite3 "$(xcrun simctl getenv "$UDID" HOME)/Library/TCC/TCC.db" \
+            "UPDATE access SET auth_version = 2 WHERE service = 'kTCCServicePhotos'"
+
+      # xcodebuild sometimes takes too long to show the build settings on the runner
+      - name: Build
+        working-directory: example
+        run: |
+          for i in 1 2 3; do
+            flutter build ios --simulator --debug --target integration_test/demo_test.dart && exit 0
+          done
+          exit 1
+
+      # idb taps the simulator, to answer what Photos shows on its first launch
+      - name: Install idb
+        run: |
+          brew tap facebook/fb > /dev/null
+          brew trust facebook/fb
+          brew install facebook/fb/idb-companion > /dev/null
+          pip3 install --break-system-packages --quiet fb-idb
+          idb list-targets | grep "$UDID"
+
+      # simctl io recordVideo records What's New of Photos all black, so it is answered before the demo,
+      # and then the request for notifications
+      - name: Warm up Photos
+        run: |
+          out="$RUNNER_TEMP/demo"
+          mkdir -p "$out"
+          # Screenshots fail for a while after the boot, with "Timeout waiting for screen surfaces"
+          shot() { for i in 1 2 3 4 5 6; do xcrun simctl io "$UDID" screenshot "$out/$1.png" && return 0; sleep 10; done; return 1; }
+          # Taps the simulator at x and y in thousandths of its screen. The companion of idb sometimes sees it shut down
+          # for a moment, so this tries again.
+          idb_companion --udid "$UDID" > "$out/companion.log" 2>&1 &
+          sleep 5
+          idb connect localhost 10882
+          tap() { for i in 1 2 3 4 5; do idb ui tap --udid "$UDID" $((width * $1 / 1000 / 3)) $((height * $2 / 1000 / 3)) && return 0; sleep 5; done; return 1; }
+
+          xcrun simctl openurl "$UDID" photos-redirect://
+          sleep 8
+          shot warm_1
+          read -r width height <<< "$(sips -g pixelWidth -g pixelHeight "$out/warm_1.png" | awk '/pixel/ {printf "%s ", $2}')"
+          # Continue
+          tap 500 921
+          sleep 4
+          shot warm_2
+          # Don't Allow
+          tap 311 593
+          sleep 2
+          shot warm_3
+          # Photos stays open in the background: launched while recording, it records all black.
+          # Home, so that the app does not show a link back to Photos.
+          idb ui button --udid "$UDID" HOME
+          sleep 2
+
+      # The app built from the test runs the test when it launches, without flutter test
+      - name: Record the demo
+        working-directory: example
+        run: |
+          out="$RUNNER_TEMP/demo"
+          log="$out/app.log"
+          limit() { perl -e 'alarm shift; exec @ARGV' "$@"; }
+          wait_for() { for i in $(seq $(($2 * 4))); do grep -q "$1" "$log" "$out/stream.log" 2> /dev/null && return 0; sleep 0.25; done; echo "::warning::No $1 in $2 seconds"; return 1; }
+          now() { python3 -c 'import time; print(f"{time.time():.3f}")'; }
+
+          limit 300 xcrun simctl install "$UDID" build/ios/iphonesimulator/Runner.app
+          xcrun simctl spawn "$UDID" log stream --style compact --predicate 'eventMessage CONTAINS "DEMO:"' > "$out/stream.log" 2>&1 &
+          sleep 2
+          xcrun simctl launch --console-pty "$UDID" studio.midoridesign.galExample > "$log" 2>&1 &
+          wait_for 'DEMO: ready' 120
+          temp=$(grep -ho 'DEMO: ready .*' "$log" "$out/stream.log" 2> /dev/null | head -1 | sed 's/^DEMO: ready //' | tr -d '\r')
+          xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$out/ios.mov" 2> "$out/recorder.log" &
+          recorder=$!
+          for i in $(seq 40); do grep -q 'Recording started' "$out/recorder.log" && break; sleep 0.25; done
+          echo "start=$(now)" > "$out/timing.txt"
+          sleep 1
+          touch "$temp/demo_go"
+          echo "go=$(now)" >> "$out/timing.txt"
+          wait_for 'DEMO: gallery' 60
+          echo "gallery=$(now)" >> "$out/timing.txt"
+          sleep 6
+          limit 30 xcrun simctl io "$UDID" screenshot "$out/end.png" || true
+          kill -INT "$recorder"
+          wait "$recorder" || true
+          ls -la "$out"
+
+      - name: Upload the video
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: demo-ios
+          path: ${{ runner.temp }}/demo
+
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      ANDROID_SERIAL: emulator-5554
+      API: ${{ inputs.android-api || '36' }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Write the demo
+        shell: bash
+        run: printf '%s\n' "$DEMO_TEST" > example/integration_test/demo_test.dart
+
+      # The same as in ci_android.yml
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost && df -h /
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Setup Flutter SDK
+        uses: ./.github/actions/setup-flutter
+        with:
+          channel: stable
+          cache: true
+
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@v6.4.1
+
+      # The stable image with Google Play, which has Google Photos, on the newest Pixel.
+      # On API 37, the graphics of the emulator abort when anything reads the screen, such as screenrecord.
+      - name: Start the emulator
+        run: |
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          export ANDROID_AVD_HOME="$HOME/.android/avd"
+          echo "ANDROID_AVD_HOME=$ANDROID_AVD_HOME" >> "$GITHUB_ENV"
+          mkdir -p "$ANDROID_AVD_HOME"
+
+          yes | sdkmanager --licenses > /dev/null
+          image=$(sdkmanager --list --channel=0 2>/dev/null | grep -oE "system-images;android-$API(\.[0-9]+)?;google_apis_playstore;x86_64" | sort -uV | tail -1)
+          echo "Image: $image"
+          sdkmanager --install emulator "$image" --channel=0 > /dev/null
+
+          device=$(avdmanager list device | grep -oE '"pixel_[0-9]+"' | tr -d '"' | sort -uV | tail -1)
+          echo "Device: $device"
+          echo no | avdmanager create avd --force -n demo --package "$image" --device "$device"
+          {
+            echo "hw.cpu.ncore=4"
+            echo "hw.ramSize=6144"
+            echo "disk.dataPartition.size=8GB"
+            echo "hw.keyboard=no"
+          } >> "$ANDROID_AVD_HOME/demo.avd/config.ini"
+
+          "$ANDROID_HOME/emulator/emulator" -port 5554 -avd demo -accel on -no-snapshot-save -no-window \
+            -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none > "$RUNNER_TEMP/emulator.log" 2>&1 &
+          for i in $(seq 450); do
+            [ "$(adb shell getprop sys.boot_completed 2> /dev/null | tr -d '\r')" = 1 ] && break
+            sleep 2
+          done
+          # The services start a while after the boot completes. Waits until they have answered 10 times in a row.
+          ready=0
+          for i in $(seq 300); do
+            if adb shell service check window 2> /dev/null | grep -q ': found' && adb shell pm path android > /dev/null 2>&1; then
+              ready=$((ready + 1))
+            else
+              ready=0
+            fi
+            [ "$ready" -ge 10 ] && break
+            sleep 2
+          done
+          echo "Ready after about $((i * 2)) seconds"
+          echo "Android $(adb shell getprop ro.build.version.release) (API $(adb shell getprop ro.build.version.sdk))"
+          adb shell wm size
+
+      # A clean status bar, and touches shown for the tap in Google Photos
+      - name: Set up the screen
+        run: |
+          demo() { adb shell am broadcast -a com.android.systemui.demo -e command "$@" || echo "::warning::demo $1 failed"; }
+          adb shell settings put global sysui_demo_allowed 1 || echo "::warning::sysui_demo_allowed failed"
+          demo enter
+          demo clock -e hhmm 0941
+          demo battery -e level 100 -e plugged false
+          demo network -e wifi show -e level 4 -e fully true
+          demo network -e mobile show -e datatype none -e level 4 -e fully true
+          demo notifications -e visible false
+          adb shell settings put system show_touches 1 || echo "::warning::show_touches failed"
+
+      - name: Write the helpers
+        run: |
+          cat > "$RUNNER_TEMP/find_view.py" <<'EOF'
+          # Prints the center of the first view whose text or description fully matches a pattern
+          import re, sys, xml.etree.ElementTree as ET
+          root = ET.parse(sys.stdin)
+          for pattern in sys.argv[1:]:
+              for node in root.iter("node"):
+                  for value in (node.get("text", ""), node.get("content-desc", "")):
+                      if re.fullmatch(pattern, value.strip(), re.I | re.S):
+                          x1, y1, x2, y2 = map(int, re.findall(r"\d+", node.get("bounds")))
+                          print((x1 + x2) // 2, (y1 + y2) // 2)
+                          sys.exit()
+          EOF
+          cat > "$RUNNER_TEMP/helpers.sh" <<'EOF'
+          shot() { adb exec-out screencap -p > "$out/$1.png"; adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1; adb exec-out cat /sdcard/ui.xml > "$out/$1.xml"; }
+          find_view() { adb shell uiautomator dump /sdcard/ui.xml > /dev/null 2>&1; adb exec-out cat /sdcard/ui.xml | python3 "$RUNNER_TEMP/find_view.py" "$@"; }
+          tap_view() { local p; p=$(find_view "$@"); echo "Tap '$*' at '$p'"; [ -n "$p" ] && adb shell input tap $p; }
+          EOF
+
+      # Opens Google Photos once as Gal.open does, and closes what it shows on its first launch
+      - name: Warm up Google Photos
+        run: |
+          out="$RUNNER_TEMP/demo"
+          mkdir -p "$out"
+          . "$RUNNER_TEMP/helpers.sh"
+          adb shell am start -a android.intent.action.VIEW -d content://media/external/images/media -t vnd.android.cursor.dir/image
+          for i in 1 2 3 4 5 6 7 8; do
+            sleep 4
+            shot "warm_$i"
+            tap_view 'use without an account' 'not now' 'no thanks' 'skip' 'got it' 'allow' 'always' 'close' 'dismiss' 'cancel' 'done' || true
+          done
+          adb shell input keyevent HOME
+
+      - name: Build
+        working-directory: example
+        run: flutter build apk --debug --target integration_test/demo_test.dart --dart-define=DEMO_SHOW=viewer
+
+      - name: Record the demo
+        working-directory: example
+        run: |
+          out="$RUNNER_TEMP/demo"
+          log="$out/app.log"
+          . "$RUNNER_TEMP/helpers.sh"
+          wait_for() { for i in $(seq $(($2 * 4))); do grep -q "$1" "$log" && return 0; sleep 0.25; done; echo "::warning::No $1 in $2 seconds"; return 1; }
+          now() { python3 -c 'import time; print(f"{time.time():.3f}")'; }
+
+          adb install -r -g build/app/outputs/flutter-apk/app-debug.apk
+          adb logcat -c
+          adb logcat -s flutter:I > "$log" 2>&1 &
+          adb shell am start -n studio.midoridesign.gal_example/.MainActivity
+          wait_for 'DEMO: ready' 120
+          temp=$(grep -o 'DEMO: ready .*' "$log" | head -1 | sed 's/^DEMO: ready //' | tr -d '\r')
+          adb shell screenrecord --bit-rate 12000000 /sdcard/demo.mp4 &
+          recorder=$!
+          # screenrecord takes about half a second to start
+          sleep 0.5
+          echo "start=$(now)" > "$out/timing.txt"
+          sleep 1.5
+          adb shell run-as studio.midoridesign.gal_example touch "$temp/demo_go" || adb shell touch "$temp/demo_go"
+          echo "go=$(now)" >> "$out/timing.txt"
+          wait_for 'DEMO: gallery' 60
+          echo "gallery=$(now)" >> "$out/timing.txt"
+          # Opens the saved image in Google Photos, as its gallery asks to sign in on the emulator
+          id=$(adb shell content query --uri content://media/external/images/media --projection _id --sort '"_id DESC"' | grep -o '_id=[0-9]*' | head -1 | cut -d= -f2)
+          adb shell am start -a android.intent.action.VIEW -d "content://media/external/images/media/$id" -t image/jpeg -p com.google.android.apps.photos
+          sleep 9
+          shot end
+          adb shell pkill -INT screenrecord || true
+          wait "$recorder" || true
+          sleep 2
+          adb pull /sdcard/demo.mp4 "$out/android.mp4"
+          ls -la "$out"
+
+      - name: Save the logs
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/demo"
+          cp "$RUNNER_TEMP/emulator.log" "$RUNNER_TEMP/demo/" || true
+          adb logcat -d -b crash > "$RUNNER_TEMP/demo/crash.log" 2>&1 || true
+          adb logcat -d -t 3000 > "$RUNNER_TEMP/demo/logcat.log" 2>&1 || true
+
+      - name: Upload the video
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: demo-android
+          path: ${{ runner.temp }}/demo
+
+  macos:
+    runs-on: xcode-27
+    timeout-minutes: 30
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Write the demo
+        shell: bash
+        run: printf '%s\n' "$DEMO_TEST" > example/integration_test/demo_test.dart
+
+      - name: Setup Flutter SDK
+        uses: ./.github/actions/setup-flutter
+        with:
+          channel: stable
+          cache: true
+
+      # The runner reduces transparency and has no wallpaper, which makes macOS look older than it is
+      - name: Set up the screen
+        run: |
+          sw_vers
+          defaults write com.apple.universalaccess reduceTransparency -bool false
+          osascript -e 'tell application "System Events" to tell every desktop to set picture to POSIX file "/System/Library/CoreServices/DefaultDesktop.heic"' || true
+          killall Dock SystemUIServer ControlCenter || true
+          # The same display on every image
+          brew install displayplacer > /dev/null 2>&1
+          screen=$(displayplacer list | awk '/Persistent screen id/ {print $4; exit}')
+          displayplacer "id:$screen res:1280x960 hz:60 color_depth:7 enabled:true scaling:off origin:(0,0) degree:0" || true
+          sleep 5
+
+      # A window like a phone, named Gal
+      - name: Set up the window
+        working-directory: example/macos/Runner
+        run: |
+          sed -i '' 's/<rect key="contentRect" x="335" y="390" width="800" height="600"\/>/<rect key="contentRect" x="40" y="80" width="440" height="600"\/>/' Base.lproj/MainMenu.xib
+          plutil -replace CFBundleName -string Gal Info.plist
+
+      - name: Build
+        working-directory: example
+        run: flutter build macos --debug --target integration_test/demo_test.dart
+
+      # Answers the permission dialog, and the dialogs on the first launch of Photos
+      - name: Warm up
+        run: |
+          out="$RUNNER_TEMP/demo"
+          mkdir -p "$out"
+          cat > "$RUNNER_TEMP/answer.applescript" <<'EOF'
+          on run
+            set answers to {"Allow", "Continue", "Get Started", "Not Now", "OK"}
+            tell application "System Events"
+              repeat with p in (every process)
+                try
+                  repeat with w in (every window of p)
+                    repeat with b in (every button of w)
+                      if name of b is in answers then
+                        click b
+                        return (name of p) & ": " & (name of b)
+                      end if
+                    end repeat
+                  end repeat
+                end try
+              end repeat
+            end tell
+            return ""
+          end run
+          EOF
+          # Asks for the permission once, so that the dialog is not in the demo
+          DEMO_WARM_UP=1 example/build/macos/Build/Products/Debug/example.app/Contents/MacOS/example > "$out/warm.log" 2>&1 &
+          for i in $(seq 30); do
+            sleep 2
+            osascript "$RUNNER_TEMP/answer.applescript" || true
+            grep -q 'DEMO: permission' "$out/warm.log" 2> /dev/null && break
+          done
+          cat "$out/warm.log" || true
+          pkill -x example || true
+          open -a Photos
+          for i in $(seq 8); do
+            sleep 4
+            screencapture -x "$out/warm_$i.png" || true
+            osascript "$RUNNER_TEMP/answer.applescript" || true
+          done
+          osascript -e 'tell application "Photos" to quit' || true
+          sleep 3
+
+      # The app built from the test runs the test when it launches, without flutter test.
+      # Started from the shell, the agent is responsible for it, and TCC allows it the photo library.
+      - name: Record the demo
+        working-directory: example
+        run: |
+          out="$RUNNER_TEMP/demo"
+          log="$out/app.log"
+          wait_for() { for i in $(seq $(($2 * 4))); do grep -q "$1" "$log" && return 0; sleep 0.25; done; echo "::warning::No $1 in $2 seconds"; return 1; }
+          now() { python3 -c 'import time; print(f"{time.time():.3f}")'; }
+
+          build/macos/Build/Products/Debug/example.app/Contents/MacOS/example > "$log" 2>&1 &
+          app=$!
+          sleep 1
+          osascript -e 'tell application "System Events" to set frontmost of process "example" to true' || true
+          wait_for 'DEMO: ready' 120
+          # The app is sandboxed, so its temporary folder is in its container
+          temp=$(grep -o 'DEMO: ready .*' "$log" | head -1 | sed 's/^DEMO: ready //')
+          screencapture -v -x -V 14 "$out/macos.mov" &
+          recorder=$!
+          echo "start=$(now)" > "$out/timing.txt"
+          sleep 2
+          touch "$temp/demo_go"
+          echo "go=$(now)" >> "$out/timing.txt"
+          wait_for 'DEMO: gallery' 60
+          echo "gallery=$(now)" >> "$out/timing.txt"
+          sleep 6
+          screencapture -x "$out/end.png" || true
+          wait "$recorder" || true
+          kill "$app" || true
+          ls -la "$out"
+
+      - name: Upload the video
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: demo-macos
+          path: ${{ runner.temp }}/demo
+
+  windows:
+    # Windows Server 2025 is built on Windows 11 24H2
+    runs-on: windows-2025
+    timeout-minutes: 30
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Write the demo
+        shell: bash
+        run: printf '%s\n' "$DEMO_TEST" > example/integration_test/demo_test.dart
+
+      - name: Setup Flutter SDK
+        uses: ./.github/actions/setup-flutter
+        with:
+          channel: stable
+          cache: true
+
+      # A window like a phone, named Gal, and File Explorer showing thumbnails
+      - name: Set up the screen
+        shell: pwsh
+        run: |
+          Set-DisplayResolution -Width 1280 -Height 720 -Force
+          choco install ffmpeg -y --no-progress | Select-Object -Last 1
+          $main = 'example/windows/runner/main.cpp'
+          (Get-Content $main) -replace 'size\(1280, 720\)', 'size(440, 600)' -replace 'Create\(L"example"', 'Create(L"Gal"' | Set-Content $main
+          # Thumbnails instead of icons, which Windows Server shows by default
+          Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced' -Name IconsOnly -Value 0 -Type DWord
+          Stop-Process -Name explorer -Force
+          Start-Sleep -Seconds 3
+          if (-not (Get-Process explorer -ErrorAction SilentlyContinue)) { Start-Process explorer.exe }
+          # When the shell starts, it shows a dialog about the paging file of the runner
+          Add-Type @"
+          using System;
+          using System.Runtime.InteropServices;
+          public static class Dialog {
+            [DllImport("user32.dll")] public static extern IntPtr FindWindow(string className, string title);
+            [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr hWnd, uint message, IntPtr wParam, IntPtr lParam);
+          }
+          "@
+          # Closing it can leave System Properties behind it, with the same title, so this closes both
+          $closed = 0
+          for ($i = 0; $i -lt 60 -and $closed -lt 2; $i++) {
+            $dialog = [Dialog]::FindWindow('#32770', 'System Properties')
+            if ($dialog -ne [IntPtr]::Zero) { [Dialog]::PostMessage($dialog, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null; $closed++; Write-Host "Closed a dialog" }
+            Start-Sleep -Milliseconds 500
+          }
+
+      - name: Build
+        working-directory: example
+        run: flutter build windows --debug --target integration_test/demo_test.dart --dart-define=DEMO_SHOW=explorer
+
+      # File Explorer opens a folder where it was last closed, and as the folder was last shown
+      - name: Warm up File Explorer
+        shell: pwsh
+        run: |
+          Add-Type @"
+          using System;
+          using System.Runtime.InteropServices;
+          public static class Win32 {
+            [DllImport("user32.dll")] public static extern IntPtr FindWindow(string className, string title);
+            [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr after, int x, int y, int width, int height, uint flags);
+            [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr hWnd, uint message, IntPtr wParam, IntPtr lParam);
+          }
+          "@
+          $out = "$env:RUNNER_TEMP\demo"
+          New-Item -ItemType Directory -Force $out | Out-Null
+          $pictures = "$env:USERPROFILE\Pictures"
+          # An image, so that File Explorer keeps the view of the folder, and shows how it looks
+          Copy-Item example\assets\done.jpg "$pictures\warm.jpg"
+          Start-Process explorer.exe $pictures
+          for ($i = 0; $i -lt 100 -and [Win32]::FindWindow('CabinetWClass', $null) -eq [IntPtr]::Zero; $i++) { Start-Sleep -Milliseconds 100 }
+          Start-Sleep -Seconds 2
+          $window = [Win32]::FindWindow('CabinetWClass', $null)
+          [Win32]::SetWindowPos($window, [IntPtr]::Zero, 470, 10, 800, 650, 0x0040) | Out-Null
+          # Extra large icons
+          $view = (New-Object -ComObject Shell.Application).Windows() | Where-Object { $_.Document.Folder.Self.Path -eq $pictures } | Select-Object -First 1
+          $view.Document.CurrentViewMode = 1
+          $view.Document.IconSize = 256
+          Start-Sleep -Seconds 2
+          ffmpeg -hide_banner -loglevel warning -y -f gdigrab -i desktop -frames:v 1 -update 1 "$out\explorer.png"
+          [Win32]::PostMessage($window, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null
+          Start-Sleep -Seconds 2
+          Remove-Item "$pictures\warm.jpg"
+
+      # The app built from the test runs the test when it launches, without flutter test.
+      # It writes the lines for the workflow to DEMO_LOG.
+      - name: Record the demo
+        working-directory: example
+        shell: pwsh
+        run: |
+          Add-Type @"
+          using System;
+          using System.Runtime.InteropServices;
+          public static class Win32 {
+            [DllImport("user32.dll")] public static extern IntPtr FindWindow(string className, string title);
+            [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr hWnd, IntPtr after, int x, int y, int width, int height, uint flags);
+            [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr hWnd, uint message, IntPtr wParam, IntPtr lParam);
+          }
+          "@
+          $out = "$env:RUNNER_TEMP\demo"
+          $log = "$out\app.log"
+          New-Item -ItemType Directory -Force $out | Out-Null
+          function Wait-For($text, $seconds) {
+            for ($i = 0; $i -lt $seconds * 20; $i++) {
+              if ((Test-Path $log) -and (Select-String -Path $log -Pattern $text -SimpleMatch -Quiet)) { return }
+              Start-Sleep -Milliseconds 50
+            }
+            Write-Host "::warning::No $text in $seconds seconds"
+          }
+
+          # Clears the desktop, such as the console of the runner and a dialog about the paging file
+          for ($i = 0; $i -lt 10; $i++) {
+            $dialog = [Win32]::FindWindow('#32770', 'System Properties')
+            if ($dialog -eq [IntPtr]::Zero) { break }
+            [Win32]::PostMessage($dialog, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null
+            Start-Sleep -Milliseconds 500
+          }
+          (New-Object -ComObject Shell.Application).MinimizeAll()
+          Start-Sleep -Seconds 1
+          $env:DEMO_LOG = $log
+          $app = Start-Process build\windows\x64\runner\Debug\example.exe -PassThru
+          Wait-For 'DEMO: ready' 120
+          $temp = ((Select-String -Path $log -Pattern 'DEMO: ready (.*)').Matches[0].Groups[1].Value).Trim()
+          $ffmpeg = Start-Process ffmpeg -ArgumentList '-hide_banner', '-loglevel', 'warning', '-y', '-f', 'gdigrab', '-framerate', '30', '-t', '14', '-i', 'desktop', '-c:v', 'libx264', '-preset', 'veryfast', '-pix_fmt', 'yuv420p', "$out\windows.mp4" -PassThru -NoNewWindow
+          function Now { [string]::Format([Globalization.CultureInfo]::InvariantCulture, '{0:F3}', [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() / 1000) }
+          "start=$(Now)" | Set-Content "$out\timing.txt"
+          Start-Sleep -Seconds 2
+          New-Item -ItemType File -Force "$temp\demo_go" | Out-Null
+          "go=$(Now)" | Add-Content "$out\timing.txt"
+          Wait-For 'DEMO: gallery' 60
+          "gallery=$(Now)" | Add-Content "$out\timing.txt"
+          # Keeps File Explorer next to the app with extra large icons, in case it does not open so
+          $pictures = "$env:USERPROFILE\Pictures"
+          $shell = New-Object -ComObject Shell.Application
+          $watch = [Diagnostics.Stopwatch]::StartNew()
+          while ($watch.ElapsedMilliseconds -lt 5000) {
+            $window = [Win32]::FindWindow('CabinetWClass', $null)
+            if ($window -ne [IntPtr]::Zero) { [Win32]::SetWindowPos($window, [IntPtr]::Zero, 470, 10, 800, 650, 0x0040) | Out-Null }
+            $view = $null
+            foreach ($w in $shell.Windows()) { if ($w.Document -and $w.Document.Folder.Self.Path -eq $pictures) { $view = $w } }
+            if ($view -and $view.Document.CurrentViewMode -ne 1) { $view.Document.CurrentViewMode = 1; $view.Document.IconSize = 256 }
+            Start-Sleep -Milliseconds 50
+          }
+          $ffmpeg.WaitForExit()
+          Get-ChildItem "$env:USERPROFILE\Pictures" | Format-Table Name, Length
+          Stop-Process -Id $app.Id -ErrorAction SilentlyContinue
+          Get-ChildItem $out
+
+      - name: Upload the video
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: demo-windows
+          path: ${{ runner.temp }}/demo
+
+  # Makes the GIFs for the README from the videos
+  gifs:
+    needs: [ios, android, macos, windows]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the videos
+        uses: actions/download-artifact@v8
+        with:
+          pattern: demo-*
+          path: demo
+
+      # From just before the tap until a while after the gallery opened. When the gallery records black,
+      # as Photos on the iOS simulator can, the GIF fades to the screenshot taken at the end instead.
+      # Then the frames in which nothing happens are cut: before the first change on the screen and
+      # after the last, but for LEAD and TAIL seconds, and stills between longer than STILL seconds.
+      - name: Make the GIFs
+        shell: python
+        run: |
+          import os, subprocess, sys
+          subprocess.run('sudo apt-get install -y -qq ffmpeg > /dev/null', shell=True, check=True)
+          subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', 'numpy'], check=True)
+          import numpy as np
+
+          FPS, LEAD, TAIL, STILL = 15, 0.5, 2, 1.5
+          os.makedirs('gifs', exist_ok=True)
+          # Platform, video, width, seconds recorded after the gallery opened, dither
+          for platform, video, width, hold, dither in [
+              ('ios', 'ios.mov', 400, 5, 'sierra2_4a'),
+              ('android', 'android.mp4', 400, 8, 'sierra2_4a'),
+              ('macos', 'macos.mov', 800, 5, 'bayer:bayer_scale=3'),
+              ('windows', 'windows.mp4', 800, 4.5, 'bayer:bayer_scale=3'),
+          ]:
+              folder = f'demo/demo-{platform}'
+              video, timing = f'{folder}/{video}', f'{folder}/timing.txt'
+              if not (os.path.exists(video) and os.path.exists(timing)):
+                  print(f'::warning::No video of {platform}')
+                  continue
+              t = dict(line.strip().split('=') for line in open(timing) if '=' in line)
+              start, go, gallery = (float(t[k]) for k in ('start', 'go', 'gallery'))
+              begin, shown = go - start + 0.5, gallery - go - 0.5
+              size = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v', '-show_entries', 'stream=width,height',
+                                     '-of', 'csv=p=0', video], capture_output=True, text=True).stdout.split()[0]
+              w, h = (int(n) for n in size.split(','))
+              height = round(width * h / w / 2) * 2
+              # The mean brightness of the video at the end of the GIF
+              frame = subprocess.run(['ffmpeg', '-v', 'error', '-ss', str(begin + shown + hold - 0.5), '-i', video, '-frames:v', '1',
+                                      '-vf', 'scale=1:1,format=gray', '-f', 'rawvideo', '-'], capture_output=True).stdout
+              black = len(frame) == 1 and frame[0] < 16 and os.path.exists(f'{folder}/end.png')
+              each = f'fps={FPS},scale={width}:{height}:flags=lanczos,setsar=1'
+              if black:
+                  fade = shown + 0.3
+                  inputs = ['-ss', str(begin), '-t', str(fade), '-i', video, '-loop', '1', '-t', str(hold), '-i', f'{folder}/end.png']
+                  graph = f'[0]{each}[v];[1]{each}[e];[v][e]xfade=transition=fade:duration=0.4:offset={fade - 0.4}'
+              else:
+                  inputs = ['-ss', str(begin), '-t', str(shown + hold), '-i', video]
+                  graph = each
+
+              raw = subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', *inputs, '-filter_complex', f'{graph},format=gray',
+                                    '-f', 'rawvideo', '-'], capture_output=True, check=True).stdout
+              frames = np.frombuffer(raw, np.uint8).reshape(-1, height, width).astype(np.int16)
+              def differ(a, b, share): return (np.abs(a - b) > 10).mean(axis=(-2, -1)) > share
+              # The first frame that differs from the first, and the frame after the last that differs from the last
+              after, before = np.flatnonzero(differ(frames, frames[0], 0.001)), np.flatnonzero(differ(frames, frames[-1], 0.001))
+              first, last = (after[0], before[-1] + 1) if len(after) and len(before) else (0, len(frames))
+              keep, still = [], 0
+              for i in range(max(first - int(LEAD * FPS), 0), min(last + int(TAIL * FPS), len(frames))):
+                  # A still lasts while the frames differ from its first frame in at most 0.2% of the pixels
+                  if differ(frames[i], frames[still], 0.002):
+                      still = i
+                  if not (first < i < last and i - still >= STILL * FPS):
+                      keep.append(i)
+              select = '+'.join(f'eq(n,{i})' for i in keep)
+
+              palette = f'split[a][b];[a]palettegen=max_colors=192:stats_mode=full[p];[b][p]paletteuse=dither={dither}:diff_mode=rectangle'
+              print(f'{platform}: from {begin:.2f} s, the gallery at {shown:.2f} s, black: {black}, '
+                    f'moves from {first / FPS:.2f} s to {last / FPS:.2f} s, keeps {len(keep) / FPS:.2f} s of {len(frames) / FPS:.2f} s')
+              subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-y', *inputs, '-filter_complex',
+                              f"{graph},select='{select}',setpts=N/{FPS}/TB,{palette}", '-loop', '0', f'gifs/{platform}.gif'], check=True)
+          subprocess.run('ls -la gifs', shell=True)
+
+      - name: Upload the GIFs
+        uses: actions/upload-artifact@v7
+        with:
+          name: gifs
+          path: gifs
