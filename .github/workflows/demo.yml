@@ -79,60 +79,38 @@ jobs:
         working-directory: example
         run: flutter build ios --simulator --debug --target integration_test/demo_test.dart
 
-      # simctl io recordVideo records the Photos app all black, so the job records the window of the Simulator app.
-      # The window has no bezel, so the screen of the simulator fills it below the title bar.
-      - name: Open the Simulator app
+      # idb taps the simulator, to answer what Photos shows on its first launch
+      - name: Install idb
         run: |
-          out="$RUNNER_TEMP/demo"
-          mkdir -p "$out"
-          # A taller display, for a larger simulator
-          brew install displayplacer > /dev/null 2>&1
-          screen=$(displayplacer list | awk '/Persistent screen id/ {print $4; exit}')
-          displayplacer "id:$screen res:1600x1200 hz:60 color_depth:7 enabled:true scaling:off origin:(0,0) degree:0" || true
-          system_profiler SPDisplaysDataType | grep -i resolution || true
-          defaults write com.apple.iphonesimulator ShowChrome -bool false
-          open "$(xcode-select -p)/Applications/Simulator.app" --args -CurrentDeviceUDID "$UDID"
-          sleep 15
-          xcrun simctl io "$UDID" screenshot "$out/screen.png"
-          cat > "$RUNNER_TEMP/frame.sh" <<'EOF'
-          # Prints the frame of the screen of the simulator on the Mac screen: x y width height
-          window=$(osascript -e 'tell application "System Events" to tell process "Simulator" to get {position, size} of window 1' | tr -d ' ')
-          IFS=, read -r x y w h <<< "$window"
-          read -r pw ph <<< "$(sips -g pixelWidth -g pixelHeight "$RUNNER_TEMP/demo/screen.png" | awk '/pixel/ {printf "%s ", $2}')"
-          sh=$((w * ph / pw))
-          echo "$x $((y + h - sh)) $w $sh"
-          EOF
-          cat > "$RUNNER_TEMP/tap.js" <<'EOF'
-          // Clicks the Mac screen at x, y
-          ObjC.import('CoreGraphics');
-          function run(argv) {
-            const point = { x: Number(argv[0]), y: Number(argv[1]) };
-            for (const type of [$.kCGEventLeftMouseDown, $.kCGEventLeftMouseUp]) {
-              $.CGEventPost($.kCGHIDEventTap, $.CGEventCreateMouseEvent(null, type, point, $.kCGMouseButtonLeft));
-              delay(0.05);
-            }
-          }
-          EOF
-          osascript -e 'tell application "System Events" to tell process "Simulator" to get {position, size} of window 1'
-          bash "$RUNNER_TEMP/frame.sh" | tee "$out/frame.txt"
-          screencapture -x "$out/simulator.png"
+          brew tap facebook/fb > /dev/null
+          brew trust facebook/fb
+          brew install facebook/fb/idb-companion > /dev/null
+          pip3 install --break-system-packages --quiet fb-idb
+          idb list-targets | grep "$UDID"
 
-      # Opens Photos once and taps Continue in What's New, so that it is not in the demo
+      # simctl io recordVideo records What's New of Photos all black, so it is answered before the demo,
+      # and then the request for notifications
       - name: Warm up Photos
         run: |
           out="$RUNNER_TEMP/demo"
+          mkdir -p "$out"
           # Taps the simulator at x and y in thousandths of its screen
-          tap() {
-            read -r fx fy fw fh <<< "$(bash "$RUNNER_TEMP/frame.sh")"
-            osascript -l JavaScript "$RUNNER_TEMP/tap.js" $((fx + fw * $1 / 1000)) $((fy + fh * $2 / 1000))
-          }
+          xcrun simctl io "$UDID" screenshot "$out/screen.png"
+          read -r width height <<< "$(sips -g pixelWidth -g pixelHeight "$out/screen.png" | awk '/pixel/ {printf "%s ", $2}')"
+          scale=3
+          tap() { idb ui tap --udid "$UDID" $((width * $1 / 1000 / scale)) $((height * $2 / 1000 / scale)); }
+
           xcrun simctl openurl "$UDID" photos-redirect://
           sleep 8
           xcrun simctl io "$UDID" screenshot "$out/warm_1.png"
-          tap 500 926
+          # Continue
+          tap 500 921
           sleep 4
           xcrun simctl io "$UDID" screenshot "$out/warm_2.png"
-          screencapture -x "$out/warm_mac.png"
+          # Don't Allow
+          tap 311 593
+          sleep 2
+          xcrun simctl io "$UDID" screenshot "$out/warm_3.png"
           xcrun simctl terminate "$UDID" com.apple.mobileslideshow || true
 
       # The app built from the test runs the test when it launches, without flutter test
@@ -150,20 +128,16 @@ jobs:
           xcrun simctl launch --console-pty "$UDID" studio.midoridesign.galExample > "$log" 2>&1 &
           wait_for 'DEMO: ready' 120
           temp=$(grep -ho 'DEMO: ready .*' "$log" "$out/stream.log" 2> /dev/null | head -1 | sed 's/^DEMO: ready //' | tr -d '\r')
-          bash "$RUNNER_TEMP/frame.sh" > "$out/frame.txt"
-          screencapture -v -x -V 15 "$out/ios_screen.mov" &
-          screen_recorder=$!
-          xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$out/ios.mov" &
+          xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$out/ios.mov" 2> "$out/recorder.log" &
           recorder=$!
-          sleep 2
+          for i in $(seq 40); do grep -q 'Recording started' "$out/recorder.log" && break; sleep 0.25; done
+          sleep 1
           touch "$temp/demo_go"
           wait_for 'DEMO: gallery' 60
           sleep 6
           limit 30 xcrun simctl io "$UDID" screenshot "$out/end.png" || true
           kill -INT "$recorder"
           wait "$recorder" || true
-          wait "$screen_recorder" || true
-          cat "$out/frame.txt"
           ls -la "$out"
 
       - name: Upload the video
@@ -693,69 +667,3 @@ jobs:
           git add -A
           git -c user.name=github-actions -c user.email=github-actions@github.com commit -q -m "Demo of $GITHUB_SHA on windows"
           git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-windows
-
-  # Temporary: tries ways to record and tap the iOS simulator
-  probe:
-    if: ${{ contains(github.event.head_commit.message, 'probe]') }}
-    permissions:
-      contents: write
-    runs-on: xcode-27
-    steps:
-      - name: Check out
-        uses: actions/checkout@v7
-
-      - name: Boot the simulator
-        run: |
-          udid=$(xcrun simctl list --json devices available | jq -r '[.devices | to_entries[] | select(.key | test("SimRuntime\\.iOS-[0-9]+(-[0-9]+)*$")) | .value[] | select(.name | test("^iPhone [0-9]+ Pro$"))] | last | .udid')
-          echo "UDID=$udid" >> "$GITHUB_ENV"
-          xcrun simctl boot "$udid"
-          perl -e 'alarm shift; exec @ARGV' 900 xcrun simctl bootstatus "$udid"
-          xcrun simctl io "$udid" enumerate || true
-
-      - name: Try
-        run: |
-          out="$RUNNER_TEMP/demo"
-          mkdir -p "$out"
-          xcrun simctl addmedia "$UDID" example/assets/done.jpg
-          {
-            brew tap facebook/fb && brew trust facebook/fb && brew install facebook/fb/idb-companion
-            pip3 install --break-system-packages fb-idb
-            which idb idb_companion
-          } > "$out/idb.log" 2>&1 || true
-          tail -5 "$out/idb.log"
-          xcrun simctl openurl "$UDID" photos-redirect://
-          sleep 8
-          xcrun simctl io "$UDID" screenshot "$out/1_whatsnew.png"
-          idb ui describe-all --udid "$UDID" > "$out/describe.json" 2>&1 || true
-          head -c 3000 "$out/describe.json"
-          idb ui tap --udid "$UDID" 201 805 > "$out/tap.log" 2>&1 || true
-          cat "$out/tap.log"
-          sleep 4
-          xcrun simctl io "$UDID" screenshot "$out/2_after_tap.png"
-          xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$out/photos.mov" &
-          a=$!
-          sleep 3
-          idb ui tap --udid "$UDID" 60 300 >> "$out/tap.log" 2>&1 || true
-          sleep 4
-          xcrun simctl io "$UDID" screenshot "$out/3_after_second_tap.png"
-          kill -INT $a; wait $a || true
-          xcrun simctl terminate "$UDID" com.apple.mobileslideshow || true
-          xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$out/reopen.mov" &
-          a=$!
-          sleep 2
-          xcrun simctl openurl "$UDID" photos-redirect://
-          sleep 6
-          xcrun simctl io "$UDID" screenshot "$out/4_reopen.png"
-          kill -INT $a; wait $a || true
-          ls -la "$out"
-
-      - name: Push the outputs
-        if: always()
-        env:
-          TOKEN: ${{ github.token }}
-        run: |
-          cd "$RUNNER_TEMP/demo"
-          git init -q
-          git add -A
-          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q -m "Probe"
-          git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-probe
