@@ -187,11 +187,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variant: [dma, dma2]
+        variant: [canary, mesa, default, api36]
     env:
       ANDROID_SERIAL: emulator-5554
-      TAG: google_apis_playstore
-      FEATURES: ${{ matrix.variant == 'dma' && '-GLDMA,-GLDMA2' || '-GLDMA2' }}
+      TAG: ${{ matrix.variant == 'default' && 'default' || 'google_apis_playstore' }}
+      API: ${{ matrix.variant == 'api36' && '36' || '[0-9]+' }}
+      CHANNEL: ${{ matrix.variant == 'canary' && '3' || '0' }}
+      GPU: ${{ matrix.variant == 'mesa' && 'host' || 'swiftshader_indirect' }}
     steps:
       - name: Check out
         uses: actions/checkout@v7
@@ -231,9 +233,10 @@ jobs:
           mkdir -p "$ANDROID_AVD_HOME"
 
           yes | sdkmanager --licenses > /dev/null
-          image=$(sdkmanager --list --channel=0 2>/dev/null | grep -oE "system-images;android-[0-9.]+;$TAG;x86_64" | sort -uV | tail -1)
+          image=$(sdkmanager --list --channel=0 2>/dev/null | grep -oE "system-images;android-$API(\.[0-9]+)?;$TAG;x86_64" | sort -uV | tail -1)
           echo "Image: $image"
-          sdkmanager --install emulator "$image" --channel=0 > /dev/null
+          sdkmanager --install emulator --channel="$CHANNEL" > /dev/null
+          sdkmanager --install "$image" --channel=0 > /dev/null
 
           device=$(avdmanager list device | grep -oE '"pixel_[0-9]+"' | tr -d '"' | sort -uV | tail -1)
           echo "Device: $device"
@@ -245,9 +248,17 @@ jobs:
             echo "hw.keyboard=no"
           } >> "$ANDROID_AVD_HOME/demo.avd/config.ini"
 
-          "$ANDROID_HOME/emulator/emulator" -port 5554 -avd demo -accel on -no-snapshot-save -no-window \
-            -gpu swiftshader_indirect -feature "$FEATURES" -noaudio -no-boot-anim -camera-back none -camera-front none > "$RUNNER_TEMP/emulator.log" 2>&1 &
-          grep -iE 'dma' "$ANDROID_HOME/emulator/lib/advancedFeatures.ini" || true
+          window=-no-window
+          if [ "$GPU" = host ]; then
+            # The OpenGL of Mesa, in software, on a virtual display
+            sudo apt-get install -y -qq xvfb libgl1-mesa-dri libegl-mesa0 > /dev/null
+            Xvfb :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+            export DISPLAY=:99 LIBGL_ALWAYS_SOFTWARE=1
+            window=
+          fi
+          "$ANDROID_HOME/emulator/emulator" -version | head -1
+          "$ANDROID_HOME/emulator/emulator" -port 5554 -avd demo -accel on -no-snapshot-save $window \
+            -gpu "$GPU" -noaudio -no-boot-anim -camera-back none -camera-front none > "$RUNNER_TEMP/emulator.log" 2>&1 &
           for i in $(seq 450); do
             [ "$(adb shell getprop sys.boot_completed 2> /dev/null | tr -d '\r')" = 1 ] && break
             sleep 2
