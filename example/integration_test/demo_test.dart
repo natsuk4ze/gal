@@ -1,9 +1,11 @@
 // Plays the demo in the README, which .github/workflows/demo.yml records.
 // It taps the example app as a person would, and checks nothing.
+// The workflow starts and stops recording at the lines that start with DEMO.
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gal/gal.dart';
 import 'package:gal_example/main.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -14,9 +16,13 @@ const button = String.fromEnvironment(
 );
 
 /// How the demo shows the saved file. `gallery` taps the snack bar, which
-/// opens the gallery app. `explorer` opens the Pictures folder instead, for
-/// the Windows Server runners, which have no Photos app.
+/// opens the gallery app. `explorer` opens the Gallery of File Explorer
+/// instead, for the Windows Server runners, which have no Photos app.
 const show = String.fromEnvironment('DEMO_SHOW', defaultValue: 'gallery');
+
+/// Only asks for the permission and opens the gallery app, so that their
+/// first-run dialogs are answered before the demo is recorded.
+const warmUp = bool.fromEnvironment('DEMO_WARM_UP');
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -26,20 +32,30 @@ void main() {
   testWidgets('demo', (tester) async {
     WidgetsApp.debugAllowBannerOverride = false;
     await tester.pumpWidget(const App());
-    await wait(const Duration(seconds: 2));
+    if (warmUp) {
+      await Gal.requestPermission();
+      await Gal.open();
+      debugPrint('DEMO: gallery');
+      await wait(const Duration(seconds: 60));
+      return;
+    }
+    await wait(const Duration(milliseconds: 500));
+    debugPrint('DEMO: start');
+    await wait(const Duration(seconds: 3));
 
     await tester.tap(find.text(button));
     await waitFor(find.text('Saved! ✅'));
     await wait(const Duration(milliseconds: 1500));
 
     if (show == 'explorer') {
-      final pictures = '${Platform.environment['USERPROFILE']}\\Pictures';
-      await Process.start('explorer.exe', [pictures]);
+      const gallery = 'shell:::{E88865EA-0E1C-4E20-9AA6-EDCD0212C87C}';
+      await Process.start('explorer.exe', [gallery]);
     } else {
       await tester.tap(find.text('Gallery ->'));
     }
+    debugPrint('DEMO: gallery');
     // Keeps the app running while the recording goes on.
-    await wait(const Duration(seconds: 30));
+    await wait(const Duration(seconds: 60));
   });
 }
 
