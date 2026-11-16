@@ -75,9 +75,14 @@ jobs:
           sqlite3 "$(xcrun simctl getenv "$UDID" HOME)/Library/TCC/TCC.db" \
             "UPDATE access SET auth_version = 2 WHERE service = 'kTCCServicePhotos'"
 
+      # xcodebuild sometimes takes too long to show the build settings on the runner
       - name: Build
         working-directory: example
-        run: flutter build ios --simulator --debug --target integration_test/demo_test.dart
+        run: |
+          for i in 1 2 3; do
+            flutter build ios --simulator --debug --target integration_test/demo_test.dart && exit 0
+          done
+          exit 1
 
       # idb taps the simulator, to answer what Photos shows on its first launch
       - name: Install idb

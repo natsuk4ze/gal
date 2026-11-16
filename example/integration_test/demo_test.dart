@@ -6,7 +6,7 @@
 // the temporary folder of the app, which it prints, once recording started.
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gal/gal.dart';
 import 'package:gal_example/main.dart';
