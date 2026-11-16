@@ -9,6 +9,10 @@ permissions:
 
 on:
   workflow_dispatch:
+    inputs:
+      android-api:
+        description: API level of Android. API 37 (Android 17) crashes on the emulator when the screen is captured.
+        default: '36'
   push:
     branches:
       - demo-videos
@@ -188,16 +192,9 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        variant: [canary, mesa, default, api36]
     env:
       ANDROID_SERIAL: emulator-5554
-      TAG: ${{ matrix.variant == 'default' && 'default' || 'google_apis_playstore' }}
-      API: ${{ matrix.variant == 'api36' && '36' || '[0-9]+' }}
-      CHANNEL: ${{ matrix.variant == 'canary' && '3' || '0' }}
-      GPU: ${{ matrix.variant == 'mesa' && 'host' || 'swiftshader_indirect' }}
+      API: ${{ inputs.android-api || '36' }}
     steps:
       - name: Check out
         uses: actions/checkout@v7
@@ -227,7 +224,8 @@ jobs:
       - name: Gradle cache
         uses: gradle/actions/setup-gradle@v6.4.1
 
-      # The newest stable image with Google Play, which has Google Photos, on the newest Pixel
+      # The stable image with Google Play, which has Google Photos, on the newest Pixel.
+      # On API 37, the graphics of the emulator abort when anything reads the screen, such as screenrecord.
       - name: Start the emulator
         run: |
           export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
@@ -237,10 +235,9 @@ jobs:
           mkdir -p "$ANDROID_AVD_HOME"
 
           yes | sdkmanager --licenses > /dev/null
-          image=$(sdkmanager --list --channel=0 2>/dev/null | grep -oE "system-images;android-$API(\.[0-9]+)?;$TAG;x86_64" | sort -uV | tail -1)
+          image=$(sdkmanager --list --channel=0 2>/dev/null | grep -oE "system-images;android-$API(\.[0-9]+)?;google_apis_playstore;x86_64" | sort -uV | tail -1)
           echo "Image: $image"
-          sdkmanager --install emulator --channel="$CHANNEL" > /dev/null
-          sdkmanager --install "$image" --channel=0 > /dev/null
+          sdkmanager --install emulator "$image" --channel=0 > /dev/null
 
           device=$(avdmanager list device | grep -oE '"pixel_[0-9]+"' | tr -d '"' | sort -uV | tail -1)
           echo "Device: $device"
@@ -252,17 +249,8 @@ jobs:
             echo "hw.keyboard=no"
           } >> "$ANDROID_AVD_HOME/demo.avd/config.ini"
 
-          window=-no-window
-          if [ "$GPU" = host ]; then
-            # The OpenGL of Mesa, in software, on a virtual display
-            sudo apt-get install -y -qq xvfb libgl1-mesa-dri libegl-mesa0 > /dev/null
-            Xvfb :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
-            export DISPLAY=:99 LIBGL_ALWAYS_SOFTWARE=1
-            window=
-          fi
-          "$ANDROID_HOME/emulator/emulator" -version | head -1
-          "$ANDROID_HOME/emulator/emulator" -port 5554 -avd demo -accel on -no-snapshot-save $window \
-            -gpu "$GPU" -noaudio -no-boot-anim -camera-back none -camera-front none > "$RUNNER_TEMP/emulator.log" 2>&1 &
+          "$ANDROID_HOME/emulator/emulator" -port 5554 -avd demo -accel on -no-snapshot-save -no-window \
+            -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none > "$RUNNER_TEMP/emulator.log" 2>&1 &
           for i in $(seq 450); do
             [ "$(adb shell getprop sys.boot_completed 2> /dev/null | tr -d '\r')" = 1 ] && break
             sleep 2
@@ -331,7 +319,7 @@ jobs:
 
       - name: Build
         working-directory: example
-        run: flutter build apk --debug --target integration_test/demo_test.dart
+        run: flutter build apk --debug --target integration_test/demo_test.dart --dart-define=DEMO_SHOW=viewer
 
       - name: Record the demo
         working-directory: example
@@ -352,32 +340,15 @@ jobs:
           sleep 2
           adb shell run-as studio.midoridesign.gal_example touch "$temp/demo_go" || adb shell touch "$temp/demo_go"
           wait_for 'DEMO: gallery' 60
-          sleep 3
-          shot gallery
-          tap_view '(photo|image).*' '.*(photo|image) taken.*' || true
-          sleep 4
+          # Opens the saved image in Google Photos, as its gallery asks to sign in on the emulator
+          id=$(adb shell content query --uri content://media/external/images/media --projection _id --sort '"_id DESC"' | grep -o '_id=[0-9]*' | head -1 | cut -d= -f2)
+          adb shell am start -a android.intent.action.VIEW -d "content://media/external/images/media/$id" -t image/jpeg -p com.google.android.apps.photos
+          sleep 6
           shot end
           adb shell pkill -INT screenrecord || true
           wait "$recorder" || true
           sleep 2
           adb pull /sdcard/demo.mp4 "$out/android.mp4"
-
-          # Ways around the sign-in of Google Photos, to compare
-          adb shell input keyevent BACK
-          sleep 3
-          shot after_back
-          adb shell am start -a android.intent.action.VIEW -d content://media/external/images/media -t vnd.android.cursor.dir/image
-          sleep 5
-          shot reopen
-          adb shell content query --uri content://media/external/images/media --projection _id:_display_name:relative_path > "$out/media.txt" || true
-          id=$(grep -o '_id=[0-9]*' "$out/media.txt" | tail -1 | cut -d= -f2)
-          adb shell am start -a android.intent.action.VIEW -d "content://media/external/images/media/$id" -t image/jpeg
-          sleep 5
-          shot single
-          adb shell am start -a android.intent.action.VIEW -d "content://media/external/images/media/$id" -t image/jpeg -p com.google.android.apps.photos
-          sleep 5
-          shot single_photos
-          adb shell pm query-activities -a android.intent.action.VIEW -t vnd.android.cursor.dir/image > "$out/handlers.txt" || true
           ls -la "$out"
 
       - name: Save the logs
@@ -392,7 +363,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: demo-android-${{ matrix.variant }}
+          name: demo-android
           path: ${{ runner.temp }}/demo
 
       # Artifacts cannot be downloaded everywhere, so the outputs also go to a branch
@@ -406,7 +377,7 @@ jobs:
           git init -q
           git add -A
           git -c user.name=github-actions -c user.email=github-actions@github.com commit -q -m "Demo of $GITHUB_SHA on android"
-          git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-android-${{ matrix.variant }}
+          git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-android
 
   macos:
     if: ${{ !contains(github.event.head_commit.message, '[only') || contains(github.event.head_commit.message, 'macos]') }}
@@ -434,6 +405,10 @@ jobs:
           ls -la /System/Library/CoreServices/DefaultDesktop.heic "/System/Library/Desktop Pictures" || true
           osascript -e 'tell application "System Events" to tell every desktop to set picture to POSIX file "/System/Library/CoreServices/DefaultDesktop.heic"' || true
           killall Dock SystemUIServer ControlCenter || true
+          # The same display on every image
+          brew install displayplacer > /dev/null 2>&1
+          screen=$(displayplacer list | awk '/Persistent screen id/ {print $4; exit}')
+          displayplacer "id:$screen res:1280x960 hz:60 color_depth:7 enabled:true scaling:off origin:(0,0) degree:0" || true
           sleep 5
           mkdir -p "$RUNNER_TEMP/demo"
           screencapture -x "$RUNNER_TEMP/demo/desktop.png"

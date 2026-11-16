@@ -15,6 +15,8 @@ import 'package:integration_test/integration_test.dart';
 /// How the demo shows the saved image. `gallery` taps the snack bar, which
 /// opens the gallery app. `explorer` opens the Pictures folder in File
 /// Explorer instead, for the Windows Server runners, which have no Photos app.
+/// `viewer` leaves it to the workflow, which opens the image in Google Photos,
+/// as its gallery asks to sign in on the emulator.
 const show = String.fromEnvironment('DEMO_SHOW', defaultValue: 'gallery');
 
 void main() {
@@ -49,7 +51,7 @@ void main() {
     if (show == 'explorer') {
       final pictures = '${Platform.environment['USERPROFILE']}\\Pictures';
       await Process.start('explorer.exe', [pictures]);
-    } else {
+    } else if (show == 'gallery') {
       await tester.tap(find.text('Gallery ->'));
     }
     mark('gallery');
