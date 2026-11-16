@@ -577,19 +577,32 @@ jobs:
           $out = "$env:RUNNER_TEMP\demo"
           New-Item -ItemType Directory -Force $out | Out-Null
           $pictures = "$env:USERPROFILE\Pictures"
+          # An image, so that File Explorer keeps the view of the folder, and shows how it looks
+          Copy-Item example\assets\done.jpg "$pictures\warm.jpg"
           Start-Process explorer.exe $pictures
           for ($i = 0; $i -lt 100 -and [Win32]::FindWindow('CabinetWClass', $null) -eq [IntPtr]::Zero; $i++) { Start-Sleep -Milliseconds 100 }
           Start-Sleep -Seconds 2
           $window = [Win32]::FindWindow('CabinetWClass', $null)
           [Win32]::SetWindowPos($window, [IntPtr]::Zero, 470, 10, 800, 650, 0x0040) | Out-Null
           # Extra large icons
+          foreach ($w in (New-Object -ComObject Shell.Application).Windows()) { Write-Host "Window: $($w.LocationURL) $($w.Document.Folder.Self.Path) $($w.Document.CurrentViewMode) $($w.Document.IconSize)" }
           $view = (New-Object -ComObject Shell.Application).Windows() | Where-Object { $_.Document.Folder.Self.Path -eq $pictures } | Select-Object -First 1
-          $view.Document.CurrentViewMode = 1
-          $view.Document.IconSize = 256
+          if ($view) {
+            $view.Document.CurrentViewMode = 1
+            $view.Document.IconSize = 256
+            Write-Host "View: $($view.Document.CurrentViewMode) $($view.Document.IconSize)"
+          } else {
+            Write-Host "No view; sending the shortcut"
+            $keys = New-Object -ComObject WScript.Shell
+            $keys.AppActivate('Pictures') | Out-Null
+            Start-Sleep -Milliseconds 500
+            $keys.SendKeys('^+1')
+          }
           Start-Sleep -Seconds 2
-          ffmpeg -hide_banner -loglevel warning -y -f gdigrab -i desktop -frames:v 1 "$out\explorer.png"
+          ffmpeg -hide_banner -loglevel warning -y -f gdigrab -i desktop -frames:v 1 -update 1 "$out\explorer.png"
           [Win32]::PostMessage($window, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) | Out-Null
           Start-Sleep -Seconds 2
+          Remove-Item "$pictures\warm.jpg"
 
       # The app built from the test runs the test when it launches, without flutter test.
       # It writes the lines for the workflow to DEMO_LOG.
