@@ -1,0 +1,5 @@
+getpwuid_r did not find a match for uid 501
+Filtering the log data using "composedMessage CONTAINS "DEMO:""
+Timestamp               Ty Process[PID:TID]
+2026-11-16 11:20:32.396 Df Runner[24790:12243] (Flutter) flutter: DEMO: ready /Users/runner/Library/Developer/CoreSimulator/Devices/A8CE73D2-F54C-4FB2-B688-BC6BD7612FA8/data/Containers/Data/Application/BA90ACBA-363E-4609-86BC-383FBAB24D21/tmp
+2026-11-16 11:20:44.021 Df Runner[24790:12243] (Flutter) flutter: DEMO: gallery
