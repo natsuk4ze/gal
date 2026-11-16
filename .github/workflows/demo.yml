@@ -94,23 +94,23 @@ jobs:
         run: |
           out="$RUNNER_TEMP/demo"
           mkdir -p "$out"
+          # Screenshots fail for a while after the boot, with "Timeout waiting for screen surfaces"
+          shot() { for i in 1 2 3 4 5 6; do xcrun simctl io "$UDID" screenshot "$out/$1.png" && return 0; sleep 10; done; return 1; }
           # Taps the simulator at x and y in thousandths of its screen
-          xcrun simctl io "$UDID" screenshot "$out/screen.png"
-          read -r width height <<< "$(sips -g pixelWidth -g pixelHeight "$out/screen.png" | awk '/pixel/ {printf "%s ", $2}')"
-          scale=3
-          tap() { idb ui tap --udid "$UDID" $((width * $1 / 1000 / scale)) $((height * $2 / 1000 / scale)); }
+          tap() { idb ui tap --udid "$UDID" $((width * $1 / 1000 / 3)) $((height * $2 / 1000 / 3)); }
 
           xcrun simctl openurl "$UDID" photos-redirect://
           sleep 8
-          xcrun simctl io "$UDID" screenshot "$out/warm_1.png"
+          shot warm_1
+          read -r width height <<< "$(sips -g pixelWidth -g pixelHeight "$out/warm_1.png" | awk '/pixel/ {printf "%s ", $2}')"
           # Continue
           tap 500 921
           sleep 4
-          xcrun simctl io "$UDID" screenshot "$out/warm_2.png"
+          shot warm_2
           # Don't Allow
           tap 311 593
           sleep 2
-          xcrun simctl io "$UDID" screenshot "$out/warm_3.png"
+          shot warm_3
           xcrun simctl terminate "$UDID" com.apple.mobileslideshow || true
 
       # The app built from the test runs the test when it launches, without flutter test
@@ -121,6 +121,7 @@ jobs:
           log="$out/app.log"
           limit() { perl -e 'alarm shift; exec @ARGV' "$@"; }
           wait_for() { for i in $(seq $(($2 * 4))); do grep -q "$1" "$log" "$out/stream.log" 2> /dev/null && return 0; sleep 0.25; done; echo "::warning::No $1 in $2 seconds"; return 1; }
+          now() { python3 -c 'import time; print(f"{time.time():.3f}")'; }
 
           limit 300 xcrun simctl install "$UDID" build/ios/iphonesimulator/Runner.app
           xcrun simctl spawn "$UDID" log stream --style compact --predicate 'eventMessage CONTAINS "DEMO:"' > "$out/stream.log" 2>&1 &
@@ -131,9 +132,12 @@ jobs:
           xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$out/ios.mov" 2> "$out/recorder.log" &
           recorder=$!
           for i in $(seq 40); do grep -q 'Recording started' "$out/recorder.log" && break; sleep 0.25; done
+          echo "start=$(now)" > "$out/timing.txt"
           sleep 1
           touch "$temp/demo_go"
+          echo "go=$(now)" >> "$out/timing.txt"
           wait_for 'DEMO: gallery' 60
+          echo "gallery=$(now)" >> "$out/timing.txt"
           sleep 6
           limit 30 xcrun simctl io "$UDID" screenshot "$out/end.png" || true
           kill -INT "$recorder"
@@ -157,7 +161,7 @@ jobs:
           cd "$RUNNER_TEMP/demo"
           git init -q
           git add -A
-          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q -m "Demo of $GITHUB_SHA on ios"
+          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q --allow-empty -m "Demo of $GITHUB_SHA on ios"
           git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-ios
 
   android:
@@ -302,6 +306,7 @@ jobs:
           log="$out/app.log"
           . "$RUNNER_TEMP/helpers.sh"
           wait_for() { for i in $(seq $(($2 * 4))); do grep -q "$1" "$log" && return 0; sleep 0.25; done; echo "::warning::No $1 in $2 seconds"; return 1; }
+          now() { python3 -c 'import time; print(f"{time.time():.3f}")'; }
 
           adb install -r -g build/app/outputs/flutter-apk/app-debug.apk
           adb logcat -c
@@ -311,9 +316,14 @@ jobs:
           temp=$(grep -o 'DEMO: ready .*' "$log" | head -1 | sed 's/^DEMO: ready //' | tr -d '\r')
           adb shell screenrecord --bit-rate 12000000 /sdcard/demo.mp4 &
           recorder=$!
-          sleep 2
+          # screenrecord takes about half a second to start
+          sleep 0.5
+          echo "start=$(now)" > "$out/timing.txt"
+          sleep 1.5
           adb shell run-as studio.midoridesign.gal_example touch "$temp/demo_go" || adb shell touch "$temp/demo_go"
+          echo "go=$(now)" >> "$out/timing.txt"
           wait_for 'DEMO: gallery' 60
+          echo "gallery=$(now)" >> "$out/timing.txt"
           # Opens the saved image in Google Photos, as its gallery asks to sign in on the emulator
           id=$(adb shell content query --uri content://media/external/images/media --projection _id --sort '"_id DESC"' | grep -o '_id=[0-9]*' | head -1 | cut -d= -f2)
           adb shell am start -a android.intent.action.VIEW -d "content://media/external/images/media/$id" -t image/jpeg -p com.google.android.apps.photos
@@ -350,7 +360,7 @@ jobs:
           cd "$RUNNER_TEMP/demo"
           git init -q
           git add -A
-          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q -m "Demo of $GITHUB_SHA on android"
+          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q --allow-empty -m "Demo of $GITHUB_SHA on android"
           git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-android
 
   macos:
@@ -451,6 +461,7 @@ jobs:
           out="$RUNNER_TEMP/demo"
           log="$out/app.log"
           wait_for() { for i in $(seq $(($2 * 4))); do grep -q "$1" "$log" && return 0; sleep 0.25; done; echo "::warning::No $1 in $2 seconds"; return 1; }
+          now() { python3 -c 'import time; print(f"{time.time():.3f}")'; }
 
           build/macos/Build/Products/Debug/example.app/Contents/MacOS/example > "$log" 2>&1 &
           app=$!
@@ -461,9 +472,12 @@ jobs:
           temp=$(grep -o 'DEMO: ready .*' "$log" | head -1 | sed 's/^DEMO: ready //')
           screencapture -v -x -V 14 "$out/macos.mov" &
           recorder=$!
+          echo "start=$(now)" > "$out/timing.txt"
           sleep 2
           touch "$temp/demo_go"
+          echo "go=$(now)" >> "$out/timing.txt"
           wait_for 'DEMO: gallery' 60
+          echo "gallery=$(now)" >> "$out/timing.txt"
           sleep 6
           screencapture -x "$out/end.png" || true
           wait "$recorder" || true
@@ -487,7 +501,7 @@ jobs:
           cd "$RUNNER_TEMP/demo"
           git init -q
           git add -A
-          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q -m "Demo of $GITHUB_SHA on macos"
+          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q --allow-empty -m "Demo of $GITHUB_SHA on macos"
           git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-macos
 
   windows:
@@ -626,9 +640,13 @@ jobs:
           Wait-For 'DEMO: ready' 120
           $temp = ((Select-String -Path $log -Pattern 'DEMO: ready (.*)').Matches[0].Groups[1].Value).Trim()
           $ffmpeg = Start-Process ffmpeg -ArgumentList '-hide_banner', '-loglevel', 'warning', '-y', '-f', 'gdigrab', '-framerate', '30', '-t', '14', '-i', 'desktop', '-c:v', 'libx264', '-preset', 'veryfast', '-pix_fmt', 'yuv420p', "$out\windows.mp4" -PassThru -NoNewWindow
+          function Now { [string]::Format([Globalization.CultureInfo]::InvariantCulture, '{0:F3}', [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() / 1000) }
+          "start=$(Now)" | Set-Content "$out\timing.txt"
           Start-Sleep -Seconds 2
           New-Item -ItemType File -Force "$temp\demo_go" | Out-Null
+          "go=$(Now)" | Add-Content "$out\timing.txt"
           Wait-For 'DEMO: gallery' 60
+          "gallery=$(Now)" | Add-Content "$out\timing.txt"
           # Keeps File Explorer next to the app with extra large icons, in case it does not open so
           $pictures = "$env:USERPROFILE\Pictures"
           $shell = New-Object -ComObject Shell.Application
@@ -665,5 +683,44 @@ jobs:
           cd "$RUNNER_TEMP/demo"
           git init -q
           git add -A
-          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q -m "Demo of $GITHUB_SHA on windows"
+          git -c user.name=github-actions -c user.email=github-actions@github.com commit -q --allow-empty -m "Demo of $GITHUB_SHA on windows"
           git push -q -f "https://x-access-token:$TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:refs/heads/demo-output-windows
+
+  # Makes the GIFs for the README from the videos: from just before the tap until a while after the gallery opened
+  gifs:
+    needs: [ios, android, macos, windows]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the videos
+        uses: actions/download-artifact@v8
+        with:
+          pattern: demo-*
+          path: demo
+
+      - name: Make the GIFs
+        run: |
+          sudo apt-get install -y -qq ffmpeg > /dev/null
+          mkdir -p gifs
+          # platform, video, width, seconds after the gallery opened, dither
+          while read -r platform video width hold dither; do
+            timing="demo/demo-$platform/timing.txt"
+            [ -f "demo/demo-$platform/$video" ] && [ -f "$timing" ] || { echo "::warning::No video of $platform"; continue; }
+            . <(tr -d '\r' < "$timing")
+            from=$(python3 -c "print(round($go - $start + 0.5, 2))")
+            duration=$(python3 -c "print(round($gallery - $go - 0.5 + $hold, 2))")
+            echo "$platform: $from s for $duration s"
+            ffmpeg -v error -y -ss "$from" -t "$duration" -i "demo/demo-$platform/$video" -vf "fps=15,scale=$width:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=192:stats_mode=full[p];[b][p]paletteuse=dither=$dither:diff_mode=rectangle" -loop 0 "gifs/$platform.gif"
+          done << 'EOF'
+          ios ios.mov 400 5 sierra2_4a
+          android android.mp4 400 6 sierra2_4a
+          macos macos.mov 800 4.5 bayer:bayer_scale=3
+          windows windows.mp4 800 3 bayer:bayer_scale=3
+          EOF
+          ls -la gifs
+
+      - name: Upload the GIFs
+        uses: actions/upload-artifact@v7
+        with:
+          name: gifs
+          path: gifs
