@@ -1,0 +1,38 @@
+[34m==>[0m [1mTapping facebook/fb[0m
+Cloning into '/opt/homebrew/Library/Taps/facebook/homebrew-fb'...
+Tapped 8 formulae (28 files, 5.9MB).
+Trusted tap: facebook/fb
+[34m==>[0m [1mTrusted formula facebook/fb/idb-companion[0m
+[32m==>[0m [1mFetching downloads for: [32midb-companion[39m[0m
+✔︎ Formula idb-companion (1.7.8)
+[34m==>[0m [1mInstalling idb-companion from facebook/fb[0m
+🍺  /opt/homebrew/Cellar/idb-companion/1.7.8: 37 files, 117.5MB, built in 14 seconds
+Collecting fb-idb
+  Downloading fb_idb-1.7.7-py3-none-any.whl.metadata (9.5 kB)
+Collecting aiofiles (from fb-idb)
+  Downloading aiofiles-25.1.0-py3-none-any.whl.metadata (6.3 kB)
+Collecting grpclib>=0.4.0 (from fb-idb)
+  Downloading grpclib-0.4.9-py3-none-any.whl.metadata (6.1 kB)
+Collecting protobuf>=7.35.1 (from fb-idb)
+  Downloading protobuf-7.36.2-cp310-abi3-macosx_10_9_universal2.whl.metadata (595 bytes)
+Collecting h2<5,>=3.1.0 (from grpclib>=0.4.0->fb-idb)
+  Downloading h2-4.4.1-py3-none-any.whl.metadata (3.8 kB)
+Collecting multidict (from grpclib>=0.4.0->fb-idb)
+  Downloading multidict-7.2.1-cp315-cp315-macosx_11_0_arm64.whl.metadata (6.1 kB)
+Collecting hyperframe<7,>=6.1 (from h2<5,>=3.1.0->grpclib>=0.4.0->fb-idb)
+  Downloading hyperframe-6.1.0-py3-none-any.whl.metadata (4.3 kB)
+Collecting hpack<5,>=4.2 (from h2<5,>=3.1.0->grpclib>=0.4.0->fb-idb)
+  Downloading hpack-4.2.0-py3-none-any.whl.metadata (3.3 kB)
+Downloading fb_idb-1.7.7-py3-none-any.whl (467 kB)
+Downloading grpclib-0.4.9-py3-none-any.whl (77 kB)
+Downloading h2-4.4.1-py3-none-any.whl (62 kB)
+Downloading hpack-4.2.0-py3-none-any.whl (34 kB)
+Downloading hyperframe-6.1.0-py3-none-any.whl (13 kB)
+Downloading protobuf-7.36.2-cp310-abi3-macosx_10_9_universal2.whl (456 kB)
+Downloading aiofiles-25.1.0-py3-none-any.whl (14 kB)
+Downloading multidict-7.2.1-cp315-cp315-macosx_11_0_arm64.whl (103 kB)
+Installing collected packages: protobuf, multidict, hyperframe, hpack, aiofiles, h2, grpclib, fb-idb
+
+Successfully installed aiofiles-25.1.0 fb-idb-1.7.7 grpclib-0.4.9 h2-4.4.1 hpack-4.2.0 hyperframe-6.1.0 multidict-7.2.1 protobuf-7.36.2
+/opt/homebrew/bin/idb
+/opt/homebrew/bin/idb_companion
