@@ -1,0 +1,6 @@
+--------- beginning of main
+11-16 10:12:20.185  7369  7407 I flutter : [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(105)] Using the Impeller rendering backend (OpenGLES).
+11-16 10:12:20.259  7369  7414 I flutter : The Dart VM service is listening on http://127.0.0.1:39253/38lOXQYABRQ=/
+11-16 10:12:20.559  7369  7369 I flutter : 00:00 +0: demo
+11-16 10:12:21.585  7369  7369 I flutter : DEMO: ready /data/user/0/studio.midoridesign.gal_example/code_cache
+11-16 10:12:27.854  7369  7369 I flutter : DEMO: gallery
