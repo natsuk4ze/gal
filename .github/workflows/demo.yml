@@ -424,6 +424,20 @@ jobs:
           channel: stable
           cache: true
 
+      # The runner reduces transparency and has no wallpaper, which makes macOS look older than it is
+      - name: Set up the screen
+        run: |
+          sw_vers
+          defaults read com.apple.universalaccess reduceTransparency || true
+          defaults write com.apple.universalaccess reduceTransparency -bool false || sudo defaults write "$HOME/Library/Preferences/com.apple.universalaccess" reduceTransparency -bool false || true
+          defaults read com.apple.universalaccess reduceTransparency || true
+          ls -la /System/Library/CoreServices/DefaultDesktop.heic "/System/Library/Desktop Pictures" || true
+          osascript -e 'tell application "System Events" to tell every desktop to set picture to POSIX file "/System/Library/CoreServices/DefaultDesktop.heic"' || true
+          killall Dock SystemUIServer ControlCenter || true
+          sleep 5
+          mkdir -p "$RUNNER_TEMP/demo"
+          screencapture -x "$RUNNER_TEMP/demo/desktop.png"
+
       # A window like a phone, named Gal
       - name: Set up the window
         working-directory: example/macos/Runner
