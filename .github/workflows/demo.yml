@@ -111,7 +111,7 @@ jobs:
           tap 311 593
           sleep 2
           shot warm_3
-          xcrun simctl terminate "$UDID" com.apple.mobileslideshow || true
+          # Photos stays open in the background: launched while recording, it records all black
 
       # The app built from the test runs the test when it launches, without flutter test
       - name: Record the demo
@@ -327,7 +327,7 @@ jobs:
           # Opens the saved image in Google Photos, as its gallery asks to sign in on the emulator
           id=$(adb shell content query --uri content://media/external/images/media --projection _id --sort '"_id DESC"' | grep -o '_id=[0-9]*' | head -1 | cut -d= -f2)
           adb shell am start -a android.intent.action.VIEW -d "content://media/external/images/media/$id" -t image/jpeg -p com.google.android.apps.photos
-          sleep 6
+          sleep 9
           shot end
           adb shell pkill -INT screenrecord || true
           wait "$recorder" || true
@@ -698,26 +698,46 @@ jobs:
           pattern: demo-*
           path: demo
 
+      # From just before the tap until a while after the gallery opened. When the gallery records black,
+      # as Photos on the iOS simulator can, the GIF fades to the screenshot taken at the end instead.
       - name: Make the GIFs
+        shell: python
         run: |
-          sudo apt-get install -y -qq ffmpeg > /dev/null
-          mkdir -p gifs
-          # platform, video, width, seconds after the gallery opened, dither
-          while read -r platform video width hold dither; do
-            timing="demo/demo-$platform/timing.txt"
-            [ -f "demo/demo-$platform/$video" ] && [ -f "$timing" ] || { echo "::warning::No video of $platform"; continue; }
-            . <(tr -d '\r' < "$timing")
-            from=$(python3 -c "print(round($go - $start + 0.5, 2))")
-            duration=$(python3 -c "print(round($gallery - $go - 0.5 + $hold, 2))")
-            echo "$platform: $from s for $duration s"
-            ffmpeg -v error -y -ss "$from" -t "$duration" -i "demo/demo-$platform/$video" -vf "fps=15,scale=$width:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=192:stats_mode=full[p];[b][p]paletteuse=dither=$dither:diff_mode=rectangle" -loop 0 "gifs/$platform.gif"
-          done << 'EOF'
-          ios ios.mov 400 5 sierra2_4a
-          android android.mp4 400 6 sierra2_4a
-          macos macos.mov 800 4.5 bayer:bayer_scale=3
-          windows windows.mp4 800 3 bayer:bayer_scale=3
-          EOF
-          ls -la gifs
+          import os, subprocess
+          subprocess.run('sudo apt-get install -y -qq ffmpeg > /dev/null', shell=True, check=True)
+          os.makedirs('gifs', exist_ok=True)
+          # Platform, video, width, seconds shown after the gallery opened, dither
+          for platform, video, width, hold, dither in [
+              ('ios', 'ios.mov', 400, 5, 'sierra2_4a'),
+              ('android', 'android.mp4', 400, 8, 'sierra2_4a'),
+              ('macos', 'macos.mov', 800, 5, 'bayer:bayer_scale=3'),
+              ('windows', 'windows.mp4', 800, 4.5, 'bayer:bayer_scale=3'),
+          ]:
+              folder = f'demo/demo-{platform}'
+              video, timing = f'{folder}/{video}', f'{folder}/timing.txt'
+              if not (os.path.exists(video) and os.path.exists(timing)):
+                  print(f'::warning::No video of {platform}')
+                  continue
+              t = dict(line.strip().split('=') for line in open(timing) if '=' in line)
+              start, go, gallery = (float(t[k]) for k in ('start', 'go', 'gallery'))
+              begin, shown = go - start + 0.5, gallery - go - 0.5
+              # The mean brightness of the video at the end of the GIF
+              frame = subprocess.run(['ffmpeg', '-v', 'error', '-ss', str(begin + shown + hold - 0.5), '-i', video, '-frames:v', '1',
+                                      '-vf', 'scale=1:1,format=gray', '-f', 'rawvideo', '-'], capture_output=True).stdout
+              black = len(frame) == 1 and frame[0] < 16 and os.path.exists(f'{folder}/end.png')
+              palette = f'split[a][b];[a]palettegen=max_colors=192:stats_mode=full[p];[b][p]paletteuse=dither={dither}:diff_mode=rectangle'
+              each = f'fps=15,scale={width}:-1:flags=lanczos,setsar=1'
+              if black:
+                  cut = shown + 0.3
+                  inputs = ['-ss', str(begin), '-t', str(cut), '-i', video, '-loop', '1', '-t', str(hold), '-i', f'{folder}/end.png']
+                  graph = f'[0]{each}[v];[1]{each}[e];[v][e]xfade=transition=fade:duration=0.4:offset={cut - 0.4},{palette}'
+              else:
+                  inputs = ['-ss', str(begin), '-t', str(shown + hold), '-i', video]
+                  graph = f'{each},{palette}'
+              print(f'{platform}: from {begin:.2f} s, the gallery at {shown:.2f} s, black: {black}')
+              subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-y', *inputs, '-filter_complex', graph, '-loop', '0',
+                              f'gifs/{platform}.gif'], check=True)
+          subprocess.run('ls -la gifs', shell=True)
 
       - name: Upload the GIFs
         uses: actions/upload-artifact@v7
