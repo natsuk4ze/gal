@@ -206,6 +206,10 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private ContentValues createContentValues(boolean isImage, String name, String extension,
             String album) {
         ContentValues values = new ContentValues();
+        // Gallery apps show each folder as an album. On Android 10 and later, images can be saved
+        // only in DCIM/ and Pictures/, so an album goes in Pictures/ even for videos. With videos
+        // in Movies/, one album would be shown as two.
+        // See: https://github.com/natsuk4ze/gal/issues/236
         String dirPath = isImage || album != null ? Environment.DIRECTORY_PICTURES
                 : Environment.DIRECTORY_MOVIES;
 

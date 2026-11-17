@@ -10,7 +10,13 @@ import 'package:gal/src/gal_platform_interface.dart';
 abstract final class Gal {
   /// Save a video to the gallery from file [path].
   ///
+  /// {@template gal.put.album}
   /// Specify the album with [album]. If it does not exist, it will be created.
+  /// On Android, the album is a folder in `Pictures/` for videos as well as
+  /// images, so that both are shown in one album. A folder in `Movies/`
+  /// cannot hold images on Android 10 and later.
+  /// Without [album], videos are saved in `Movies/` and images in `Pictures/`.
+  /// {@endtemplate}
   /// [path] must include the file extension.
   /// ```dart
   /// await Gal.putVideo('${Directory.systemTemp.path}/video.mp4');
@@ -30,7 +36,7 @@ abstract final class Gal {
 
   /// Save an image to the gallery from file [path].
   ///
-  /// Specify the album with [album]. If it does not exist, it will be created.
+  /// {@macro gal.put.album}
   /// [path] must include the file extension.
   /// ```dart
   /// await Gal.putImage('${Directory.systemTemp.path}/image.jpg');
@@ -47,7 +53,7 @@ abstract final class Gal {
 
   /// Save an image to the gallery from [Uint8List].
   ///
-  /// Specify the album with [album]. If it does not exist, it will be created.
+  /// {@macro gal.put.album}
   /// Specify the file name with [name]. Do not include the extension.
   /// The extension is detected from [bytes], so it may differ from
   /// the original file. Prefer [putImage] for uncommon formats such as
