@@ -206,6 +206,8 @@ public class GalPlugin implements FlutterPlugin, MethodCallHandler, ActivityAwar
     private ContentValues createContentValues(boolean isImage, String name, String extension,
             String album) {
         ContentValues values = new ContentValues();
+        // Videos in an album also go in Pictures/, so that they are in the same album as images.
+        // See: https://github.com/natsuk4ze/gal/issues/236
         String dirPath = isImage || album != null ? Environment.DIRECTORY_PICTURES
                 : Environment.DIRECTORY_MOVIES;
 
