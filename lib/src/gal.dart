@@ -12,10 +12,8 @@ abstract final class Gal {
   ///
   /// {@template gal.put.album}
   /// Specify the album with [album]. If it does not exist, it will be created.
-  /// On Android, the album is a folder in `Pictures/` for videos as well as
-  /// images, so that both are shown in one album. A folder in `Movies/`
-  /// cannot hold images on Android 10 and later.
-  /// Without [album], videos are saved in `Movies/` and images in `Pictures/`.
+  /// On Android, videos in an album are also saved in `Pictures/`, so that
+  /// they are in the same album as images.
   /// {@endtemplate}
   /// [path] must include the file extension.
   /// ```dart
